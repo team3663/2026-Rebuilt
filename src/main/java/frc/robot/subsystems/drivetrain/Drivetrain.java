@@ -1,7 +1,5 @@
 package frc.robot.subsystems.drivetrain;
 
-import choreo.auto.AutoFactory;
-import choreo.trajectory.SwerveSample;
 import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.NotLogged;
@@ -14,8 +12,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.subsystems.vision.VisionMeasurement;
-
 import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
@@ -32,7 +28,6 @@ public class Drivetrain extends SubsystemBase {
     private final DrivetrainIO io;
     private final DrivetrainInputs inputs = new DrivetrainInputs();
     private final Constants constants;
-    private final AutoFactory autoFactory;
     private final SysIdRoutine sysIdTranslationRoutine;
 
     private Pose2d targetAutoPose = new Pose2d();
@@ -42,18 +37,6 @@ public class Drivetrain extends SubsystemBase {
     public Drivetrain(DrivetrainIO io) {
         this.io = io;
         this.constants = io.getConstants();
-
-        autoFactory = new AutoFactory(
-                this::getPose, // returns current robot pose
-                io::resetOdometry, // resets current robot pose to provided pose 2d
-                (SwerveSample sample) -> {
-                    targetAutoPose = sample.getPose();
-
-                    io.followTrajectory(sample);
-                }, // trajectory follower
-                true,
-                this
-        );
 
         // Creating a SysId Routine
         sysIdTranslationRoutine = new SysIdRoutine(
@@ -84,18 +67,8 @@ public class Drivetrain extends SubsystemBase {
         return inputs.yaw;
     }
 
-    public AutoFactory getAutoFactory() {
-        return autoFactory;
-    }
-
     public Pose2d getTargetAutoAlignPose() {
         return targetTelePose;
-    }
-
-    public void addVisionMeasurements(List<VisionMeasurement> measurements) {
-        for (VisionMeasurement measurement : measurements) {
-            io.addVisionMeasurement(measurement.timestamp, measurement.estimatedPose, measurement.stdDevs);
-        }
     }
 
     @Override

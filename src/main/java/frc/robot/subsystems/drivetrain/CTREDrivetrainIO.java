@@ -1,6 +1,5 @@
 package frc.robot.subsystems.drivetrain;
 
-import choreo.trajectory.SwerveSample;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -126,11 +125,6 @@ public class CTREDrivetrainIO implements DrivetrainIO {
     }
 
     @Override
-    public void followTrajectory(SwerveSample sample) {
-        this.driveFieldOriented(sample);
-    }
-
-    @Override
     public void resetFieldOriented() {
         Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
         if (alliance.isPresent()) {
@@ -169,23 +163,6 @@ public class CTREDrivetrainIO implements DrivetrainIO {
                 .withSpeeds(robotSpeeds));
     }
 
-    @Override
-    public void driveFieldOriented(SwerveSample sample) {
-        // Get the current pose of the robot
-        Pose2d pose = drivetrain.getState().Pose;
-
-        // Generate the next speeds for the robot
-        double xVelocity = sample.vx + xController.calculate(pose.getX(), sample.x);
-        double yVelocity = sample.vy + yController.calculate(pose.getY(), sample.y);
-        double angularVelocity = sample.omega + headingController.calculate(pose.getRotation().getRadians(), sample.heading);
-
-        drivetrain.setControl(fieldOrientedRequest
-                .withVelocityX(xVelocity)
-                .withVelocityY(yVelocity)
-                .withRotationalRate(angularVelocity)
-                .withForwardPerspective(SwerveRequest.ForwardPerspectiveValue.BlueAlliance)
-        );
-    }
 
     @Override
     public void addVisionMeasurement(double timestamp, Pose2d pose, Matrix<N3, N1> stdDevs) {

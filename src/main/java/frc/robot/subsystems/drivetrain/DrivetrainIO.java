@@ -1,6 +1,5 @@
 package frc.robot.subsystems.drivetrain;
 
-import choreo.trajectory.SwerveSample;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -25,16 +24,10 @@ public interface DrivetrainIO {
 
     default void driveBlueAllianceOriented(double xVelocity, double yVelocity, double angularVelocity){}
 
-    default void driveFieldOriented(SwerveSample sample) {
-    }
-
     default void resetOdometry(Pose2d newPose) {
     }
 
     default void resetFieldOriented() {
-    }
-
-    default void followTrajectory(SwerveSample Sample) {
     }
 
     default void driveSysIdTranslation(Voltage voltage) {
