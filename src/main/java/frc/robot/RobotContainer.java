@@ -191,6 +191,10 @@ public class RobotContainer {
         controller.a().onTrue(intake.stopIntake());
         controller.x().whileTrue(intake.intakeWithVoltage(3.0));
 
+        //Hopper Controls
+        controller.b().whileTrue(hopper.withVoltage(3));
+        controller.y().onTrue(hopper.stop());
+
         // Switch to X pattern when X button is pressed
         controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
