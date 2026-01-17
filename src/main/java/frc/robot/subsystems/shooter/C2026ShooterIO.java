@@ -27,8 +27,8 @@ public class C2026ShooterIO implements ShooterIO {
     private final VoltageOut voltageRequest = new VoltageOut(0.0);
     private final NeutralOut stopRequest = new NeutralOut();
 
-    public C2026ShooterIO(TalonFX hoodMotor, TalonFX turretMotor, CANcoder turretCanCoder1,
-                          CANcoder turretCanCoder2, TalonFX shooterMotor, TalonFX shooterMotor2) {
+    public C2026ShooterIO(TalonFX hoodMotor, TalonFX turretMotor, TalonFX shooterMotor, TalonFX shooterMotor2,
+                          CANcoder turretCanCoder1, CANcoder turretCanCoder2) {
         this.hoodMotor = hoodMotor;
         this.turretMotor = turretMotor;
         this.turretCanCoder1 = turretCanCoder1;
