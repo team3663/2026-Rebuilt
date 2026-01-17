@@ -7,6 +7,7 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -19,6 +20,10 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.*;
+import frc.robot.subsystems.hopper.C2026HopperIO;
+import frc.robot.subsystems.hopper.Hopper;
+import frc.robot.subsystems.hopper.HopperIO;
+import frc.robot.subsystems.hopper.SimHopperIO;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -30,7 +35,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
     // Subsystems
     private final Drive drive;
-
+    private final Hopper hopper;
     // Controller
     private final CommandXboxController controller = new CommandXboxController(0);
 
@@ -43,6 +48,7 @@ public class RobotContainer {
     public RobotContainer() {
         switch (Constants.currentMode) {
             case REAL:
+                hopper = new Hopper(new C2026HopperIO(new TalonFX(10)));
                 // Real robot, instantiate hardware IO implementations
                 // ModuleIOTalonFX is intended for modules with TalonFX drive, TalonFX turn, and
                 // a CANcoder
@@ -75,6 +81,7 @@ public class RobotContainer {
 
             case SIM:
                 // Sim robot, instantiate physics sim IO implementations
+                hopper = new Hopper(new SimHopperIO());
                 drive =
                         new Drive(
                                 new GyroIO() {
@@ -87,6 +94,7 @@ public class RobotContainer {
 
             default:
                 // Replayed robot, disable IO implementations
+                hopper = new Hopper(new HopperIO() {});
                 drive =
                         new Drive(
                                 new GyroIO() {
