@@ -5,13 +5,13 @@ public interface IntakeIO {
 
     }
 
-    default void setTargetPosition(double position) {
+    default void setTargetPivotPosition(double position) {
     }
 
-    default void setTargetVoltagePivot(double voltage) {
+    default void setTargetPivotVoltage(double voltage) {
     }
 
-    default void setTargetVoltageIntake(double voltage) {
+    default void setTargetIntakeVoltage(double voltage) {
     }
 
     default void resetPivotPosition(double position){
@@ -19,10 +19,10 @@ public interface IntakeIO {
     }
 
     default void stopPivot() {
-        setTargetVoltagePivot(0.0);
+        setTargetPivotVoltage(0.0);
     }
 
     default void stopIntake() {
-        setTargetVoltageIntake(0.0);
+        setTargetIntakeVoltage(0.0);
     }
 }

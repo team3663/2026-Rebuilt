@@ -1,6 +1,5 @@
 package frc.robot.subsystems.intake;
 
-import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
@@ -24,11 +23,11 @@ public class Intake extends SubsystemBase {
     }
 
     public Command stopPivot(){
-        return runOnce(this::stopPivot);
+        return runOnce(io::stopPivot);
     }
 
     public Command stopIntake(){
-        return runOnce(this::stopIntake);
+        return runOnce(io::stopIntake);
     }
 
     public double getPivotPosition(){
@@ -36,8 +35,8 @@ public class Intake extends SubsystemBase {
     }
 
     // Pivot
-    public boolean pivotAtTargetPosition(){
-        return this.pivotAtTargetPosition();
+    public boolean isAtTargetPivotPosition(){
+        return false;
     }
     //TODO add zeroing pivot
     // TODO add everything I skipped
@@ -46,8 +45,8 @@ public class Intake extends SubsystemBase {
     public Command intakeWithVoltage(double voltage){
         return runEnd(()-> {
                     targetVoltage = voltage;
-                    io.setTargetVoltageIntake(targetVoltage);
-                }, this::stopIntake);
+                    io.setTargetIntakeVoltage(targetVoltage);
+                }, io::stopIntake);
     }
 
 }

@@ -32,7 +32,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
     // Subsystems
     private final Drive drive;
-    private final Intake intake = new Intake(new C2026IntakeIO(new TalonFX(0), new TalonFX(1), new TalonFX(2)));
+    private final Intake intake;
 
     // Controller
     private final CommandXboxController controller = new CommandXboxController(0);
@@ -56,6 +56,12 @@ public class RobotContainer {
                                 new ModuleIOTalonFX(TunerConstants.FrontRight),
                                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                                 new ModuleIOTalonFX(TunerConstants.BackRight));
+                intake =
+                        new Intake(
+                                new C2026IntakeIO(
+                                        new TalonFX(0),
+                                        new TalonFX(1),
+                                        new TalonFX(2)));
 
                 // The ModuleIOTalonFXS implementation provides an example implementation for
                 // TalonFXS controller connected to a CANdi with a PWM encoder. The
@@ -86,6 +92,7 @@ public class RobotContainer {
                                 new ModuleIOSim(TunerConstants.FrontRight),
                                 new ModuleIOSim(TunerConstants.BackLeft),
                                 new ModuleIOSim(TunerConstants.BackRight));
+                intake = new Intake(new IntakeIO() {});
                 break;
 
             default:
@@ -102,6 +109,7 @@ public class RobotContainer {
                                 },
                                 new ModuleIO() {
                                 });
+                intake = new Intake(new IntakeIO() {});
                 break;
         }
 

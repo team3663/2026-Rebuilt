@@ -86,17 +86,17 @@ public class C2026IntakeIO implements IntakeIO {
     }
 
     @Override
-    public void setTargetPosition(double position){
+    public void setTargetPivotPosition(double position){
         pivotMotor1.setControl(positionRequest.withPosition(Units.radiansToRotations(position)));
     }
 
     @Override
-    public void setTargetVoltagePivot(double voltage){
+    public void setTargetPivotVoltage(double voltage){
         pivotMotor1.setControl(voltageRequest.withOutput(voltage));
     }
 
     @Override
-    public void setTargetVoltageIntake(double voltage){
+    public void setTargetIntakeVoltage(double voltage){
         intakeMotor.setControl(voltageRequest.withOutput(voltage));
     }
 
