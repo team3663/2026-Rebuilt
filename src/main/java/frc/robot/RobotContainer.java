@@ -59,10 +59,11 @@ public class RobotContainer {
     public RobotContainer() {
         switch (Constants.currentMode) {
             case REAL:
-                hopper = new Hopper(new C2026HopperIO(new TalonFX(10)));
                 // Real robot, instantiate hardware IO implementations
                 // ModuleIOTalonFX is intended for modules with TalonFX drive, TalonFX turn, and
                 // a CANcoder
+                hopper = new Hopper(new C2026HopperIO(new TalonFX(10)));
+                intake = new Intake(new C2026IntakeIO(new TalonFX(11), new TalonFX(12), new TalonFX(13)));
                 drive =
                         new Drive(
                                 new GyroIOPigeon2(),
@@ -70,12 +71,6 @@ public class RobotContainer {
                                 new ModuleIOTalonFX(TunerConstants.FrontRight),
                                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                                 new ModuleIOTalonFX(TunerConstants.BackRight));
-                intake =
-                        new Intake(
-                                new C2026IntakeIO(
-                                        new TalonFX(11),
-                                        new TalonFX(12),
-                                        new TalonFX(13)));
 
                 // The ModuleIOTalonFXS implementation provides an example implementation for
                 // TalonFXS controller connected to a CANdi with a PWM encoder. The
@@ -99,6 +94,8 @@ public class RobotContainer {
             case SIM:
                 // Sim robot, instantiate physics sim IO implementations
                 hopper = new Hopper(new SimHopperIO());
+                intake = new Intake(new IntakeIO() {
+                });
                 drive =
                         new Drive(
                                 new GyroIO() {
@@ -107,13 +104,13 @@ public class RobotContainer {
                                 new ModuleIOSim(TunerConstants.FrontRight),
                                 new ModuleIOSim(TunerConstants.BackLeft),
                                 new ModuleIOSim(TunerConstants.BackRight));
-                intake = new Intake(new IntakeIO() {
-                });
                 break;
 
             default:
                 // Replayed robot, disable IO implementations
-                hopper = new Hopper(new HopperIO() {});
+                hopper = new Hopper(new SimHopperIO());
+                intake = new Intake(new IntakeIO() {
+                });
                 drive =
                         new Drive(
                                 new GyroIO() {
@@ -126,8 +123,6 @@ public class RobotContainer {
                                 },
                                 new ModuleIO() {
                                 });
-                intake = new Intake(new IntakeIO() {
-                });
                 break;
         }
 
@@ -201,18 +196,18 @@ public class RobotContainer {
         controller.y().onTrue(hopper.stop());
 
         // Switch to X pattern when X button is pressed
-        controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
-
-        // Reset gyro to 0° when B button is pressed
-        controller
-                .b()
-                .onTrue(
-                        Commands.runOnce(
-                                        () ->
-                                                drive.setPose(
-                                                        new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
-                                        drive)
-                                .ignoringDisable(true));
+//        controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+//
+//        // Reset gyro to 0° when B button is pressed
+//        controller
+//                .b()
+//                .onTrue(
+//                        Commands.runOnce(
+//                                        () ->
+//                                                drive.setPose(
+//                                                        new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
+//                                        drive)
+//                                .ignoringDisable(true));
     }
 
     /**
