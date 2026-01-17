@@ -22,7 +22,7 @@ public class C2026IntakeIO implements IntakeIO {
     private final VoltageOut voltageRequest = new VoltageOut(0.0);
     private final MotionMagicVoltage positionRequest = new MotionMagicVoltage(0.0);
 
-    public C2026IntakeIO(TalonFX intakeMotor, TalonFX pivotMotor1, TalonFX pivotMotor2){
+    public C2026IntakeIO(TalonFX intakeMotor, TalonFX pivotMotor1, TalonFX pivotMotor2) {
         this.intakeMotor = intakeMotor;
         this.pivotMotor1 = pivotMotor1;
         this.pivotMotor2 = pivotMotor2;
@@ -48,7 +48,7 @@ public class C2026IntakeIO implements IntakeIO {
     }
 
     @Override
-    public void updateInputs(IntakeInputs inputs){
+    public void updateInputs(IntakeInputs inputs) {
         // Pivot Motors
         inputs.currentPivot1Velocity = Units.rotationsToRadians(pivotMotor1.getVelocity().getValueAsDouble());
         inputs.currentPivot1AppliedVoltage = pivotMotor1.getMotorVoltage().getValueAsDouble();
@@ -71,32 +71,32 @@ public class C2026IntakeIO implements IntakeIO {
     }
 
     @Override
-    public void stopIntake(){
+    public void stopIntake() {
         intakeMotor.setControl(stopRequest);
     }
 
     @Override
-    public void stopPivot(){
+    public void stopPivot() {
         pivotMotor1.setControl(stopRequest);
     }
 
     @Override
-    public void resetPivotPosition(double position){
+    public void resetPivotPosition(double position) {
         pivotMotor1.setPosition(Units.radiansToRotations(position));
     }
 
     @Override
-    public void setTargetPivotPosition(double position){
+    public void setTargetPivotPosition(double position) {
         pivotMotor1.setControl(positionRequest.withPosition(Units.radiansToRotations(position)));
     }
 
     @Override
-    public void setTargetPivotVoltage(double voltage){
+    public void setTargetPivotVoltage(double voltage) {
         pivotMotor1.setControl(voltageRequest.withOutput(voltage));
     }
 
     @Override
-    public void setTargetIntakeVoltage(double voltage){
+    public void setTargetIntakeVoltage(double voltage) {
         intakeMotor.setControl(voltageRequest.withOutput(voltage));
     }
 

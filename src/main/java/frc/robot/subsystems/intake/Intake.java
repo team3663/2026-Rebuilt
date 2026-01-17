@@ -8,45 +8,45 @@ public class Intake extends SubsystemBase {
     private final IntakeIO io;
     private final IntakeInputsAutoLogged inputs = new IntakeInputsAutoLogged();
 
-    private boolean pivotZeroed = false;
+    private final boolean pivotZeroed = false;
     private double targetVoltage = 0.0;
-    private double targetPivotPosition = 0.0;
+    private final double targetPivotPosition = 0.0;
 
-    public Intake(IntakeIO io){
-        this.io=io;
+    public Intake(IntakeIO io) {
+        this.io = io;
     }
 
     @Override
-    public void periodic(){
+    public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs("intake", inputs);
     }
 
-    public Command stopPivot(){
+    public Command stopPivot() {
         return runOnce(io::stopPivot);
     }
 
-    public Command stopIntake(){
+    public Command stopIntake() {
         return runOnce(io::stopIntake);
     }
 
-    public double getPivotPosition(){
+    public double getPivotPosition() {
         return targetPivotPosition;
     }
 
     // Pivot
-    public boolean isAtTargetPivotPosition(){
+    public boolean isAtTargetPivotPosition() {
         return false;
     }
     //TODO add zeroing pivot
     // TODO add everything I skipped
 
     // Intake
-    public Command intakeWithVoltage(double voltage){
-        return runEnd(()-> {
-                    targetVoltage = voltage;
-                    io.setTargetIntakeVoltage(targetVoltage);
-                }, io::stopIntake);
+    public Command intakeWithVoltage(double voltage) {
+        return runEnd(() -> {
+            targetVoltage = voltage;
+            io.setTargetIntakeVoltage(targetVoltage);
+        }, io::stopIntake);
     }
 
 }
