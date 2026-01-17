@@ -8,7 +8,6 @@
 package frc.robot;
 
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -54,7 +53,6 @@ public class RobotContainer {
     public RobotContainer() {
         switch (Constants.currentMode) {
             case REAL:
-                hopper = new Hopper(new C2026HopperIO(new TalonFX(10)));
                 // Real robot, instantiate hardware IO implementations
                 // ModuleIOTalonFX is intended for modules with TalonFX drive, TalonFX turn, and
                 // a CANcoder
@@ -65,6 +63,7 @@ public class RobotContainer {
                                 new ModuleIOTalonFX(TunerConstants.FrontRight),
                                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                                 new ModuleIOTalonFX(TunerConstants.BackRight));
+                hopper = new Hopper(new C2026HopperIO(new TalonFX(10)));
                 intake =
                         new Intake(
                                 new C2026IntakeIO(
@@ -108,7 +107,8 @@ public class RobotContainer {
 
             default:
                 // Replayed robot, disable IO implementations
-                hopper = new Hopper(new HopperIO() {});
+                hopper = new Hopper(new HopperIO() {
+                });
                 drive =
                         new Drive(
                                 new GyroIO() {
@@ -164,50 +164,23 @@ public class RobotContainer {
                         () -> -controller.getLeftX(),
                         () -> -controller.getRightX()));
 
-//        // Lock to 0° when A button is held
-//        controller
-//                .a()
-//                .whileTrue(
-//                        DriveCommands.joystickDriveAtAngle(
-//                                drive,
-//                                () -> -controller.getLeftY(),
-//                                () -> -controller.getLeftX(),
-//                                () -> Rotation2d.kZero));
-//
-//        // Switch to X pattern when X button is pressed
+        // Reset gyro to 0° when B button is pressed
+        controller.back().onTrue(Commands.runOnce(
+                        () -> drive.setPose(
+                                new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
+                        drive)
+                .ignoringDisable(true));
+
+        // Switch to X pattern when X button is pressed
 //        controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
-//
-//        // Reset gyro to 0° when B button is pressed
-//        controller
-//                .b()
-//                .onTrue(
-//                        Commands.runOnce(
-//                                        () ->
-//                                                drive.setPose(
-//                                                        new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
-//                                        drive)
-//                                .ignoringDisable(true));
-//
+
+        // Intake controls
         controller.a().onTrue(intake.stopIntake());
         controller.x().whileTrue(intake.intakeWithVoltage(3.0));
 
-        //Hopper Controls
+        // Hopper controls
         controller.b().whileTrue(hopper.withVoltage(3));
         controller.y().onTrue(hopper.stop());
-
-        // Switch to X pattern when X button is pressed
-        controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
-
-        // Reset gyro to 0° when B button is pressed
-        controller
-                .b()
-                .onTrue(
-                        Commands.runOnce(
-                                        () ->
-                                                drive.setPose(
-                                                        new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
-                                        drive)
-                                .ignoringDisable(true));
     }
 
     /**
