@@ -1,15 +1,18 @@
 package frc.robot.subsystems.feeder;
 
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import org.littletonrobotics.junction.Logger;
 
 import static edu.wpi.first.wpilibj2.command.Commands.runEnd;
 
 public class Feeder extends SubsystemBase {
 
-
+    private final static double VELOCITY_THRESHOLD = Units.rotationsPerMinuteToRadiansPerSecond(1.0);
     private final FeederIO io;
-    private final FeederInputs inputs = new FeederInputs();
+    private final FeederInputsAutoLogged inputs = new FeederInputsAutoLogged();
+
 
     public Feeder(FeederIO io) {this.io = io;}
 
@@ -17,11 +20,15 @@ public class Feeder extends SubsystemBase {
     public double targetVelocity = 0.0;
 
 
-
-
     public double getCurrentVelocity(){return inputs.currentVelocity;}
 
     public double getCurrentVoltage(){return inputs.currentAppliedVoltage;}
+
+    @Override
+    public void periodic(){
+        io.updateInputs(inputs);
+       Logger.processInputs("Feeder", inputs);
+    }
 
     public Command withVoltage(double voltage){
         return runEnd(() -> {
@@ -40,4 +47,12 @@ public class Feeder extends SubsystemBase {
     public Command stop(){
         return runOnce(io::stop);
     }
+    public boolean atTargetVelocity(){
+        return feederAtVelocity(targetVelocity, VELOCITY_THRESHOLD);
+    }
+
+    private boolean feederAtVelocity(double currentVelocity, double velocityThreshold) {
+        return Math.abs(inputs.currentVelocity - currentVelocity) < velocityThreshold;
+    }
+
 }

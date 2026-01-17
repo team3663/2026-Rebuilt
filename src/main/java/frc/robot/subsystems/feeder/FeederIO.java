@@ -1,7 +1,7 @@
 package frc.robot.subsystems.feeder;
 
 public interface FeederIO {
-    //default void updateInputs(FeederInputs inputs){}
+    default void updateInputs(FeederInputs inputs){}
 
     default void stop(){
         setTargetVoltage(0.0);}
