@@ -7,7 +7,7 @@ import frc.robot.Robot;
 
 public class SimHopperIO implements HopperIO {
 
-    private static final double HOPPER_GEAR_RATIO = 16 / 32;
+    private static final double HOPPER_GEAR_RATIO = 16.0 / 32.0;
 
     private final FlywheelSim sim =
             new FlywheelSim(
@@ -23,10 +23,16 @@ public class SimHopperIO implements HopperIO {
         inputs.curentVelocity = sim.getAngularVelocityRadPerSec();
         inputs.currentAppliedVoltage = sim.getInputVoltage();
 
-        inputs.currentAppliedCurrent = sim.getCurrentDrawAmps();
+        inputs.motorSupplyCurrent = sim.getCurrentDrawAmps();
     }
 
+    @Override
     public void setVoltage(double voltage) {
         sim.setInputVoltage(voltage);
+    }
+
+    @Override
+    public void stop() {
+        sim.setInputVoltage(0.0);
     }
 }

@@ -8,5 +8,5 @@ public class HopperInputs {
     public double currentAppliedVoltage;
 
     public double motorTemperature;
-    public double currentAppliedCurrent;
+    public double motorSupplyCurrent;
 }

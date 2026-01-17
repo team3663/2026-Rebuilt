@@ -9,15 +9,23 @@ package frc.robot;
 
 import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.hardware.TalonFX;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.*;
+import frc.robot.subsystems.hopper.C2026HopperIO;
+import frc.robot.subsystems.hopper.Hopper;
+import frc.robot.subsystems.hopper.HopperIO;
+import frc.robot.subsystems.hopper.SimHopperIO;
 import frc.robot.subsystems.feeder.C2026FeederIO;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.feeder.FeederIO;
@@ -36,6 +44,7 @@ public class RobotContainer {
     // Subsystems
     private final Drive drive;
     private final Feeder feeder;
+    private final Hopper hopper;
     private final Intake intake;
 
     // Controller
@@ -67,6 +76,7 @@ public class RobotContainer {
                                         new TalonFX(15),
                                         new CANrange(1))
                         );
+                hopper = new Hopper(new C2026HopperIO(new TalonFX(10)));
                 intake =
                         new Intake(
                                 new C2026IntakeIO(
@@ -106,6 +116,7 @@ public class RobotContainer {
                 feeder =
                         new Feeder(new FeederIO() {
                         });
+                hopper = new Hopper(new SimHopperIO());
                 intake = new Intake(new IntakeIO() {
                 });
                 break;
@@ -127,6 +138,7 @@ public class RobotContainer {
                 feeder =
                         new Feeder(new FeederIO() {
                         });
+                hopper = new Hopper(new HopperIO() {});
                 intake = new Intake(new IntakeIO() {
                 });
                 break;
