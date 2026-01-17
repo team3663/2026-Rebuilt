@@ -7,6 +7,9 @@
 
 package frc.robot.subsystems.drive;
 
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
@@ -22,6 +25,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -30,7 +34,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
-import frc.robot.generated.TunerConstants;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -41,17 +44,6 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 public class Drive extends SubsystemBase {
-    // TunerConstants doesn't include these constants, so they are declared locally
-    static final double ODOMETRY_FREQUENCY = TunerConstants.kCANBus.isNetworkFD() ? 250.0 : 100.0;
-    public static final double DRIVE_BASE_RADIUS =
-            Math.max(
-                    Math.max(
-                            Math.hypot(TunerConstants.FrontLeft.LocationX, TunerConstants.FrontLeft.LocationY),
-                            Math.hypot(TunerConstants.FrontRight.LocationX, TunerConstants.FrontRight.LocationY)),
-                    Math.max(
-                            Math.hypot(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
-                            Math.hypot(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)));
-
     static final Lock odometryLock = new ReentrantLock();
     private final GyroIO gyroIO;
     private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
@@ -60,7 +52,12 @@ public class Drive extends SubsystemBase {
     private final Alert gyroDisconnectedAlert =
             new Alert("Disconnected gyro, using kinematics as fallback.", AlertType.kError);
 
-    private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(getModuleTranslations());
+    private final double driveBaseRadius;
+    private final LinearVelocity maxLinearVelocity;
+
+    private final SwerveDriveKinematics kinematics;
+    private final SwerveDrivePoseEstimator poseEstimator;
+
     private Rotation2d rawGyroRotation = Rotation2d.kZero;
     private SwerveModulePosition[] lastModulePositions = // For delta tracking
             new SwerveModulePosition[]{
@@ -69,26 +66,51 @@ public class Drive extends SubsystemBase {
                     new SwerveModulePosition(),
                     new SwerveModulePosition()
             };
-    private SwerveDrivePoseEstimator poseEstimator =
-            new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, Pose2d.kZero);
 
     public Drive(
             GyroIO gyroIO,
             ModuleIO flModuleIO,
+            SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> frontLeftModuleConstants,
             ModuleIO frModuleIO,
+            SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> frontRightModuleConstants,
             ModuleIO blModuleIO,
-            ModuleIO brModuleIO) {
+            SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> backLeftModuleConstants,
+            ModuleIO brModuleIO,
+            SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> backRightModuleConstants) {
         this.gyroIO = gyroIO;
-        modules[0] = new Module(flModuleIO, 0, TunerConstants.FrontLeft);
-        modules[1] = new Module(frModuleIO, 1, TunerConstants.FrontRight);
-        modules[2] = new Module(blModuleIO, 2, TunerConstants.BackLeft);
-        modules[3] = new Module(brModuleIO, 3, TunerConstants.BackRight);
+        modules[0] = new Module(flModuleIO, 0, frontLeftModuleConstants);
+        modules[1] = new Module(frModuleIO, 1, frontRightModuleConstants);
+        modules[2] = new Module(blModuleIO, 2, backLeftModuleConstants);
+        modules[3] = new Module(brModuleIO, 3, backRightModuleConstants);
+
+        kinematics = new SwerveDriveKinematics(
+                new Translation2d(frontLeftModuleConstants.LocationX, frontLeftModuleConstants.LocationY),
+                new Translation2d(frontRightModuleConstants.LocationX, frontRightModuleConstants.LocationY),
+                new Translation2d(backLeftModuleConstants.LocationX, backLeftModuleConstants.LocationY),
+                new Translation2d(backRightModuleConstants.LocationX, backRightModuleConstants.LocationY)
+        );
+        poseEstimator = new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, Pose2d.kZero);
+
+        driveBaseRadius =
+                Math.max(
+                        Math.max(
+                                kinematics.getModules()[0].getNorm(),
+                                kinematics.getModules()[1].getNorm()),
+                        Math.max(
+                                kinematics.getModules()[2].getNorm(),
+                                kinematics.getModules()[3].getNorm()));
+        maxLinearVelocity =
+                MetersPerSecond.of(
+                        Math.min(
+                                Math.min(
+                                        modules[0].getConstants().SpeedAt12Volts,
+                                        modules[1].getConstants().SpeedAt12Volts),
+                                Math.min(
+                                        modules[2].getConstants().SpeedAt12Volts,
+                                        modules[3].getConstants().SpeedAt12Volts)));
 
         // Usage reporting for swerve template
         HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_AdvantageKit);
-
-        // Start odometry thread
-        PhoenixOdometryThread.getInstance().start();
 
         // Configure SysId
         sysId =
@@ -170,7 +192,7 @@ public class Drive extends SubsystemBase {
         // Calculate module setpoints
         ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
         SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
-        SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, TunerConstants.kSpeedAt12Volts);
+        SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, maxLinearVelocity);
 
         // Log unoptimized setpoints and setpoint speeds
         Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
@@ -208,7 +230,8 @@ public class Drive extends SubsystemBase {
     public void stopWithX() {
         Rotation2d[] headings = new Rotation2d[4];
         for (int i = 0; i < 4; i++) {
-            headings[i] = getModuleTranslations()[i].getAngle();
+            var constants = modules[i].getConstants();
+            headings[i] = new Translation2d(constants.LocationX, constants.LocationY).getAngle();
         }
         kinematics.resetHeadings(headings);
         stop();
@@ -320,25 +343,17 @@ public class Drive extends SubsystemBase {
      * Returns the maximum linear speed in meters per sec.
      */
     public double getMaxLinearSpeedMetersPerSec() {
-        return TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
+        return maxLinearVelocity.in(MetersPerSecond);
     }
 
     /**
      * Returns the maximum angular speed in radians per sec.
      */
     public double getMaxAngularSpeedRadPerSec() {
-        return getMaxLinearSpeedMetersPerSec() / DRIVE_BASE_RADIUS;
+        return getMaxLinearSpeedMetersPerSec() / driveBaseRadius;
     }
 
-    /**
-     * Returns an array of module translations.
-     */
-    public static Translation2d[] getModuleTranslations() {
-        return new Translation2d[]{
-                new Translation2d(TunerConstants.FrontLeft.LocationX, TunerConstants.FrontLeft.LocationY),
-                new Translation2d(TunerConstants.FrontRight.LocationX, TunerConstants.FrontRight.LocationY),
-                new Translation2d(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
-                new Translation2d(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)
-        };
+    public double getDriveBaseRadius() {
+        return driveBaseRadius;
     }
 }
