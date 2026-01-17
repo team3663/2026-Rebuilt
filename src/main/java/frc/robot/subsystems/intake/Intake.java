@@ -19,10 +19,10 @@ public class Intake extends SubsystemBase {
     @Override
     public void periodic() {
         io.updateInputs(inputs);
-        Logger.recordOutput("pivot zeroed", pivotZeroed);
-        Logger.recordOutput("target voltage", targetVoltage);
-        Logger.recordOutput("target pivot position", targetPivotPosition);
-        Logger.processInputs("intake", inputs);
+        Logger.recordOutput("Intake/PivotZeroed", pivotZeroed);
+        Logger.recordOutput("Intake/TargetVoltage", targetVoltage);
+        Logger.recordOutput("Intake/TargetPivotPosition", targetPivotPosition);
+        Logger.processInputs("Intake/Inputs", inputs);
     }
 
     public Command stopPivot() {
