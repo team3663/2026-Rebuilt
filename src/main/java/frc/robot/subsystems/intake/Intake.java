@@ -19,6 +19,9 @@ public class Intake extends SubsystemBase {
     @Override
     public void periodic() {
         io.updateInputs(inputs);
+        Logger.recordOutput("pivot zeroed", pivotZeroed);
+        Logger.recordOutput("target voltage", targetVoltage);
+        Logger.recordOutput("target pivot position", targetPivotPosition);
         Logger.processInputs("intake", inputs);
     }
 
