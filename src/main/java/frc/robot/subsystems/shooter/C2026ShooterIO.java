@@ -132,13 +132,13 @@ public class C2026ShooterIO implements ShooterIO {
         inputs.currentHoodDraw = hoodMotor.getSupplyCurrent().getValueAsDouble();
 
         // Turret
-        inputs.currentHoodAppliedVoltage = turretMotor.getMotorVoltage().getValueAsDouble();
-        inputs.currentHoodVelocity = Units.rotationsToRadians(turretMotor.getVelocity().getValueAsDouble());
-        inputs.currentHoodPosition = Units.rotationsToRadians(turretMotor.getPosition().getValueAsDouble());
+        inputs.currentTurretAppliedVoltage = turretMotor.getMotorVoltage().getValueAsDouble();
+        inputs.currentTurretVelocity = Units.rotationsToRadians(turretMotor.getVelocity().getValueAsDouble());
+        inputs.currentTurretPosition = Units.rotationsToRadians(turretMotor.getPosition().getValueAsDouble());
         inputs.currentTurretEncoderPosition1 = turretCanCoder1.getPosition().getValueAsDouble();
         inputs.currentTurretEncoderPosition2 = turretCanCoder2.getPosition().getValueAsDouble();
         inputs.turretMotorTemperature = turretMotor.getDeviceTemp().getValueAsDouble();
-        inputs.currentHoodDraw = turretMotor.getSupplyCurrent().getValueAsDouble();
+        inputs.currentTurretDraw = turretMotor.getSupplyCurrent().getValueAsDouble();
 
         // Shooter Motor 1
         inputs.currentShooterAppliedVoltage1 = shooterMotor.getMotorVoltage().getValueAsDouble();
