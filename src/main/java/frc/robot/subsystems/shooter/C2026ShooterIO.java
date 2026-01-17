@@ -9,11 +9,15 @@ import com.ctre.phoenix6.signals.*;
 import edu.wpi.first.math.util.Units;
 
 public class C2026ShooterIO implements ShooterIO {
-    // TODO: get actual values
+    // TODO: get actual values for these constants
     private static final Shooter.Constants constants = new Shooter.Constants(0, Units.degreesToRadians(90), Units.degreesToRadians(-180), Units.degreesToRadians(180));
     private static final double HOOD_GEAR_RATIO = 1.0;
     private static final double TURRET_GEAR_RATIO = 1.0;
     private static final double SHOOTER_GEAR_RATIO = 1.0;
+
+    // CANCoder values/ratios
+    private static final double ENCODERS_GEAR_RATIO = 1.0;
+    private static final double ENCODER_ADDITIONAL_GEAR_RATIO = 5.0;
 
     private final TalonFX hoodMotor;
     private final TalonFX turretMotor;
@@ -40,12 +44,11 @@ public class C2026ShooterIO implements ShooterIO {
         // CANCoder config
         CANcoderConfiguration canCoderConfig = new CANcoderConfiguration();
         canCoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-        canCoderConfig.MagnetSensor.MagnetOffset = 1;
+        canCoderConfig.MagnetSensor.MagnetOffset = ENCODERS_GEAR_RATIO;
 
         turretCanCoder1.getConfigurator().apply(canCoderConfig);
 
         canCoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-        canCoderConfig.MagnetSensor.MagnetOffset = 5;
 
         turretCanCoder2.getConfigurator().apply(canCoderConfig);
 
@@ -134,11 +137,14 @@ public class C2026ShooterIO implements ShooterIO {
         // Turret
         inputs.currentTurretAppliedVoltage = turretMotor.getMotorVoltage().getValueAsDouble();
         inputs.currentTurretVelocity = Units.rotationsToRadians(turretMotor.getVelocity().getValueAsDouble());
-        inputs.currentTurretPosition = Units.rotationsToRadians(turretMotor.getPosition().getValueAsDouble());
-        inputs.currentTurretEncoderPosition1 = turretCanCoder1.getPosition().getValueAsDouble();
-        inputs.currentTurretEncoderPosition2 = turretCanCoder2.getPosition().getValueAsDouble();
         inputs.turretMotorTemperature = turretMotor.getDeviceTemp().getValueAsDouble();
         inputs.currentTurretDraw = turretMotor.getSupplyCurrent().getValueAsDouble();
+
+        inputs.currentTurretEncoderPosition1 = turretCanCoder1.getPosition().getValueAsDouble();
+        inputs.currentTurretEncoderPosition2 = turretCanCoder2.getPosition().getValueAsDouble();
+
+        inputs.currentTurretPosition = getTurretAngleFromEncoders(turretCanCoder1.getPosition().getValueAsDouble(),
+                turretCanCoder2.getPosition().getValueAsDouble());
 
         // Shooter Motor 1
         inputs.currentShooterAppliedVoltage1 = shooterMotor.getMotorVoltage().getValueAsDouble();
@@ -151,6 +157,21 @@ public class C2026ShooterIO implements ShooterIO {
         inputs.currentShooterVelocity2 = Units.rotationsToRadians(shooterMotor2.getVelocity().getValueAsDouble());
         inputs.shooterMotorTemperature2 = shooterMotor2.getDeviceTemp().getValueAsDouble();
         inputs.currentShooterDraw2 = shooterMotor2.getSupplyCurrent().getValueAsDouble();
+    }
+
+    public static double getTurretAngleFromEncoders(double e1, double e2) {
+        double additionalRotations = e2 * ENCODER_ADDITIONAL_GEAR_RATIO / 360.0;
+        int additionalDegreesFloor = ((int) additionalRotations) * 360;
+        double turretAngle = e1 + additionalDegreesFloor;
+
+        double error = e1 - (e2 * ENCODER_ADDITIONAL_GEAR_RATIO % 360);
+        if (error > 180.0) {
+            turretAngle -= 360.0;
+        } else if (error < -180.0) {
+            turretAngle += 360.0;
+        }
+
+        return turretAngle;
     }
 
     @Override
