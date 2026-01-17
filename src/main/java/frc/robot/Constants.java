@@ -2,7 +2,13 @@ package frc.robot;
 
 import com.ctre.phoenix6.configs.Slot0Configs;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.RobotBase;
 
+/**
+ * This class defines the runtime mode used by AdvantageKit. The mode is always "real" when running
+ * on a roboRIO. Change the value of "simMode" to switch between "sim" (physics sim) and "replay"
+ * (log replay from a file).
+ */
 public class Constants {
     public static final double MK4_2PLUS_REDUCTION = (50.0 / 16.0) * (17.0 / 27.0) * (45.0 / 15.0);
     public static final double MK4_3PLUS_REDUCTION = (50.0 / 16.0) * (16.0 / 28.0) * (45.0 / 15.0);
@@ -20,4 +26,25 @@ public class Constants {
     public static final double WHEEL_COF = 1.2;
     public static final Slot0Configs MK4I_STEER_PID_CONSTANTS = new Slot0Configs()
             .withKP(50);
+
+
+    public static final Mode simMode = Mode.SIM;
+    public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
+
+    public static enum Mode {
+        /**
+         * Running on a real robot.
+         */
+        REAL,
+
+        /**
+         * Running a physics simulator.
+         */
+        SIM,
+
+        /**
+         * Replaying from a log file.
+         */
+        REPLAY
+    }
 }

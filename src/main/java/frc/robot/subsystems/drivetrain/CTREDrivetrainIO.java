@@ -86,7 +86,7 @@ public class CTREDrivetrainIO implements DrivetrainIO {
     public void updateInputs(DrivetrainInputs inputs) {
         // Updates inputs and robot sim state (if in simulation)
         if (Robot.isSimulation()) {
-            drivetrain.updateSimState(Robot.kDefaultPeriod, RobotController.getBatteryVoltage());
+            drivetrain.updateSimState(Robot.defaultPeriodSecs, RobotController.getBatteryVoltage());
         }
 
         var state = lastState;
