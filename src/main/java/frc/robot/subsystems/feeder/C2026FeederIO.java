@@ -23,8 +23,8 @@ public class C2026FeederIO implements FeederIO {
     private final static double MIN_SIGNAL_STRENGTH = 0.0;
     //two motors created, may only need one though
     //TODO figure out how many motors will be used
-    private final TalonFX motor1;
-    private final TalonFX motor2;
+    private final TalonFX motor1; //14;
+    private final TalonFX motor2; //15;
     private final CANrange canrange;
 
     public C2026FeederIO(TalonFX motor1, TalonFX motor2, CANrange canrange){

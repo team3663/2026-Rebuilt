@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
 
-import static edu.wpi.first.wpilibj2.command.Commands.runEnd;
+
 
 public class Feeder extends SubsystemBase {
 
@@ -27,7 +27,7 @@ public class Feeder extends SubsystemBase {
     @Override
     public void periodic(){
         io.updateInputs(inputs);
-       Logger.processInputs("Feeder", inputs);
+       Logger.processInputs("Feeder/inputs", inputs);
     }
 
     public Command withVoltage(double voltage){
@@ -47,11 +47,11 @@ public class Feeder extends SubsystemBase {
     public Command stop(){
         return runOnce(io::stop);
     }
-    public boolean atTargetVelocity(){
-        return feederAtVelocity(targetVelocity, VELOCITY_THRESHOLD);
+    public boolean isAtTargetVelocity(){
+        return isAtFeederVelocity(targetVelocity, VELOCITY_THRESHOLD);
     }
 
-    private boolean feederAtVelocity(double currentVelocity, double velocityThreshold) {
+    private boolean isAtFeederVelocity(double currentVelocity, double velocityThreshold) {
         return Math.abs(inputs.currentVelocity - currentVelocity) < velocityThreshold;
     }
 

@@ -7,6 +7,9 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.hardware.CANrange;
+import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -19,6 +22,9 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.*;
+import frc.robot.subsystems.feeder.C2026FeederIO;
+import frc.robot.subsystems.feeder.Feeder;
+import frc.robot.subsystems.feeder.FeederIO;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -30,6 +36,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
     // Subsystems
     private final Drive drive;
+    private final Feeder feeder;
 
     // Controller
     private final CommandXboxController controller = new CommandXboxController(0);
@@ -53,6 +60,13 @@ public class RobotContainer {
                                 new ModuleIOTalonFX(TunerConstants.FrontRight),
                                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                                 new ModuleIOTalonFX(TunerConstants.BackRight));
+                feeder =
+                        new Feeder(
+                                new C2026FeederIO(
+                                        new TalonFX(14),
+                                        new TalonFX(15),
+                                        new CANrange(1))
+                        );
 
                 // The ModuleIOTalonFXS implementation provides an example implementation for
                 // TalonFXS controller connected to a CANdi with a PWM encoder. The
@@ -83,7 +97,11 @@ public class RobotContainer {
                                 new ModuleIOSim(TunerConstants.FrontRight),
                                 new ModuleIOSim(TunerConstants.BackLeft),
                                 new ModuleIOSim(TunerConstants.BackRight));
+                feeder =
+                        new Feeder(new FeederIO() {});
+
                 break;
+
 
             default:
                 // Replayed robot, disable IO implementations
@@ -99,6 +117,9 @@ public class RobotContainer {
                                 },
                                 new ModuleIO() {
                                 });
+                feeder =
+                        new Feeder(new FeederIO() {});
+
                 break;
         }
 
@@ -124,6 +145,8 @@ public class RobotContainer {
         // Configure the button bindings
         configureButtonBindings();
     }
+
+
 
     /**
      * Use this method to define your button->command mappings. Buttons can be created by
