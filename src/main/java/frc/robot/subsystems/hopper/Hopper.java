@@ -15,8 +15,8 @@ public class Hopper extends SubsystemBase {
 
     public void periodic() {
         io.updateInputs(inputs);
-        Logger.processInputs("Hopper", inputs);
-        Logger.recordOutput("TargetVoltage", targetVoltage);
+        Logger.processInputs("Hopper/Inputs", inputs);
+        Logger.recordOutput("Hopper/TargetVoltage", targetVoltage);
     }
 
     public double getTargetVoltage() {
