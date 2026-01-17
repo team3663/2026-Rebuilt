@@ -7,18 +7,19 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
+import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.*;
+import frc.robot.subsystems.intake.C2026IntakeIO;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeIO;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -30,6 +31,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
     // Subsystems
     private final Drive drive;
+    private final Intake intake;
 
     // Controller
     private final CommandXboxController controller = new CommandXboxController(0);
@@ -53,6 +55,12 @@ public class RobotContainer {
                                 new ModuleIOTalonFX(TunerConstants.FrontRight),
                                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                                 new ModuleIOTalonFX(TunerConstants.BackRight));
+                intake =
+                        new Intake(
+                                new C2026IntakeIO(
+                                        new TalonFX(11),
+                                        new TalonFX(12),
+                                        new TalonFX(13)));
 
                 // The ModuleIOTalonFXS implementation provides an example implementation for
                 // TalonFXS controller connected to a CANdi with a PWM encoder. The
@@ -83,6 +91,8 @@ public class RobotContainer {
                                 new ModuleIOSim(TunerConstants.FrontRight),
                                 new ModuleIOSim(TunerConstants.BackLeft),
                                 new ModuleIOSim(TunerConstants.BackRight));
+                intake = new Intake(new IntakeIO() {
+                });
                 break;
 
             default:
@@ -99,6 +109,8 @@ public class RobotContainer {
                                 },
                                 new ModuleIO() {
                                 });
+                intake = new Intake(new IntakeIO() {
+                });
                 break;
         }
 
@@ -140,29 +152,33 @@ public class RobotContainer {
                         () -> -controller.getLeftX(),
                         () -> -controller.getRightX()));
 
-        // Lock to 0° when A button is held
-        controller
-                .a()
-                .whileTrue(
-                        DriveCommands.joystickDriveAtAngle(
-                                drive,
-                                () -> -controller.getLeftY(),
-                                () -> -controller.getLeftX(),
-                                () -> Rotation2d.kZero));
+//        // Lock to 0° when A button is held
+//        controller
+//                .a()
+//                .whileTrue(
+//                        DriveCommands.joystickDriveAtAngle(
+//                                drive,
+//                                () -> -controller.getLeftY(),
+//                                () -> -controller.getLeftX(),
+//                                () -> Rotation2d.kZero));
+//
+//        // Switch to X pattern when X button is pressed
+//        controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+//
+//        // Reset gyro to 0° when B button is pressed
+//        controller
+//                .b()
+//                .onTrue(
+//                        Commands.runOnce(
+//                                        () ->
+//                                                drive.setPose(
+//                                                        new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
+//                                        drive)
+//                                .ignoringDisable(true));
+//
+        controller.a().onTrue(intake.stopIntake());
+        controller.x().whileTrue(intake.intakeWithVoltage(3.0));
 
-        // Switch to X pattern when X button is pressed
-        controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
-
-        // Reset gyro to 0° when B button is pressed
-        controller
-                .b()
-                .onTrue(
-                        Commands.runOnce(
-                                        () ->
-                                                drive.setPose(
-                                                        new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
-                                        drive)
-                                .ignoringDisable(true));
     }
 
     /**
