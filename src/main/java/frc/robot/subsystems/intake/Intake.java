@@ -28,7 +28,7 @@ public class Intake extends SubsystemBase {
     }
 
     public Command stopIntake(){
-        return runOnce(io::stopIntake);
+        return runOnce(this::stopIntake);
     }
 
     public double getPivotPosition(){
@@ -50,7 +50,4 @@ public class Intake extends SubsystemBase {
                 }, this::stopIntake);
     }
 
-    public Command eject() {
-        return intakeWithVoltage(-2.0);
-    }
 }

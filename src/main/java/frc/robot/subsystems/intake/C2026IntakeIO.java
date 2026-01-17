@@ -29,8 +29,8 @@ public class C2026IntakeIO implements IntakeIO {
 
         // Intake Motor Configurations
         TalonFXConfiguration intakeConfig = new TalonFXConfiguration();
-//        intakeConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-//        intakeConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        intakeConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        intakeConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         intakeMotor.getConfigurator().apply(intakeConfig);
 
         // Pivot Motor Configurations
