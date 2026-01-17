@@ -3,7 +3,6 @@ package frc.robot.subsystems.hopper;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 public class Hopper extends SubsystemBase {
     private final HopperIO io;
@@ -27,7 +26,7 @@ public class Hopper extends SubsystemBase {
     public Command withVoltage(double voltage) {
         return runEnd(() -> {
             targetVoltage = voltage;
-            io.setVoltage(voltage);
+            io.setTargetVoltage(voltage);
         }, io::stop);
     }
 

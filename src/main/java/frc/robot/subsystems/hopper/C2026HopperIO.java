@@ -31,7 +31,7 @@ public class C2026HopperIO implements HopperIO {
     }
 
     @Override
-    public void setVoltage(double voltage) {
+    public void setTargetVoltage(double voltage) {
         motor.setVoltage(voltage);
     }
 
