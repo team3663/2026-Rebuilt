@@ -9,6 +9,7 @@ package frc.robot;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -28,6 +29,10 @@ import frc.robot.subsystems.hopper.SimHopperIO;
 import frc.robot.subsystems.intake.C2026IntakeIO;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
+import frc.robot.subsystems.hopper.C2026HopperIO;
+import frc.robot.subsystems.hopper.Hopper;
+import frc.robot.subsystems.hopper.HopperIO;
+import frc.robot.subsystems.hopper.SimHopperIO;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -164,36 +169,15 @@ public class RobotContainer {
                         () -> -controller.getLeftX(),
                         () -> -controller.getRightX()));
 
-//        // Lock to 0° when A button is held
-//        controller
-//                .a()
-//                .whileTrue(
-//                        DriveCommands.joystickDriveAtAngle(
-//                                drive,
-//                                () -> -controller.getLeftY(),
-//                                () -> -controller.getLeftX(),
-//                                () -> Rotation2d.kZero));
-//
-//        // Switch to X pattern when X button is pressed
-//        controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
-//
-//        // Reset gyro to 0° when B button is pressed
-//        controller
-//                .b()
-//                .onTrue(
-//                        Commands.runOnce(
-//                                        () ->
-//                                                drive.setPose(
-//                                                        new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
-//                                        drive)
-//                                .ignoringDisable(true));
-//
-        controller.a().onTrue(intake.stopIntake());
-        controller.x().whileTrue(intake.intakeWithVoltage(3.0));
-
-        //Hopper Controls
-        controller.b().whileTrue(hopper.withVoltage(3));
-        controller.y().onTrue(hopper.stop());
+        // Lock to 0° when A button is held
+        controller
+                .a()
+                .whileTrue(
+                        DriveCommands.joystickDriveAtAngle(
+                                drive,
+                                () -> -controller.getLeftY(),
+                                () -> -controller.getLeftX(),
+                                () -> Rotation2d.kZero));
 
         // Switch to X pattern when X button is pressed
         controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
