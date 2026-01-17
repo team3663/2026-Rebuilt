@@ -12,6 +12,11 @@ import com.ctre.phoenix6.signals.UpdateModeValue;
 import edu.wpi.first.math.util.Units;
 
 public class C2026FeederIO implements FeederIO {
+    //PROXIMITY_THRESHOLD is threshold for object detection
+    //PROXIMITY_HYSTERESIS is the additional distance beyond the threshold that
+    // the object will still register as detected
+    //MIN_SIGNAL_STRENGTH is the smallest strength of the signal
+    // that will allow the object to be counted
     // TODO get real values on robot
     private final static double PROXIMITY_THRESHOLD = 0.0;
     private final static double PROXIMITY_HYSTERESIS = 0.0;
@@ -30,7 +35,7 @@ public class C2026FeederIO implements FeederIO {
         TalonFXConfiguration motor1Config = new TalonFXConfiguration();
         motor1Config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         motor1Config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        //not sure if i need the PID values or not
+        //not sure if the PID values are needed or not
 //        motor1Config.Slot0.kP = 0.0;
 //        motor1Config.Slot0.kI = 0.0;
 //        motor1Config.Slot0.kD = 0.0;
