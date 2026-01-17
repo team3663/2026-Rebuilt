@@ -58,9 +58,9 @@ public class RobotContainer {
                 intake =
                         new Intake(
                                 new C2026IntakeIO(
-                                        new TalonFX(0),
-                                        new TalonFX(1),
-                                        new TalonFX(2)));
+                                        new TalonFX(11),
+                                        new TalonFX(12),
+                                        new TalonFX(13)));
 
                 // The ModuleIOTalonFXS implementation provides an example implementation for
                 // TalonFXS controller connected to a CANdi with a PWM encoder. The
