@@ -176,10 +176,10 @@ public class RobotContainer {
 
         // Intake controls
         controller.a().onTrue(intake.stopIntake());
-        controller.x().whileTrue(intake.intakeWithVoltage(3.0));
+        controller.x().whileTrue(intake.intakeWithVoltage(5.0));
 
         // Hopper controls
-        controller.b().whileTrue(hopper.withVoltage(3));
+        controller.b().whileTrue(hopper.withVoltage(5.0));
         controller.y().onTrue(hopper.stop());
     }
 
