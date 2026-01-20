@@ -73,8 +73,8 @@ public class RobotContainer {
                                 new TalonFX(17),
                                 new TalonFX(18),
                                 new TalonFX(19),
-                                new CANcoder(2),
-                                new CANcoder(3)
+                                new CANcoder(7),
+                                new CANcoder(8)
                         ));
 
 
@@ -153,7 +153,7 @@ public class RobotContainer {
         autoChooser.addOption(
                 "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
-        shooter.setDefaultCommand(shooter.goToPositionsWithShooter(shooter.getConstants().minimumHoodPosition(), 0.0));
+        shooter.setDefaultCommand(shooter.goToWithShooter(shooter.getConstants().minimumHoodPosition(), 0.0));
 
         // Configure the button bindings
         configureButtonBindings();

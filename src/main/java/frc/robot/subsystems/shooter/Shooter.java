@@ -49,7 +49,7 @@ public class Shooter extends SubsystemBase {
         return runOnce(() -> {
                     targetHoodPosition = 0.0;
                     targetTurretPosition = 0.0;
-                    targetHoodPosition = 0.0;
+                    targetShooterVelocity = 0.0;
                     io.stopHood();
                     io.stopTurret();
                     io.stopShooter();
@@ -69,15 +69,15 @@ public class Shooter extends SubsystemBase {
         return this.hoodAtPosition(hoodPosition) && this.turretAtPosition(turretPosition);
     }
 
-    public boolean atPositions(double hoodPosition, double turretPosition, double shooterVelocity) {
+    public boolean isAt(double hoodPosition, double turretPosition, double shooterVelocity) {
         return this.hoodAtPosition(hoodPosition) && this.turretAtPosition(turretPosition) && this.shooterAtVelocity(shooterVelocity);
     }
 
-    public Command goToPositionsWithShooter(double hoodPosition, double turretPosition) {
-        return goToPositions(hoodPosition, turretPosition, TARGET_SHOOTER_VELOCITY);
+    public Command goToWithShooter(double hoodPosition, double turretPosition) {
+        return goTo(hoodPosition, turretPosition, TARGET_SHOOTER_VELOCITY);
     }
 
-    public Command goToPositions(double hoodPosition, double turretPosition, double shooterVelocity) {
+    public Command goTo(double hoodPosition, double turretPosition, double shooterVelocity) {
         return runEnd(() -> {
             // Hood
             if (hoodZeroed) {
@@ -95,11 +95,11 @@ public class Shooter extends SubsystemBase {
         }, this::stop).until(this::atTargetPositions);
     }
 
-    public Command followPositionsWithShooter(DoubleSupplier hoodPosition, DoubleSupplier turretPosition) {
-        return followPositions(hoodPosition, turretPosition, () -> TARGET_SHOOTER_VELOCITY);
+    public Command followWithShooter(DoubleSupplier hoodPosition, DoubleSupplier turretPosition) {
+        return follow(hoodPosition, turretPosition, () -> TARGET_SHOOTER_VELOCITY);
     }
 
-    public Command followPositions(DoubleSupplier hoodPosition, DoubleSupplier turretPosition, DoubleSupplier shooterVelocity) {
+    public Command follow(DoubleSupplier hoodPosition, DoubleSupplier turretPosition, DoubleSupplier shooterVelocity) {
         return run(() -> {
             // Hood
             if (hoodZeroed) {
@@ -146,7 +146,7 @@ public class Shooter extends SubsystemBase {
         return Math.max(constants.minimumHoodPosition, Math.min(constants.maximumHoodPosition, position));
     }
 
-    public Command zeroWrist() {
+    public Command zeroHood() {
         return runEnd(() -> {
             io.setHoodTargetVoltage(-1.5);
             targetHoodPosition = constants.minimumHoodPosition;
@@ -205,15 +205,8 @@ public class Shooter extends SubsystemBase {
         return Math.abs(inputs.currentShooterVelocity1 - position) < threshold;
     }
 
-    public double getTargetTurretVelocity() {
+    public double getTargetShooterVelocity() {
         return targetShooterVelocity;
-    }
-
-    public Command setTargetTurretVelocity(double velocity) {
-        return run(() -> {
-                targetShooterVelocity = velocity;
-                io.setShooterTargetVelocity(targetShooterVelocity);
-        });
     }
 
     public record Constants(

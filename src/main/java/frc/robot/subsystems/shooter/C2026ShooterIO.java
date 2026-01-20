@@ -80,10 +80,6 @@ public class C2026ShooterIO implements ShooterIO {
         turretConfig.CurrentLimits.SupplyCurrentLimit = 60;
         turretConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-        turretConfig.Feedback.FeedbackRemoteSensorID = turretCanCoder1.getDeviceID();
-        turretConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
-        turretConfig.Feedback.RotorToSensorRatio = TURRET_GEAR_RATIO;
-
         turretConfig.Slot0.kV = 0.0;
         turretConfig.Slot0.kA = 0.0;
         turretConfig.Slot0.kP = 1.0;
@@ -95,6 +91,10 @@ public class C2026ShooterIO implements ShooterIO {
 //        shooterConfig.MotionMagic.MotionMagicCruiseVelocity = 2.0;
 
         turretMotor.getConfigurator().apply(turretConfig);
+
+        turretMotor.setPosition(getTurretAngleFromEncoders(
+                Units.rotationsToRadians(turretCanCoder1.getPosition().getValueAsDouble()),
+                Units.rotationsToRadians(turretCanCoder2.getPosition().getValueAsDouble())));
 
         // Shooter motors config
         TalonFXConfiguration shooterConfig = new TalonFXConfiguration();
@@ -143,8 +143,9 @@ public class C2026ShooterIO implements ShooterIO {
         inputs.currentTurretEncoderPosition1 = turretCanCoder1.getPosition().getValueAsDouble();
         inputs.currentTurretEncoderPosition2 = turretCanCoder2.getPosition().getValueAsDouble();
 
-        inputs.currentTurretPosition = getTurretAngleFromEncoders(turretCanCoder1.getPosition().getValueAsDouble(),
-                turretCanCoder2.getPosition().getValueAsDouble());
+        inputs.currentTurretPosition = getTurretAngleFromEncoders(
+                Units.rotationsToRadians(turretCanCoder1.getPosition().getValueAsDouble()),
+                Units.rotationsToRadians(turretCanCoder2.getPosition().getValueAsDouble()));
 
         // Shooter Motor 1
         inputs.currentShooterAppliedVoltage1 = shooterMotor.getMotorVoltage().getValueAsDouble();
@@ -160,18 +161,21 @@ public class C2026ShooterIO implements ShooterIO {
     }
 
     public static double getTurretAngleFromEncoders(double e1, double e2) {
-        double additionalRotations = e2 * ENCODER_ADDITIONAL_GEAR_RATIO / 360.0;
-        int additionalDegreesFloor = ((int) additionalRotations) * 360;
-        double turretAngle = e1 + additionalDegreesFloor;
+        double e1Degrees = Units.radiansToDegrees(e1);
+        double e2Degrees = Units.radiansToDegrees(e2);
 
-        double error = e1 - (e2 * ENCODER_ADDITIONAL_GEAR_RATIO % 360);
+        double additionalRotations = e2Degrees * ENCODER_ADDITIONAL_GEAR_RATIO / 360.0;
+        int additionalDegreesFloor = ((int) additionalRotations) * 360;
+        double turretAngleDegrees = e1Degrees + additionalDegreesFloor;
+
+        double error = e1Degrees - (e2Degrees * ENCODER_ADDITIONAL_GEAR_RATIO % 360);
         if (error > 180.0) {
-            turretAngle -= 360.0;
+            turretAngleDegrees -= 360.0;
         } else if (error < -180.0) {
-            turretAngle += 360.0;
+            turretAngleDegrees += 360.0;
         }
 
-        return turretAngle;
+        return Units.degreesToRadians(turretAngleDegrees);
     }
 
     @Override
