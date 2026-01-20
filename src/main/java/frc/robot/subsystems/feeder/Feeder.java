@@ -32,9 +32,9 @@ public class Feeder extends SubsystemBase {
     @Override
     public void periodic() {
         io.updateInputs(inputs);
-        Logger.recordOutput("Feeder/targetVoltage", targetVoltage);
-        Logger.recordOutput("Feeder/targetVelocity", targetVelocity);
-        Logger.processInputs("Feeder/inputs", inputs);
+        Logger.recordOutput("Feeder/TargetVoltage", targetVoltage);
+        Logger.recordOutput("Feeder/TargetVelocity", targetVelocity);
+        Logger.processInputs("Feeder/Inputs", inputs);
     }
 
     public Command withVoltage(double voltage) {
