@@ -36,7 +36,11 @@ public class Shooter extends SubsystemBase {
     @Override
     public void periodic() {
         io.updateInputs(inputs);
-        Logger.processInputs("Shooter/inputs", inputs);
+        Logger.recordOutput("Shooter/HoodZeroed", hoodZeroed);
+        Logger.recordOutput("Shooter/TargetHoodPosition", targetHoodPosition);
+        Logger.recordOutput("Shooter/TargetTurretPosition", targetTurretPosition);
+        Logger.recordOutput("Shooter/TargetShooterVelocity", targetShooterVelocity);
+        Logger.processInputs("Shooter/Inputs", inputs);
     }
 
     public Command stop() {
