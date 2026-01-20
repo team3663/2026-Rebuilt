@@ -42,10 +42,14 @@ public class C2026IntakeIO implements IntakeIO {
         // Pivot Motor Configurations
         TalonFXConfiguration pivotMotor1Config = new TalonFXConfiguration();
         pivotMotor1Config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        pivotMotor1Config.MotionMagic.MotionMagicAcceleration = 0.0;
+        pivotMotor1Config.MotionMagic.MotionMagicCruiseVelocity = 0.0;
         pivotMotor1.getConfigurator().apply(pivotMotor1Config);
 
         TalonFXConfiguration pivotMotor2Config = new TalonFXConfiguration();
         pivotMotor2Config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        pivotMotor2Config.MotionMagic.MotionMagicAcceleration = 0.0;
+        pivotMotor2Config.MotionMagic.MotionMagicCruiseVelocity = 0.0;
         pivotMotor2.getConfigurator().apply(pivotMotor2Config);
 
         // Setting one of the pivot motors to follow the other motor

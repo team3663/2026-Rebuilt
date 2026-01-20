@@ -220,7 +220,7 @@ public class RobotContainer {
 //                                .ignoringDisable(true));
 //
         controller.a().onTrue(intake.stopIntake());
-        controller.x().whileTrue(intake.intakeWithVoltage(3.0));
+        controller.x().whileTrue(intake.intakeAndPivot(6.5, 0.0));
 
         //Hopper Controls
         controller.b().whileTrue(hopper.withVoltage(3));

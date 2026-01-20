@@ -12,6 +12,9 @@ import static edu.wpi.first.wpilibj2.command.Commands.waitUntil;
 
 public class Intake extends SubsystemBase {
     public static final double POSITION_THRESHOLD = Units.degreesToRadians(2.0);
+    public static final double DEPLOY_ANGLE = Units.degreesToRadians(0.0);
+    public static final double STOW_ANGLE = Units.degreesToRadians(0.0);
+    public static final double INTAKE_VOLTAGE = 0.0;
 
     private final IntakeIO io;
     private final Constants constants;
@@ -83,25 +86,43 @@ public class Intake extends SubsystemBase {
                         }));
     }
 
-
-    // Intake
-    public Command stopIntake() {
-        return runOnce(io::stopIntake);
-    }
-
-    public Command eject() {
-        return runEnd(() -> intakeWithVoltage(-2.0), this::stopIntake);
-    }
-
     /**
      * @param voltage
-     * @return run end command that runs the intake motor
+     * @param position
+     * @return pivot the intake and run the roller bars
      */
-    public Command intakeWithVoltage(double voltage) {
-        return runEnd(() -> {
-            targetVoltage = voltage;
-            io.setTargetIntakeVoltage(targetVoltage);
-        }, io::stopIntake);
+    public Command intakeAndPivot(double voltage, double position) {
+        return runEnd(
+                () -> {
+                    targetVoltage = voltage;
+                    io.setTargetIntakeVoltage(targetVoltage);
+                    if (pivotZeroed) {
+                        targetPivotPosition = position;
+                        this.followPivotPositions(()-> position);
+                    }
+                }, io::stopIntake
+        );
+
+    }
+
+    public Command deployAndIntake(){
+        return intakeAndPivot(INTAKE_VOLTAGE, DEPLOY_ANGLE);
+    }
+
+    public Command stow(){
+        return intakeAndPivot(0.0, STOW_ANGLE);
+    }
+
+    public Command deploy(){
+        return intakeAndPivot(0.0, DEPLOY_ANGLE);
+    }
+
+    public Command stop(){
+        return runOnce(()->{
+                    targetVoltage = 0.0;
+                    targetPivotPosition = 0.0;
+                    io.stopPivot();
+                    io.stopIntake();});
     }
 
     public record Constants(double minimumPivotAngle, double maximumPivotAngle) {
