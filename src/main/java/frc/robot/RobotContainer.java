@@ -7,6 +7,7 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -17,6 +18,9 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.*;
+import frc.robot.subsystems.feeder.C2026FeederIO;
+import frc.robot.subsystems.feeder.Feeder;
+import frc.robot.subsystems.feeder.FeederIO;
 import frc.robot.subsystems.intake.C2026IntakeIO;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
@@ -31,6 +35,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
     // Subsystems
     private final Drive drive;
+    private final Feeder feeder;
     private final Intake intake;
 
     // Controller
@@ -55,6 +60,13 @@ public class RobotContainer {
                                 new ModuleIOTalonFX(TunerConstants.FrontRight),
                                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                                 new ModuleIOTalonFX(TunerConstants.BackRight));
+                feeder =
+                        new Feeder(
+                                new C2026FeederIO(
+                                        new TalonFX(14),
+                                        new TalonFX(15),
+                                        new CANrange(1))
+                        );
                 intake =
                         new Intake(
                                 new C2026IntakeIO(
@@ -91,6 +103,9 @@ public class RobotContainer {
                                 new ModuleIOSim(TunerConstants.FrontRight),
                                 new ModuleIOSim(TunerConstants.BackLeft),
                                 new ModuleIOSim(TunerConstants.BackRight));
+                feeder =
+                        new Feeder(new FeederIO() {
+                        });
                 intake = new Intake(new IntakeIO() {
                 });
                 break;
@@ -109,6 +124,9 @@ public class RobotContainer {
                                 },
                                 new ModuleIO() {
                                 });
+                feeder =
+                        new Feeder(new FeederIO() {
+                        });
                 intake = new Intake(new IntakeIO() {
                 });
                 break;

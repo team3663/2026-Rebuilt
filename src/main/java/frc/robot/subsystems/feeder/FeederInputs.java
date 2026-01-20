@@ -1,0 +1,19 @@
+package frc.robot.subsystems.feeder;
+
+import org.littletonrobotics.junction.AutoLog;
+
+@AutoLog
+public class FeederInputs {
+    public double currentVelocity;
+    public double currentAppliedVoltage;
+
+    //TODO figure out how many motors will be used
+    public double motor1Temperature;
+    public double motor1CurrentDraw;
+
+    public double motor2Temperature;
+    public double motor2CurrentDraw;
+
+    public boolean canrangeObjectDetected;
+    public double canrangeSignalConfidence;
+}
