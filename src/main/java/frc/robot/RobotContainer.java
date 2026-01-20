@@ -7,7 +7,6 @@
 
 package frc.robot;
 
-import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -28,6 +27,9 @@ import frc.robot.subsystems.feeder.FeederIO;
 import frc.robot.subsystems.intake.C2026IntakeIO;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
+import frc.robot.subsystems.shooter.C2026ShooterIO;
+import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.shooter.ShooterIO;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -42,6 +44,7 @@ public class RobotContainer {
     private final Feeder feeder;
     private final Hopper hopper;
     private final Intake intake;
+    private final Shooter shooter;
 
     // Controller
     private final CommandXboxController controller = new CommandXboxController(0);
@@ -80,6 +83,17 @@ public class RobotContainer {
                                         new TalonFX(12),
                                         new TalonFX(13)));
 
+                shooter =
+                        new Shooter(new C2026ShooterIO(
+                                new TalonFX(16),
+                                new TalonFX(17),
+                                new TalonFX(18),
+                                new TalonFX(19),
+                                new CANcoder(7),
+                                new CANcoder(8)
+                        ));
+
+
                 // The ModuleIOTalonFXS implementation provides an example implementation for
                 // TalonFXS controller connected to a CANdi with a PWM encoder. The
                 // implementations
@@ -115,6 +129,8 @@ public class RobotContainer {
                 hopper = new Hopper(new SimHopperIO());
                 intake = new Intake(new IntakeIO() {
                 });
+
+                shooter = new Shooter(new ShooterIO() {});
                 break;
 
             default:
@@ -137,6 +153,8 @@ public class RobotContainer {
                 hopper = new Hopper(new HopperIO() {});
                 intake = new Intake(new IntakeIO() {
                 });
+
+                shooter = new Shooter(new ShooterIO() {});
                 break;
         }
 
@@ -158,6 +176,8 @@ public class RobotContainer {
                 "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
         autoChooser.addOption(
                 "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+        shooter.setDefaultCommand(shooter.goToWithShooter(shooter.getConstants().minimumHoodPosition(), 0.0));
 
         // Configure the button bindings
         configureButtonBindings();
