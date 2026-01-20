@@ -15,6 +15,7 @@ public class Hopper extends SubsystemBase {
     }
 
     public void periodic() {
+        //logging
         io.updateInputs(inputs);
         Logger.processInputs("Hopper/Inputs", inputs);
         Logger.recordOutput("Hopper/TargetVoltage", targetVoltage);
@@ -24,10 +25,11 @@ public class Hopper extends SubsystemBase {
         return targetVoltage;
     }
 
+    //hopper control
     public Command withVoltage(double voltage) {
         return runEnd(() -> {
             targetVoltage = voltage;
-            io.setVoltage(voltage);
+            io.setTargetVoltage(voltage);
         }, io::stop);
     }
 

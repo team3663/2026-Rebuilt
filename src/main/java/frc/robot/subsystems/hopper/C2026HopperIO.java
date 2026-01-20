@@ -11,6 +11,7 @@ public class C2026HopperIO implements HopperIO {
     public C2026HopperIO(TalonFX motor) {
         this.motor = motor;
 
+        //motor config
         TalonFXConfiguration config = new TalonFXConfiguration();
 
         config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
@@ -30,8 +31,9 @@ public class C2026HopperIO implements HopperIO {
         inputs.motorSupplyCurrent = motor.getSupplyCurrent().getValueAsDouble();
     }
 
+    //hopper control
     @Override
-    public void setVoltage(double voltage) {
+    public void setTargetVoltage(double voltage) {
         motor.setVoltage(voltage);
     }
 
