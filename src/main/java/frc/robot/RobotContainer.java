@@ -7,6 +7,8 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -17,19 +19,20 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.*;
+import frc.robot.subsystems.feeder.C2026FeederIO;
+import frc.robot.subsystems.feeder.Feeder;
+import frc.robot.subsystems.feeder.FeederIO;
 import frc.robot.subsystems.hopper.C2026HopperIO;
 import frc.robot.subsystems.hopper.Hopper;
 import frc.robot.subsystems.hopper.HopperIO;
 import frc.robot.subsystems.hopper.SimHopperIO;
-import frc.robot.subsystems.feeder.C2026FeederIO;
-import frc.robot.subsystems.feeder.Feeder;
-import frc.robot.subsystems.feeder.FeederIO;
 import frc.robot.subsystems.intake.C2026IntakeIO;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.shooter.C2026ShooterIO;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterIO;
+import frc.robot.subsystems.shooter.SimShooterIO;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -61,37 +64,34 @@ public class RobotContainer {
                 // Real robot, instantiate hardware IO implementations
                 // ModuleIOTalonFX is intended for modules with TalonFX drive, TalonFX turn, and
                 // a CANcoder
-                drive =
-                        new Drive(
-                                new GyroIOPigeon2(),
-                                new ModuleIOTalonFX(TunerConstants.FrontLeft),
-                                new ModuleIOTalonFX(TunerConstants.FrontRight),
-                                new ModuleIOTalonFX(TunerConstants.BackLeft),
-                                new ModuleIOTalonFX(TunerConstants.BackRight));
-                feeder =
-                        new Feeder(
-                                new C2026FeederIO(
-                                        new TalonFX(14),
-                                        new TalonFX(15),
-                                        new CANrange(1))
-                        );
-                hopper = new Hopper(new C2026HopperIO(new TalonFX(10)));
-                intake =
-                        new Intake(
-                                new C2026IntakeIO(
-                                        new TalonFX(11),
-                                        new TalonFX(12),
-                                        new TalonFX(13)));
+                drive = new Drive(
+                        new GyroIOPigeon2(),
+                        new ModuleIOTalonFX(TunerConstants.FrontLeft),
+                        new ModuleIOTalonFX(TunerConstants.FrontRight),
+                        new ModuleIOTalonFX(TunerConstants.BackLeft),
+                        new ModuleIOTalonFX(TunerConstants.BackRight));
 
-                shooter =
-                        new Shooter(new C2026ShooterIO(
-                                new TalonFX(16),
-                                new TalonFX(17),
-                                new TalonFX(18),
-                                new TalonFX(19),
-                                new CANcoder(7),
-                                new CANcoder(8)
-                        ));
+                feeder = new Feeder(new C2026FeederIO(
+                        new TalonFX(14),
+                        new TalonFX(15),
+                        new CANrange(1))
+                );
+                hopper = new Hopper(new C2026HopperIO(new TalonFX(10)));
+
+                intake = new Intake(new C2026IntakeIO(
+                        new TalonFX(11),
+                        new TalonFX(12),
+                        new TalonFX(13)
+                ));
+
+                shooter = new Shooter(new C2026ShooterIO(
+                        new TalonFX(16),
+                        new TalonFX(17),
+                        new TalonFX(18),
+                        new TalonFX(19),
+                        new CANcoder(7),
+                        new CANcoder(8)
+                ));
 
 
                 // The ModuleIOTalonFXS implementation provides an example implementation for
@@ -115,22 +115,19 @@ public class RobotContainer {
 
             case SIM:
                 // Sim robot, instantiate physics sim IO implementations
-                drive =
-                        new Drive(
-                                new GyroIO() {
-                                },
-                                new ModuleIOSim(TunerConstants.FrontLeft),
-                                new ModuleIOSim(TunerConstants.FrontRight),
-                                new ModuleIOSim(TunerConstants.BackLeft),
-                                new ModuleIOSim(TunerConstants.BackRight));
-                feeder =
-                        new Feeder(new FeederIO() {
-                        });
+                drive = new Drive(
+                        new GyroIO() {
+                        },
+                        new ModuleIOSim(TunerConstants.FrontLeft),
+                        new ModuleIOSim(TunerConstants.FrontRight),
+                        new ModuleIOSim(TunerConstants.BackLeft),
+                        new ModuleIOSim(TunerConstants.BackRight));
+                feeder = new Feeder(new FeederIO() {
+                });
                 hopper = new Hopper(new SimHopperIO());
                 intake = new Intake(new IntakeIO() {
                 });
-
-                shooter = new Shooter(new ShooterIO() {});
+                shooter = new Shooter(new SimShooterIO());
                 break;
 
             default:
@@ -147,14 +144,14 @@ public class RobotContainer {
                                 },
                                 new ModuleIO() {
                                 });
-                feeder =
-                        new Feeder(new FeederIO() {
-                        });
-                hopper = new Hopper(new HopperIO() {});
+                feeder = new Feeder(new FeederIO() {
+                });
+                hopper = new Hopper(new HopperIO() {
+                });
                 intake = new Intake(new IntakeIO() {
                 });
-
-                shooter = new Shooter(new ShooterIO() {});
+                shooter = new Shooter(new ShooterIO() {
+                });
                 break;
         }
 
