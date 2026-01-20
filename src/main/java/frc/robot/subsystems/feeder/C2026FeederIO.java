@@ -3,6 +3,9 @@ package frc.robot.subsystems.feeder;
 import com.ctre.phoenix6.configs.CANrangeConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.NeutralOut;
+import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -27,7 +30,11 @@ public class C2026FeederIO implements FeederIO {
     private final TalonFX motor2; //15;
     private final CANrange canrange;
 
-    public C2026FeederIO(TalonFX motor1, TalonFX motor2, CANrange canrange){
+    private final VoltageOut voltageRequest = new VoltageOut(0.0);
+    private final NeutralOut stopRequest = new NeutralOut();
+    private final VelocityVoltage velocityVoltage = new VelocityVoltage(0.0);
+
+    public C2026FeederIO(TalonFX motor1, TalonFX motor2, CANrange canrange) {
         this.motor1 = motor1;
         this.motor2 = motor2;
         this.canrange = canrange;
@@ -55,16 +62,16 @@ public class C2026FeederIO implements FeederIO {
 
     @Override
     public void stop() {
-        FeederIO.super.stop();
+        motor1.setControl(stopRequest);
     }
 
     @Override
     public void setTargetVoltage(double voltage) {
-        FeederIO.super.setTargetVoltage(voltage);
+        motor1.setControl(voltageRequest.withOutput(voltage));
     }
 
     @Override
     public void setTargetVelocity(double velocity) {
-        FeederIO.super.setTargetVelocity(velocity);
+        motor1.setControl(velocityVoltage.withVelocity(velocity));
     }
 }

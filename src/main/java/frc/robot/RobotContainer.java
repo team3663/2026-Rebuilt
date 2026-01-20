@@ -98,7 +98,8 @@ public class RobotContainer {
                                 new ModuleIOSim(TunerConstants.BackLeft),
                                 new ModuleIOSim(TunerConstants.BackRight));
                 feeder =
-                        new Feeder(new FeederIO() {});
+                        new Feeder(new FeederIO() {
+                        });
 
                 break;
 
@@ -118,7 +119,8 @@ public class RobotContainer {
                                 new ModuleIO() {
                                 });
                 feeder =
-                        new Feeder(new FeederIO() {});
+                        new Feeder(new FeederIO() {
+                        });
 
                 break;
         }
@@ -145,7 +147,6 @@ public class RobotContainer {
         // Configure the button bindings
         configureButtonBindings();
     }
-
 
 
     /**
