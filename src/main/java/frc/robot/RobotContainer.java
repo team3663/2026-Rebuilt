@@ -110,8 +110,7 @@ public class RobotContainer {
                 intake = new Intake(new IntakeIO() {
                 });
 
-                shooter =
-                        new Shooter(new ShooterIO() {});
+                shooter = new Shooter(new ShooterIO() {});
                 break;
 
             default:
@@ -131,8 +130,7 @@ public class RobotContainer {
                 intake = new Intake(new IntakeIO() {
                 });
 
-                shooter =
-                        new Shooter(new ShooterIO() {});
+                shooter = new Shooter(new ShooterIO() {});
                 break;
         }
 
