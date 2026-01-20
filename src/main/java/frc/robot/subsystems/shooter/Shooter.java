@@ -15,6 +15,8 @@ public class Shooter extends SubsystemBase {
     private final static double TURRET_POSITION_THRESHOLD = Units.degreesToRadians(1);
     private final static double SHOOTER_VELOCITY_THRESHOLD = Units.rotationsPerMinuteToRadiansPerSecond(1);
 
+    private final static double TARGET_SHOOTER_VELOCITY = Units.rotationsPerMinuteToRadiansPerSecond(500.0);
+
     private final ShooterIO io;
     private final ShooterInputsAutoLogged inputs = new ShooterInputsAutoLogged();
     private final Constants constants;
@@ -71,6 +73,10 @@ public class Shooter extends SubsystemBase {
         return this.hoodAtPosition(hoodPosition) && this.turretAtPosition(turretPosition) && this.shooterAtVelocity(shooterVelocity);
     }
 
+    public Command goToPositionsWithShooter(double hoodPosition, double turretPosition) {
+        return goToPositions(hoodPosition, turretPosition, TARGET_SHOOTER_VELOCITY);
+    }
+
     public Command goToPositions(double hoodPosition, double turretPosition, double shooterVelocity) {
         return runEnd(() -> {
             // Hood
@@ -87,6 +93,10 @@ public class Shooter extends SubsystemBase {
             targetShooterVelocity = shooterVelocity;
             io.setShooterTargetVelocity(targetShooterVelocity);
         }, this::stop).until(this::atTargetPositions);
+    }
+
+    public Command followPositionsWithShooter(DoubleSupplier hoodPosition, DoubleSupplier turretPosition) {
+        return followPositions(hoodPosition, turretPosition, () -> TARGET_SHOOTER_VELOCITY);
     }
 
     public Command followPositions(DoubleSupplier hoodPosition, DoubleSupplier turretPosition, DoubleSupplier shooterVelocity) {

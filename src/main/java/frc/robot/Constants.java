@@ -7,7 +7,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
 
 /**
@@ -35,6 +34,4 @@ public final class Constants {
          */
         REPLAY
     }
-
-    public static final double TARGET_SHOOTER_VELOCITY = Units.rotationsPerMinuteToRadiansPerSecond(500.0);
 }
