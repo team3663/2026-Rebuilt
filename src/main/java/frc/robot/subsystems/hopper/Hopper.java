@@ -7,7 +7,7 @@ import org.littletonrobotics.junction.Logger;
 public class Hopper extends SubsystemBase {
     private final HopperIO io;
     private final HopperInputsAutoLogged inputs = new HopperInputsAutoLogged();
-    private double targetVoltage = 0.0;
+    private double targetVoltage;
 
     public Hopper(HopperIO io) {
         this.io = io;
