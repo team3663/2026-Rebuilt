@@ -29,6 +29,7 @@ import frc.robot.subsystems.hopper.SimHopperIO;
 import frc.robot.subsystems.intake.C2026IntakeIO;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
+import frc.robot.subsystems.intake.SimIntakeIO;
 import frc.robot.subsystems.shooter.C2026ShooterIO;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterIO;
@@ -125,8 +126,7 @@ public class RobotContainer {
                 feeder = new Feeder(new FeederIO() {
                 });
                 hopper = new Hopper(new SimHopperIO());
-                intake = new Intake(new IntakeIO() {
-                });
+                intake = new Intake(new SimIntakeIO());
                 shooter = new Shooter(new SimShooterIO());
                 break;
 
@@ -219,7 +219,7 @@ public class RobotContainer {
 //                                        drive)
 //                                .ignoringDisable(true));
 //
-        controller.a().onTrue(intake.stopIntake());
+        controller.a().onTrue(intake.stop());
         controller.x().whileTrue(intake.intakeAndPivot(6.5, 0.0));
 
         //Hopper Controls
