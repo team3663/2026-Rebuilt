@@ -45,4 +45,8 @@ public interface ShooterIO {
 
     default void setShooterTargetVoltage(double voltage) {
     }
+
+    default double getShootingOutputVelocity(double motorVelocity) {
+        return motorVelocity;
+    }
 }

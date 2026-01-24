@@ -210,6 +210,10 @@ public class Shooter extends SubsystemBase {
         return targetShooterVelocity;
     }
 
+    public double getShootingOutputVelocity() {
+        return io.getShootingOutputVelocity(inputs.currentShooterVelocity1);
+    }
+
     // For running shooter prototypes w/o turret or hood:
     public Command runShooter(double voltage) {
         return Commands.runEnd(() -> {

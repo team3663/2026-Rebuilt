@@ -14,6 +14,7 @@ public class C2026ShooterIO implements ShooterIO {
     private static final double HOOD_GEAR_RATIO = 1.0;
     private static final double TURRET_GEAR_RATIO = 1.0;
     private static final double SHOOTER_GEAR_RATIO = 1.0;
+    private static final double SHOOTER_WHEEL_RADIUS = Units.inchesToMeters(2.0);
 
     // CANCoder values/ratios
     private static final double ENCODERS_GEAR_RATIO = 1.0;
@@ -226,5 +227,10 @@ public class C2026ShooterIO implements ShooterIO {
     @Override
     public void setShooterTargetVoltage(double voltage) {
         shooterMotor.setControl(voltageRequest.withOutput(voltage));
+    }
+
+    @Override
+    public double getShootingOutputVelocity(double motorVelocity) {
+        return motorVelocity * SHOOTER_GEAR_RATIO * SHOOTER_WHEEL_RADIUS;
     }
 }

@@ -233,7 +233,7 @@ public class RobotContainer {
 //
          // Zeroing
 //        controller.back().onTrue(drive.resetFieldOriented());
-        controller.start().onTrue(shooter.zeroHood().alongWith());
+        controller.start().onTrue(Commands.parallel(shooter.zeroHood()));
 
         // Intake
         controller.a().onTrue(intake.stopIntake());
