@@ -18,6 +18,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.climber.C2026ClimberIO;
+import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.drive.*;
 import frc.robot.subsystems.feeder.C2026FeederIO;
 import frc.robot.subsystems.feeder.Feeder;
@@ -48,6 +50,7 @@ public class RobotContainer {
     private final Hopper hopper;
     private final Intake intake;
     private final Shooter shooter;
+    private final Climber climber;
 
     // Controller
     private final CommandXboxController controller = new CommandXboxController(0);
@@ -84,15 +87,20 @@ public class RobotContainer {
                         new TalonFX(13)
                 ));
 
-                shooter = new Shooter(new C2026ShooterIO(
-                        new TalonFX(16),
-                        new TalonFX(17),
-                        new TalonFX(18),
-                        new TalonFX(19),
-                        new CANcoder(7),
-                        new CANcoder(8)
-                ));
-
+                shooter =
+                        new Shooter(new C2026ShooterIO(
+                                new TalonFX(16),
+                                new TalonFX(17),
+                                new TalonFX(18),
+                                new TalonFX(19),
+                                new CANcoder(7),
+                                new CANcoder(8)
+                        ));
+                climber =
+                        new Climber(new C2026ClimberIO(
+                                new TalonFX(9),
+                                new TalonFX(20)
+                        ));
 
                 // The ModuleIOTalonFXS implementation provides an example implementation for
                 // TalonFXS controller connected to a CANdi with a PWM encoder. The
