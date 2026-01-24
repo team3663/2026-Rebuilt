@@ -14,7 +14,6 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
@@ -183,7 +182,7 @@ public class RobotContainer {
         autoChooser.addOption(
                 "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
-        shooter.setDefaultCommand(shooter.goToWithShooter(shooter.getConstants().minimumHoodPosition(), 0.0));
+//        shooter.setDefaultCommand(shooter.goToWithShooter(shooter.getConstants().minimumHoodPosition(), 0.0));
 
         // Configure the button bindings
         configureButtonBindings();
@@ -217,7 +216,7 @@ public class RobotContainer {
 //        // Switch to X pattern when X button is pressed
 //        controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 //
-//        // Reset gyro to 0° when B button is pressed
+//        // Reset gyro to 0° when B button is pressed
 //        controller
 //                .b()
 //                .onTrue(
@@ -230,21 +229,22 @@ public class RobotContainer {
 //
          // Zeroing
 //        controller.back().onTrue(drive.resetFieldOriented());
-        controller.start().onTrue(Commands.parallel(shooter.zeroHood()));
 
-        // Intake
-        controller.a().onTrue(intake.stopIntake());
-        controller.x().whileTrue(intake.intakeWithVoltage(3.0));
+//        controller.start().onTrue(Commands.parallel(shooter.zeroHood()));
+//
+//        // Intake
+//        controller.a().onTrue(intake.stopIntake());
+//        controller.x().whileTrue(intake.intakeWithVoltage(3.0));
+//
+//        //Hopper Controls
+//        controller.b().whileTrue(hopper.withVoltage(3));
+//        controller.y().onTrue(hopper.stop());
+//
+//        // Shooter Controls
+//        controller.leftBumper().onTrue(Commands.runOnce(() -> shootingAtHub = !shootingAtHub));
+//        controller.rightTrigger().onTrue(commandFactory.aimShooter(() -> shootingAtHub));
 
-        //Hopper Controls
-        controller.b().whileTrue(hopper.withVoltage(3));
-        controller.y().onTrue(hopper.stop());
-
-        // Shooter Controls
-        controller.leftBumper().onTrue(Commands.runOnce(() -> shootingAtHub = !shootingAtHub));
-        controller.rightTrigger().onTrue(commandFactory.aimShooter(() -> shootingAtHub));
-
-//         controller.x().whileTrue(shooter.runShooter(-8.5));
+        controller.x().whileTrue(shooter.runShooter(-9.2));
     }
 
     /**

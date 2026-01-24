@@ -83,9 +83,9 @@ public class C2026ShooterIO implements ShooterIO {
         turretConfig.CurrentLimits.SupplyCurrentLimit = 60;
         turretConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-        turretConfig.Slot0.kV = 0.0;
+        turretConfig.Slot0.kV = 0.0075;
         turretConfig.Slot0.kA = 0.0;
-        turretConfig.Slot0.kP = 1.0;
+        turretConfig.Slot0.kP = 0.1;
         turretConfig.Slot0.kI = 0.0;
         turretConfig.Slot0.kD = 0.0;
 
