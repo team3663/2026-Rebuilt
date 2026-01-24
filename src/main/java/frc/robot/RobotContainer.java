@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
@@ -49,11 +50,15 @@ public class RobotContainer {
     private final Intake intake;
     private final Shooter shooter;
 
+    private final CommandFactory commandFactory;
+
     // Controller
     private final CommandXboxController controller = new CommandXboxController(0);
 
     // Dashboard inputs
     private final LoggedDashboardChooser<Command> autoChooser;
+
+    private boolean shootingAtHub = true;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -155,6 +160,10 @@ public class RobotContainer {
                 break;
         }
 
+        commandFactory = new CommandFactory(drive, feeder, hopper, intake, shooter
+//        , climber
+        );
+
         // Set up auto routines
         autoChooser = new LoggedDashboardChooser<>("Auto Choices", new SendableChooser<>());
 
@@ -219,12 +228,23 @@ public class RobotContainer {
 //                                        drive)
 //                                .ignoringDisable(true));
 //
+         // Zeroing
+//        controller.back().onTrue(drive.resetFieldOriented());
+        controller.start().onTrue(Commands.parallel(shooter.zeroHood()));
+
+        // Intake
         controller.a().onTrue(intake.stopIntake());
         controller.x().whileTrue(intake.intakeWithVoltage(3.0));
 
         //Hopper Controls
         controller.b().whileTrue(hopper.withVoltage(3));
         controller.y().onTrue(hopper.stop());
+
+        // Shooter Controls
+        controller.leftBumper().onTrue(Commands.runOnce(() -> shootingAtHub = !shootingAtHub));
+        controller.rightTrigger().onTrue(commandFactory.aimShooter(() -> shootingAtHub));
+
+//         controller.x().whileTrue(shooter.runShooter(-8.5));
     }
 
     /**
