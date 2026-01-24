@@ -5,7 +5,10 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.*;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.util.Units;
 
 public class C2026ShooterIO implements ShooterIO {
@@ -67,8 +70,6 @@ public class C2026ShooterIO implements ShooterIO {
         hoodConfig.Slot0.kP = 1.0;
         hoodConfig.Slot0.kI = 0.0;
         hoodConfig.Slot0.kD = 0.0;
-        hoodConfig.Slot0.kG = 0.0;
-        hoodConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
 //        shooterConfig.MotionMagic.MotionMagicJerk = 15.0;
 //        shooterConfig.MotionMagic.MotionMagicAcceleration = 5.0;
@@ -122,6 +123,24 @@ public class C2026ShooterIO implements ShooterIO {
         shooterMotor2.setControl(new Follower(shooterMotor.getDeviceID(), MotorAlignmentValue.Opposed));
     }
 
+    public static double getTurretAngleFromEncoders(double e1, double e2) {
+        double e1Degrees = Units.radiansToDegrees(e1);
+        double e2Degrees = Units.radiansToDegrees(e2);
+
+        double additionalRotations = e2Degrees * ENCODER_ADDITIONAL_GEAR_RATIO / 360.0;
+        int additionalDegreesFloor = ((int) additionalRotations) * 360;
+        double turretAngleDegrees = e1Degrees + additionalDegreesFloor;
+
+        double error = e1Degrees - (e2Degrees * ENCODER_ADDITIONAL_GEAR_RATIO % 360);
+        if (error > 180.0) {
+            turretAngleDegrees -= 360.0;
+        } else if (error < -180.0) {
+            turretAngleDegrees += 360.0;
+        }
+
+        return Units.degreesToRadians(turretAngleDegrees);
+    }
+
     @Override
     public Shooter.Constants getConstants() {
         return constants;
@@ -160,24 +179,6 @@ public class C2026ShooterIO implements ShooterIO {
         inputs.currentShooterVelocity2 = Units.rotationsToRadians(shooterMotor2.getVelocity().getValueAsDouble());
         inputs.shooterMotorTemperature2 = shooterMotor2.getDeviceTemp().getValueAsDouble();
         inputs.currentShooterDraw2 = shooterMotor2.getSupplyCurrent().getValueAsDouble();
-    }
-
-    public static double getTurretAngleFromEncoders(double e1, double e2) {
-        double e1Degrees = Units.radiansToDegrees(e1);
-        double e2Degrees = Units.radiansToDegrees(e2);
-
-        double additionalRotations = e2Degrees * ENCODER_ADDITIONAL_GEAR_RATIO / 360.0;
-        int additionalDegreesFloor = ((int) additionalRotations) * 360;
-        double turretAngleDegrees = e1Degrees + additionalDegreesFloor;
-
-        double error = e1Degrees - (e2Degrees * ENCODER_ADDITIONAL_GEAR_RATIO % 360);
-        if (error > 180.0) {
-            turretAngleDegrees -= 360.0;
-        } else if (error < -180.0) {
-            turretAngleDegrees += 360.0;
-        }
-
-        return Units.degreesToRadians(turretAngleDegrees);
     }
 
     @Override
