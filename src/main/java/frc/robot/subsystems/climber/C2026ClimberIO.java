@@ -88,7 +88,6 @@ public class C2026ClimberIO implements ClimberIO {
         deployMotor.setControl(voltageRequest.withOutput(voltage));
     }
 
-    //TODO make sure units are correct
     @Override
     public void setTargetDeployPosition(double degrees) {
         deployMotor.setControl(positionRequest.withPosition(Units.degreesToRadians(degrees)));
@@ -96,7 +95,7 @@ public class C2026ClimberIO implements ClimberIO {
 
     @Override
     public void resetDeployPosition(double position) {
-        deployMotor.setPosition(Units.radiansToRotations(position));
+        deployMotor.setPosition(Units.degreesToRotations(position));
     }
 
     //climb motor(s)
@@ -112,7 +111,7 @@ public class C2026ClimberIO implements ClimberIO {
 
     @Override
     public void resetClimbPosition(double position) {
-        climbMotor.setPosition(Units.radiansToRotations(position));
+        climbMotor.setPosition(Units.degreesToRotations(position));
     }
 
     //stoppers
