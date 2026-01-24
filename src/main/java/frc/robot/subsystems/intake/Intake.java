@@ -98,31 +98,32 @@ public class Intake extends SubsystemBase {
                     io.setTargetIntakeVoltage(targetVoltage);
                     if (pivotZeroed) {
                         targetPivotPosition = position;
-                        this.followPivotPositions(()-> position);
+                        io.setTargetPivotPosition(position);
                     }
                 }, io::stopIntake
         );
 
     }
 
-    public Command deployAndIntake(){
+    public Command deployAndIntake() {
         return intakeAndPivot(INTAKE_VOLTAGE, DEPLOY_ANGLE);
     }
 
-    public Command stow(){
+    public Command stow() {
         return intakeAndPivot(0.0, STOW_ANGLE);
     }
 
-    public Command deploy(){
+    public Command deploy() {
         return intakeAndPivot(0.0, DEPLOY_ANGLE);
     }
 
-    public Command stop(){
-        return runOnce(()->{
-                    targetVoltage = 0.0;
-                    targetPivotPosition = 0.0;
-                    io.stopPivot();
-                    io.stopIntake();});
+    public Command stop() {
+        return runOnce(() -> {
+            targetVoltage = 0.0;
+            targetPivotPosition = 0.0;
+            io.stopPivot();
+            io.stopIntake();
+        });
     }
 
     public record Constants(double minimumPivotAngle, double maximumPivotAngle) {
