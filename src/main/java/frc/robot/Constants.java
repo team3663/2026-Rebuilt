@@ -47,6 +47,7 @@ public final class Constants {
 
     public static class Shooter {
         // TODO: get actual values
+        // The Pose2d's of the six locations we will want to pass to
         public static final Pose2d RED_HUB = new Pose2d(4.4, 4.0, Rotation2d.kZero);
         public static final Pose2d BLUE_HUB = new Pose2d(11.8, 4.0, Rotation2d.kZero);
 
@@ -55,11 +56,14 @@ public final class Constants {
         public static final Pose2d UPPER_PASS_BLUE = new Pose2d(16.5, 8.0, Rotation2d.kZero);
         public static final Pose2d LOWER_PASS_BLUE = new Pose2d(16.5, 0.0, Rotation2d.kZero);
 
-        public static final double TURRET_OFFSET_ANGLE = Units.degreesToRadians(135.0);
-        public static final double TURRET_OFFSET_DISTANCE = Units.inchesToMeters(Math.sqrt(365) - 4.0);
-        public static final double LAUNCH_HEIGHT = Units.inchesToMeters(21.0);
-
+        // The heights we will attempt to pass to when passing to the hub and our alliance zone, respectively
         public static final double HUB_HEIGHT = Units.inchesToMeters(45.0);
         public static final double PASS_HEIGHT = Units.feetToMeters(1.0);
+
+        // The Radians from the turrets 0 position to the angle of turrets location around the center of the robot
+        public static final double TURRET_OFFSET_ANGLE = Units.degreesToRadians(45.0);
+        // The meters the center of the turret is from the center of the robot
+        public static final double TURRET_OFFSET_DISTANCE = Units.inchesToMeters(Math.sqrt(365) - 4.0);
+        public static final double LAUNCH_HEIGHT = Units.inchesToMeters(21.0);
     }
 }
