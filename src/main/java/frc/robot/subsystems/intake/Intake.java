@@ -2,7 +2,10 @@ package frc.robot.subsystems.intake;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.Logger;
+
+import static edu.wpi.first.units.Units.Volts;
 
 public class Intake extends SubsystemBase {
     private final IntakeIO io;
@@ -51,5 +54,4 @@ public class Intake extends SubsystemBase {
             io.setTargetIntakeVoltage(targetVoltage);
         }, io::stopIntake);
     }
-
 }

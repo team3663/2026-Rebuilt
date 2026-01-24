@@ -10,6 +10,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Voltage;
 
 public class C2026IntakeIO implements IntakeIO {
     // TODO get minimum and maximum angles for pivot
@@ -98,6 +99,11 @@ public class C2026IntakeIO implements IntakeIO {
     @Override
     public void setTargetIntakeVoltage(double voltage) {
         intakeMotor.setControl(voltageRequest.withOutput(voltage));
+    }
+
+    @Override
+    public void sysIdPivot(Voltage voltage) {
+        pivotMotor1.setControl(voltageRequest.withOutput(voltage));
     }
 
 }

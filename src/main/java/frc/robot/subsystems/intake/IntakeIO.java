@@ -1,5 +1,7 @@
 package frc.robot.subsystems.intake;
 
+import edu.wpi.first.units.measure.Voltage;
+
 public interface IntakeIO {
     default void updateInputs(IntakeInputs inputs) {
 
@@ -15,7 +17,9 @@ public interface IntakeIO {
     }
 
     default void resetPivotPosition(double position) {
+    }
 
+    default void sysIdPivot(Voltage voltage) {
     }
 
     default void stopPivot() {
