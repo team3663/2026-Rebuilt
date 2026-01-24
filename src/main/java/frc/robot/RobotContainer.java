@@ -245,7 +245,9 @@ public class RobotContainer {
 
         // Shooter Controls
         controller.leftBumper().onTrue(Commands.runOnce(() -> shootingAtHub = !shootingAtHub));
-        controller.rightBumper().onTrue(commandFactory.aimShooter(() -> shootingAtHub));
+        controller.rightTrigger().onTrue(commandFactory.aimShooter(() -> shootingAtHub));
+
+//         controller.x().whileTrue(shooter.runShooter(-8.5));
     }
 
     /**
