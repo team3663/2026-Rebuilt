@@ -7,23 +7,26 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.*;
+import frc.robot.subsystems.feeder.C2026FeederIO;
+import frc.robot.subsystems.feeder.Feeder;
+import frc.robot.subsystems.feeder.FeederIO;
 import frc.robot.subsystems.hopper.C2026HopperIO;
 import frc.robot.subsystems.hopper.Hopper;
 import frc.robot.subsystems.hopper.HopperIO;
 import frc.robot.subsystems.hopper.SimHopperIO;
-import frc.robot.subsystems.feeder.C2026FeederIO;
-import frc.robot.subsystems.feeder.Feeder;
-import frc.robot.subsystems.feeder.FeederIO;
 import frc.robot.subsystems.intake.C2026IntakeIO;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
@@ -46,11 +49,15 @@ public class RobotContainer {
     private final Intake intake;
     private final Shooter shooter;
 
+    private final CommandFactory commandFactory;
+
     // Controller
     private final CommandXboxController controller = new CommandXboxController(0);
 
     // Dashboard inputs
     private final LoggedDashboardChooser<Command> autoChooser;
+
+    private boolean shootingAtHub = true;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -158,6 +165,8 @@ public class RobotContainer {
                 break;
         }
 
+        commandFactory = new CommandFactory(drive, feeder, hopper, intake, shooter);
+
         // Set up auto routines
         autoChooser = new LoggedDashboardChooser<>("Auto Choices", new SendableChooser<>());
 
@@ -222,12 +231,21 @@ public class RobotContainer {
 //                                        drive)
 //                                .ignoringDisable(true));
 //
+         // Zeroing
+//        controller.back().onTrue(drive.resetFieldOriented());
+        controller.start().onTrue(shooter.zeroHood().alongWith());
+
+        // Intake
         controller.a().onTrue(intake.stopIntake());
         controller.x().whileTrue(intake.intakeWithVoltage(3.0));
 
         //Hopper Controls
         controller.b().whileTrue(hopper.withVoltage(3));
         controller.y().onTrue(hopper.stop());
+
+        // Shooter Controls
+        controller.leftBumper().onTrue(Commands.runOnce(() -> shootingAtHub = !shootingAtHub));
+        controller.rightBumper().onTrue(commandFactory.aimShooter(() -> shootingAtHub));
     }
 
     /**
