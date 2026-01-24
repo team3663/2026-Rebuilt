@@ -18,6 +18,8 @@ import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.climber.C2026ClimberIO;
 import frc.robot.subsystems.climber.Climber;
+import frc.robot.subsystems.climber.ClimberIO;
+import frc.robot.subsystems.climber.SimClimberIO;
 import frc.robot.subsystems.drive.*;
 import frc.robot.subsystems.hopper.C2026HopperIO;
 import frc.robot.subsystems.hopper.Hopper;
@@ -138,6 +140,8 @@ public class RobotContainer {
                 });
 
                 shooter = new Shooter(new ShooterIO() {});
+
+                climber = new Climber(new SimClimberIO());
                 break;
 
             default:
@@ -162,6 +166,7 @@ public class RobotContainer {
                 });
 
                 shooter = new Shooter(new ShooterIO() {});
+                climber = new Climber(new ClimberIO() {});
                 break;
         }
 
