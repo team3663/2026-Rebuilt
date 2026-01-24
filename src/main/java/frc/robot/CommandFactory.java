@@ -18,15 +18,17 @@ public class CommandFactory {
     private final Hopper hopper;
     private final Intake intake;
     private final Shooter shooter;
-    private final Climber climber;
+//    private final Climber climber;
 
-    public CommandFactory(Drive drive, Feeder feeder, Hopper hopper, Intake intake, Shooter shooter, Climber climber) {
+    public CommandFactory(Drive drive, Feeder feeder, Hopper hopper, Intake intake, Shooter shooter
+//            , Climber climber
+                          ) {
         this.drive = drive;
         this.feeder = feeder;
         this.hopper = hopper;
         this.intake = intake;
         this.shooter = shooter;
-        this.climber = climber;
+//        this.climber = climber;
     }
 
     public Command aimShooter(BooleanSupplier aimAtHub) {

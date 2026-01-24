@@ -165,7 +165,9 @@ public class RobotContainer {
                 break;
         }
 
-        commandFactory = new CommandFactory(drive, feeder, hopper, intake, shooter);
+        commandFactory = new CommandFactory(drive, feeder, hopper, intake, shooter
+//        , climber
+        );
 
         // Set up auto routines
         autoChooser = new LoggedDashboardChooser<>("Auto Choices", new SendableChooser<>());

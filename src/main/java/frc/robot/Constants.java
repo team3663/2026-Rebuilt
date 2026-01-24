@@ -47,7 +47,7 @@ public final class Constants {
 
     public static class Shooter {
         // TODO: get actual values
-        // The Pose2d's of the six locations we will want to pass to
+        // The Pose2d's of the six locations we will want to shoot fuel to
         public static final Pose2d RED_HUB = new Pose2d(4.4, 4.0, Rotation2d.kZero);
         public static final Pose2d BLUE_HUB = new Pose2d(11.8, 4.0, Rotation2d.kZero);
 
