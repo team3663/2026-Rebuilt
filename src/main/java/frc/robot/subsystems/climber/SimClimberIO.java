@@ -13,7 +13,6 @@ public class SimClimberIO implements ClimberIO {
 
     private final double CLIMB_SPROCKET_RADIUS = Units.inchesToMeters(2);
 
-
     private final double ROBOT_MASS = 50;
 
     private final DCMotor climbMotor = DCMotor.getKrakenX60(1);
@@ -31,7 +30,7 @@ public class SimClimberIO implements ClimberIO {
             0.0
             );
 
-    private final PIDController climbController = new PIDController(0.0, 0.0, 0.0);
+    private final PIDController climbController = new PIDController(1.0, 0.0, 0.0);
 
     @Override
     public void updateInputs(ClimberInputs inputs) {
@@ -40,8 +39,7 @@ public class SimClimberIO implements ClimberIO {
             climbSim.setInputVoltage(voltage);
         }
         inputs.currentClimbMotorVelocity = climbSim.getVelocityMetersPerSecond();
-        //outputs rotations instead of meters
-        inputs.currentClimbMotorPosition = climbSim.getPositionMeters() / CLIMB_SPROCKET_RADIUS * 2 * Math.PI;
+        inputs.currentClimbMotorPosition = climbSim.getPositionMeters();
         inputs.currentClimbMotorAppliedCurrent = climbSim.getCurrentDrawAmps();
         inputs.currentClimbMotorAppliedVoltage = voltage;
 
