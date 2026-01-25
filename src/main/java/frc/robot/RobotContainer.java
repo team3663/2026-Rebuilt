@@ -7,6 +7,9 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.CANdle;
+import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -27,6 +30,9 @@ import frc.robot.subsystems.feeder.FeederIO;
 import frc.robot.subsystems.intake.C2026IntakeIO;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
+import frc.robot.subsystems.led.Led;
+import frc.robot.subsystems.led.LedCandleIo;
+import frc.robot.subsystems.led.LedIo;
 import frc.robot.subsystems.shooter.C2026ShooterIO;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterIO;
@@ -45,6 +51,7 @@ public class RobotContainer {
     private final Hopper hopper;
     private final Intake intake;
     private final Shooter shooter;
+    private final Led led;
 
     // Controller
     private final CommandXboxController controller = new CommandXboxController(0);
@@ -92,6 +99,8 @@ public class RobotContainer {
                                 new CANcoder(7),
                                 new CANcoder(8)
                         ));
+                led =
+                        new Led(new LedCandleIo(new CANdle(9)));
 
 
                 // The ModuleIOTalonFXS implementation provides an example implementation for
@@ -131,6 +140,8 @@ public class RobotContainer {
                 });
 
                 shooter = new Shooter(new ShooterIO() {});
+
+                led = new Led(new LedIo() {});
                 break;
 
             default:
@@ -155,6 +166,8 @@ public class RobotContainer {
                 });
 
                 shooter = new Shooter(new ShooterIO() {});
+
+                led = new Led(new LedIo() {});
                 break;
         }
 
