@@ -211,17 +211,6 @@ public class RobotContainer {
 //
 //        // Switch to X pattern when X button is pressed
 //        controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
-//
-//        // Reset gyro to 0° when B button is pressed
-//        controller
-//                .b()
-//                .onTrue(
-//                        Commands.runOnce(
-//                                        () ->
-//                                                drive.setPose(
-//                                                        new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
-//                                        drive)
-//                                .ignoringDisable(true));
 
         // Zero all subsystems when start button is pressed
         controller.start().onTrue(Commands.parallel(shooter.zeroHood()
