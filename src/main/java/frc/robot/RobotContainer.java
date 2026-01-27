@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.*;
+import frc.robot.subsystems.feeder.SimFeederIO;
 import frc.robot.subsystems.feeder.C2026FeederIO;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.feeder.FeederIO;
@@ -123,8 +124,7 @@ public class RobotContainer {
                         new ModuleIOSim(TunerConstants.FrontRight),
                         new ModuleIOSim(TunerConstants.BackLeft),
                         new ModuleIOSim(TunerConstants.BackRight));
-                feeder = new Feeder(new FeederIO() {
-                });
+                feeder = new Feeder(new SimFeederIO());
                 hopper = new Hopper(new SimHopperIO());
                 intake = new Intake(new SimIntakeIO());
                 shooter = new Shooter(new SimShooterIO());
