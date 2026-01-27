@@ -140,6 +140,8 @@ public class RobotContainer {
                 shooter = new Shooter(new SimShooterIO());
 
                 climber = new Climber(new SimClimberIO());
+
+                climber = new Climber(new SimClimberIO());
                 break;
 
             default:
@@ -164,6 +166,7 @@ public class RobotContainer {
                 });
                 shooter = new Shooter(new ShooterIO() {
                 });
+                climber = new Climber(new ClimberIO() {});
                 climber = new Climber(new ClimberIO() {});
                 break;
         }
