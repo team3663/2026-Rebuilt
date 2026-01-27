@@ -124,8 +124,7 @@ public class RobotContainer {
                         new ModuleIOSim(TunerConstants.FrontRight),
                         new ModuleIOSim(TunerConstants.BackLeft),
                         new ModuleIOSim(TunerConstants.BackRight));
-                feeder = new Feeder(new SimFeederIO(){
-                });
+                feeder = new Feeder(new SimFeederIO());
                 hopper = new Hopper(new SimHopperIO());
                 intake = new Intake(new SimIntakeIO());
                 shooter = new Shooter(new SimShooterIO());
