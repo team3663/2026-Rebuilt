@@ -10,7 +10,9 @@ package frc.robot.subsystems.drive;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -26,16 +28,21 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
+import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
+import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Volts;
@@ -328,6 +335,38 @@ public class Drive extends SubsystemBase {
      */
     public double getMaxAngularSpeedRadPerSec() {
         return getMaxLinearSpeedMetersPerSec() / DRIVE_BASE_RADIUS;
+    }
+
+    public Command resetOdometry(Pose2d targetPose){
+        return Commands.runOnce(()-> poseEstimator.resetPose(targetPose));
+    }
+
+    public Command goToPosition(Drive drive, Supplier<Pose2d> targetPose, BooleanSupplier slowAccel, Supplier<Double> maxVelocity){
+        PIDController controller = new PIDController(7.0, 0.0, 1.0);
+        PIDController rotationController = new PIDController(10.0, 0.0, 0.0);
+        rotationController.enableContinuousInput(-Math.PI, Math.PI);
+
+        return startRun(
+                ()-> {
+                    controller.reset();
+                    controller.setP(slowAccel.getAsBoolean() ? 5.0 : 6.0);
+                    rotationController.reset();
+                    controller.setSetpoint(0.0);
+                    rotationController.setSetpoint(targetPose.get().getRotation().getRadians());
+                },
+                () -> {
+                    var target = targetPose.get();
+                    var current = getPose();
+                    var error = target.getTranslation().minus(current.getTranslation());
+                    var linearVelocity = MathUtil.clamp(
+                            controller.calculate(error.getNorm()),
+                            -maxVelocity.get(),
+                            maxVelocity.get());
+                    var velocity = new Translation2d(-linearVelocity, error.getAngle());
+                    var angularVel = rotationController.calculate(
+                            current.getRotation().getRotations(), target.getRotation().getRadians());
+                    DriveCommands.autoDriving(drive,()-> velocity.getX(), ()-> velocity.getY(), ()-> angularVel);
+                }).finallyDo(this::stop);
     }
 
     /**

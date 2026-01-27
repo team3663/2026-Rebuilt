@@ -7,6 +7,11 @@
 
 package frc.robot;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
 
 /**
@@ -17,6 +22,18 @@ import edu.wpi.first.wpilibj.RobotBase;
 public final class Constants {
     public static final Mode simMode = Mode.SIM;
     public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
+
+    public static final Boolean IS_ANDYMARK = false;
+    // TODO get 2026 field when available
+    public static AprilTagFieldLayout FIELD =
+            AprilTagFieldLayout.loadField(IS_ANDYMARK ? AprilTagFields.k2025ReefscapeAndyMark : AprilTagFields.k2025ReefscapeWelded);
+
+    public static final Pose2d RED_AUTO_STARTING_6FT = new Pose2d(Units.inchesToMeters(156.61),
+            Units.inchesToMeters(72.0 + 14.0), Rotation2d.fromDegrees(0));
+    public static final Pose2d RED_AUTO_STARTING_CENTER = new Pose2d(Units.inchesToMeters(156.61),
+            Units.inchesToMeters(FIELD.getFieldWidth() / 2.0), Rotation2d.fromDegrees(0));
+
+
 
     public static enum Mode {
         /**

@@ -59,6 +59,17 @@ public class DriveCommands {
                 .getTranslation();
     }
 
+    private static Translation2d getLinearVelocityFromAuto(double x, double y){
+        // Apply deadband
+        double linearMagnitude = MathUtil.applyDeadband(Math.hypot(x, y), DEADBAND);
+        Rotation2d linearDirection = new Rotation2d(Math.atan2(y, x));
+
+        // Return new linear velocity
+        return new Pose2d(Translation2d.kZero, linearDirection)
+                .transformBy(new Transform2d(linearMagnitude, 0.0, Rotation2d.kZero))
+                .getTranslation();
+    }
+
     /**
      * Field relative drive command using two joysticks (controlling linear and angular velocities).
      */
@@ -78,6 +89,42 @@ public class DriveCommands {
 
                     // Square rotation value for more precise control
                     omega = Math.copySign(omega * omega, omega);
+
+                    // Convert to field relative speeds & send command
+                    ChassisSpeeds speeds =
+                            new ChassisSpeeds(
+                                    linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
+                                    linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
+                                    omega * drive.getMaxAngularSpeedRadPerSec());
+                    boolean isFlipped =
+                            DriverStation.getAlliance().isPresent()
+                                    && DriverStation.getAlliance().get() == Alliance.Red;
+                    drive.runVelocity(
+                            ChassisSpeeds.fromFieldRelativeSpeeds(
+                                    speeds,
+                                    isFlipped
+                                            ? drive.getRotation().plus(new Rotation2d(Math.PI))
+                                            : drive.getRotation()));
+                },
+                drive);
+    }
+
+    /**
+     * Field relative drive command using two joysticks (controlling linear and angular velocities).
+     */
+    public static Command autoDriving(
+            Drive drive,
+            DoubleSupplier xSupplier,
+            DoubleSupplier ySupplier,
+            DoubleSupplier omegaSupplier) {
+        return Commands.run(
+                () -> {
+                    // Get linear velocity
+                    Translation2d linearVelocity =
+                            getLinearVelocityFromAuto(xSupplier.getAsDouble(), ySupplier.getAsDouble());
+
+                    // Apply rotation deadband
+                    double omega = MathUtil.applyDeadband(omegaSupplier.getAsDouble(), DEADBAND);
 
                     // Convert to field relative speeds & send command
                     ChassisSpeeds speeds =
