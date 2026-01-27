@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
@@ -55,8 +56,10 @@ public class RobotContainer {
     // Dashboard inputs
     private final LoggedDashboardChooser<Command> autoChooser;
 
+    private boolean intakeOut = false;
+
     /**
-     * The container for the robot. Contains subsystems, OI devices, and commands.
+     * The container for the robot. Contains subsystems, IO devices, and commands.
      */
     public RobotContainer() {
         switch (Constants.currentMode) {
@@ -132,18 +135,17 @@ public class RobotContainer {
 
             default:
                 // Replayed robot, disable IO implementations
-                drive =
-                        new Drive(
-                                new GyroIO() {
-                                },
-                                new ModuleIO() {
-                                },
-                                new ModuleIO() {
-                                },
-                                new ModuleIO() {
-                                },
-                                new ModuleIO() {
-                                });
+                drive = new Drive(
+                        new GyroIO() {
+                        },
+                        new ModuleIO() {
+                        },
+                        new ModuleIO() {
+                        },
+                        new ModuleIO() {
+                        },
+                        new ModuleIO() {
+                        });
                 feeder = new Feeder(new FeederIO() {
                 });
                 hopper = new Hopper(new HopperIO() {
@@ -174,10 +176,10 @@ public class RobotContainer {
         autoChooser.addOption(
                 "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
-        shooter.setDefaultCommand(shooter.goToWithShooter(shooter.getConstants().minimumHoodPosition(), 0.0));
-
         // Configure the button bindings
         configureButtonBindings();
+
+        shooter.setDefaultCommand(shooter.goToWithShooter(shooter.getConstants().minimumHoodPosition(), 0.0));
     }
 
     /**
@@ -208,7 +210,7 @@ public class RobotContainer {
 //        // Switch to X pattern when X button is pressed
 //        controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 //
-//        // Reset gyro to 0° when B button is pressed
+//        // Reset gyro to 0° when B button is pressed
 //        controller
 //                .b()
 //                .onTrue(
@@ -218,13 +220,14 @@ public class RobotContainer {
 //                                                        new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
 //                                        drive)
 //                                .ignoringDisable(true));
-//
-        controller.a().onTrue(intake.stopIntake());
-        controller.x().whileTrue(intake.intakeWithVoltage(3.0));
 
-        //Hopper Controls
-        controller.b().whileTrue(hopper.withVoltage(3));
-        controller.y().onTrue(hopper.stop());
+        controller.start().onTrue(Commands.parallel(shooter.zeroHood()));
+//        controller.back().onTrue(drive.resetFieldOriented());
+
+        controller.rightTrigger().whileTrue(commandFactory.aimShooter(() -> !controller.y().getAsBoolean()));
+        controller.rightBumper().and(controller.rightTrigger()).whileTrue(feeder.withVoltage(4.0));
+        controller.leftBumper().onTrue(commandFactory.toggleIntake(() -> intakeOut).andThen(() -> intakeOut = !intakeOut));
+        controller.leftTrigger().and(() -> intakeOut).whileTrue(intake.intakeWithVoltage(6.0).alongWith(hopper.withVoltage(3.0)));
     }
 
     /**
