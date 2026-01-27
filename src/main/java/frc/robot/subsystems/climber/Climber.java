@@ -115,7 +115,7 @@ public class Climber extends SubsystemBase {
     public Command Climb() {
         return runEnd(() ->{
             if (climbZeroed) {
-                targetClimbPosition = EXTENDED_CLIMB_POSITION;
+                targetClimbPosition = getValidClimbPosition(EXTENDED_CLIMB_POSITION);
                 io.setTargetClimbPosition(getValidClimbPosition(EXTENDED_CLIMB_POSITION));
             }
         },() -> {stop();}).until(this::atClimbPosition);
