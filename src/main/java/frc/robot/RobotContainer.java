@@ -22,7 +22,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.*;
-import frc.robot.subsystems.feeder.SimFeederIO;
 import frc.robot.subsystems.feeder.C2026FeederIO;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.feeder.FeederIO;
@@ -121,7 +120,7 @@ public class RobotContainer {
                         TunerConstants.BackLeft,
                                 new ModuleIOSim(TunerConstants.BackRight),
                                 TunerConstants.BackRight);
-                feeder = new Feeder(new SimFeederIO());
+                feeder = new Feeder(new FeederIO() {});
                 hopper = new Hopper(new SimHopperIO());
                 intake = new Intake(new SimIntakeIO());
                 shooter = new Shooter(new SimShooterIO());
@@ -197,14 +196,32 @@ public class RobotContainer {
                         () -> -controller.getLeftX(),
                         () -> -controller.getRightX()));
 
-        // Reset gyro to 0° when B button is pressed
-        controller.back().onTrue(Commands.runOnce(
-                        () -> drive.setPose(new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
-                        drive)
-                .ignoringDisable(true));
-
+//        // Lock to 0° when A button is held
+//        controller
+//                .a()
+//                .whileTrue(
+//                        DriveCommands.joystickDriveAtAngle(
+//                                drive,
+//                                () -> -controller.getLeftY(),
+//                                () -> -controller.getLeftX(),
+//                                () -> Rotation2d.kZero));
+//
+//        // Switch to X pattern when X button is pressed
+//        controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+//
+        // Reset gyro to 0° when B button is pressed
+        controller
+                .start()
+                .onTrue(
+                        Commands.runOnce(
+                                        () ->
+                                                drive.setPose(
+                                                        new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
+                                        drive)
+                                .ignoringDisable(true));
+//
         controller.a().onTrue(intake.stop());
-        controller.x().whileTrue(intake.intakeAndPivot(6.5, 0.0));
+        controller.leftTrigger().whileTrue(intake.intakeAndPivot(-5.0, 0.0));
 
         //Hopper Controls
         controller.b().whileTrue(hopper.withVoltage(3));
