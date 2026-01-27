@@ -221,8 +221,14 @@ public class RobotContainer {
 //                                        drive)
 //                                .ignoringDisable(true));
 
-        controller.start().onTrue(Commands.parallel(shooter.zeroHood()));
-//        controller.back().onTrue(drive.resetFieldOriented());
+        // Zero all subsystems when start button is pressed
+        controller.start().onTrue(Commands.parallel(shooter.zeroHood()
+//                , intake.zeroPivot(), climber.zero()
+        ));
+        // Reset gyro to 0° when back button is pressed
+        controller.back().onTrue(Commands.runOnce(() -> drive.setPose(
+                        new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
+                drive).ignoringDisable(true));
 
         controller.rightTrigger().whileTrue(commandFactory.aimShooter(() -> !controller.y().getAsBoolean()));
         controller.rightBumper().and(controller.rightTrigger()).whileTrue(feeder.withVoltage(4.0));
