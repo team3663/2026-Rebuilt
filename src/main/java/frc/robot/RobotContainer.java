@@ -12,20 +12,19 @@ import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.*;
-import frc.robot.subsystems.feeder.SimFeederIO;
 import frc.robot.subsystems.feeder.C2026FeederIO;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.feeder.FeederIO;
+import frc.robot.subsystems.feeder.SimFeederIO;
 import frc.robot.subsystems.hopper.C2026HopperIO;
 import frc.robot.subsystems.hopper.Hopper;
 import frc.robot.subsystems.hopper.HopperIO;
@@ -74,15 +73,15 @@ public class RobotContainer {
                 // a CANcoder
                 drive = new Drive(
                         new GyroIOPigeon2(odometryThread, odometryFrequencyHz, TunerConstants.DrivetrainConstants.Pigeon2Id,
-                                        TunerConstants.DrivetrainConstants.Pigeon2Configs, TunerConstants.kCANBus),
+                                TunerConstants.DrivetrainConstants.Pigeon2Configs, TunerConstants.kCANBus),
                         new ModuleIOTalonFX(odometryThread, odometryFrequencyHz, TunerConstants.FrontLeft, TunerConstants.kCANBus),
-                                TunerConstants.FrontLeft,
+                        TunerConstants.FrontLeft,
                         new ModuleIOTalonFX(odometryThread, odometryFrequencyHz, TunerConstants.FrontRight, TunerConstants.kCANBus),
-                                TunerConstants.FrontRight,
+                        TunerConstants.FrontRight,
                         new ModuleIOTalonFX(odometryThread, odometryFrequencyHz, TunerConstants.BackLeft, TunerConstants.kCANBus),
-                                TunerConstants.BackLeft,
+                        TunerConstants.BackLeft,
                         new ModuleIOTalonFX(odometryThread, odometryFrequencyHz, TunerConstants.BackRight, TunerConstants.kCANBus),
-                                TunerConstants.BackRight);
+                        TunerConstants.BackRight);
                 feeder = new Feeder(new C2026FeederIO(
                         new TalonFX(14),
                         new TalonFX(15),
@@ -115,12 +114,12 @@ public class RobotContainer {
                         },
                         new ModuleIOSim(TunerConstants.FrontLeft),
                         TunerConstants.FrontLeft,
-                                new ModuleIOSim(TunerConstants.FrontRight),
-                                TunerConstants.FrontRight,
+                        new ModuleIOSim(TunerConstants.FrontRight),
+                        TunerConstants.FrontRight,
                         new ModuleIOSim(TunerConstants.BackLeft),
                         TunerConstants.BackLeft,
-                                new ModuleIOSim(TunerConstants.BackRight),
-                                TunerConstants.BackRight);
+                        new ModuleIOSim(TunerConstants.BackRight),
+                        TunerConstants.BackRight);
                 feeder = new Feeder(new SimFeederIO());
                 hopper = new Hopper(new SimHopperIO());
                 intake = new Intake(new SimIntakeIO());
@@ -162,10 +161,6 @@ public class RobotContainer {
 
         // Set up SysId routines
         autoChooser.addOption(
-                "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
-        autoChooser.addOption(
-                "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
-        autoChooser.addOption(
                 "Drive SysId (Quasistatic Forward)",
                 drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
         autoChooser.addOption(
@@ -190,18 +185,19 @@ public class RobotContainer {
      */
     private void configureButtonBindings() {
         // Default command, normal field-relative drive
-        drive.setDefaultCommand(
-                DriveCommands.joystickDrive(
-                        drive,
-                        () -> -controller.getLeftY(),
-                        () -> -controller.getLeftX(),
-                        () -> -controller.getRightX()));
+        drive.setDefaultCommand(drive.joystickDrive(
+                () -> -controller.getLeftY(),
+                () -> -controller.getLeftX(),
+                () -> -controller.getRightX()
+        ));
 
         // Reset gyro to 0° when B button is pressed
-        controller.back().onTrue(Commands.runOnce(
-                        () -> drive.setPose(new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
-                        drive)
-                .ignoringDisable(true));
+        controller.back().onTrue(drive.resetOdometry(() ->
+                new Pose2d(
+                        drive.getPose().getTranslation(),
+                        DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == DriverStation.Alliance.Red ?
+                                Rotation2d.k180deg :
+                                Rotation2d.kZero)));
 
         controller.a().onTrue(intake.stop());
         controller.x().whileTrue(intake.intakeAndPivot(6.5, 0.0));
