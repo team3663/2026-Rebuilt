@@ -10,12 +10,12 @@ import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Servo;
 
 public class C2026ShooterIO implements ShooterIO {
     // TODO: get actual values for these constants
     private static final Shooter.Constants constants = new Shooter.Constants(
-            0, Units.degreesToRadians(90), Units.degreesToRadians(-180), Units.degreesToRadians(180));
-    private static final double HOOD_GEAR_RATIO = 1.0;
+             50.0 / 1000.0, Units.degreesToRadians(-180), Units.degreesToRadians(180));
     private static final double TURRET_GEAR_RATIO = 1.0;
     private static final double SHOOTER_GEAR_RATIO = 1.0;
     private static final double SHOOTER_WHEEL_RADIUS = Units.inchesToMeters(2.0);
@@ -24,7 +24,8 @@ public class C2026ShooterIO implements ShooterIO {
     private static final double ENCODERS_GEAR_RATIO = 1.0;
     private static final double ENCODER_ADDITIONAL_GEAR_RATIO = 5.0;
 
-    private final TalonFX hoodMotor;
+    private final Servo hoodLinearActuator1;
+    private final Servo hoodLinearActuator2;
     private final TalonFX turretMotor;
     private final CANcoder turretCanCoder1;
     private final CANcoder turretCanCoder2;
@@ -36,9 +37,10 @@ public class C2026ShooterIO implements ShooterIO {
     private final VoltageOut voltageRequest = new VoltageOut(0.0);
     private final NeutralOut stopRequest = new NeutralOut();
 
-    public C2026ShooterIO(TalonFX hoodMotor, TalonFX turretMotor, TalonFX shooterMotor, TalonFX shooterMotor2,
-                          CANcoder turretCanCoder1, CANcoder turretCanCoder2) {
-        this.hoodMotor = hoodMotor;
+    public C2026ShooterIO(Servo hoodLinearActuator1, Servo hoodLinearActuator2, TalonFX turretMotor,
+                          TalonFX shooterMotor, TalonFX shooterMotor2, CANcoder turretCanCoder1, CANcoder turretCanCoder2) {
+        this.hoodLinearActuator1 = hoodLinearActuator1;
+        this.hoodLinearActuator2 = hoodLinearActuator2;
         this.turretMotor = turretMotor;
         this.turretCanCoder1 = turretCanCoder1;
         this.turretCanCoder2 = turretCanCoder2;
@@ -56,26 +58,6 @@ public class C2026ShooterIO implements ShooterIO {
         canCoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
 
         turretCanCoder2.getConfigurator().apply(canCoderConfig);
-
-        // Hood motor config
-        TalonFXConfiguration hoodConfig = new TalonFXConfiguration();
-        hoodConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        hoodConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        hoodConfig.Feedback.SensorToMechanismRatio = HOOD_GEAR_RATIO;
-        hoodConfig.CurrentLimits.SupplyCurrentLimit = 60;
-        hoodConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-
-        hoodConfig.Slot0.kV = 0.0;
-        hoodConfig.Slot0.kA = 0.0;
-        hoodConfig.Slot0.kP = 1.0;
-        hoodConfig.Slot0.kI = 0.0;
-        hoodConfig.Slot0.kD = 0.0;
-
-//        shooterConfig.MotionMagic.MotionMagicJerk = 15.0;
-//        shooterConfig.MotionMagic.MotionMagicAcceleration = 5.0;
-//        shooterConfig.MotionMagic.MotionMagicCruiseVelocity = 2.0;
-
-        hoodMotor.getConfigurator().apply(hoodConfig);
 
         // Turret motor config
         TalonFXConfiguration turretConfig = new TalonFXConfiguration();
@@ -148,12 +130,11 @@ public class C2026ShooterIO implements ShooterIO {
 
     @Override
     public void updateInputs(ShooterInputs inputs) {
-        // Hood Motor
-        inputs.currentHoodAppliedVoltage = hoodMotor.getMotorVoltage().getValueAsDouble();
-        inputs.currentHoodVelocity = Units.rotationsToRadians(hoodMotor.getVelocity().getValueAsDouble());
-        inputs.currentHoodPosition = Units.rotationsToRadians(hoodMotor.getPosition().getValueAsDouble());
-        inputs.hoodMotorTemperature = hoodMotor.getDeviceTemp().getValueAsDouble();
-        inputs.currentHoodDraw = hoodMotor.getSupplyCurrent().getValueAsDouble();
+        // Hood Linear Actuator
+        inputs.currentHoodVelocity1 = hoodLinearActuator1.getSpeed();
+        inputs.currentHoodPosition1 = hoodLinearActuator1.getPosition();
+        inputs.currentHoodVelocity2 = hoodLinearActuator2.getSpeed();
+        inputs.currentHoodPosition2 = hoodLinearActuator2.getPosition();
 
         // Turret
         inputs.currentTurretAppliedVoltage = turretMotor.getMotorVoltage().getValueAsDouble();
@@ -183,22 +164,15 @@ public class C2026ShooterIO implements ShooterIO {
 
     @Override
     public void stopHood() {
-        hoodMotor.setControl(stopRequest);
+        hoodLinearActuator1.setPosition(hoodLinearActuator1.getPosition());
+        hoodLinearActuator2.setPosition(hoodLinearActuator2.getPosition());
     }
 
-    @Override
-    public void resetHoodPosition(double position) {
-        hoodMotor.setPosition(Units.radiansToRotations(position));
-    }
-
+    // Takes in the position in meters
     @Override
     public void setHoodTargetPosition(double position) {
-        hoodMotor.setControl(positionRequest.withPosition(Units.radiansToRotations(position)));
-    }
-
-    @Override
-    public void setHoodTargetVoltage(double voltage) {
-        hoodMotor.setControl(voltageRequest.withOutput(voltage));
+        hoodLinearActuator1.setPosition(position / constants.maximumHoodPosition());
+        hoodLinearActuator2.setPosition(position / constants.maximumHoodPosition());
     }
 
     @Override

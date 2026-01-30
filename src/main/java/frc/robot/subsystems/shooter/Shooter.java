@@ -8,9 +8,6 @@ import org.littletonrobotics.junction.Logger;
 
 import java.util.function.DoubleSupplier;
 
-import static edu.wpi.first.wpilibj2.command.Commands.waitSeconds;
-import static edu.wpi.first.wpilibj2.command.Commands.waitUntil;
-
 public class Shooter extends SubsystemBase {
     private final static double HOOD_POSITION_THRESHOLD = Units.degreesToRadians(1);
     private final static double TURRET_POSITION_THRESHOLD = Units.degreesToRadians(1);
@@ -144,21 +141,21 @@ public class Shooter extends SubsystemBase {
     }
 
     private double getValidHoodPosition(double position) {
-        return Math.max(constants.minimumHoodPosition, Math.min(constants.maximumHoodPosition, position));
+        return Math.min(constants.maximumHoodPosition, position);
     }
-
-    public Command zeroHood() {
-        return runEnd(() -> {
-            io.setHoodTargetVoltage(-1.5);
-            targetHoodPosition = constants.minimumHoodPosition;
-        }, io::stopHood)
-                .withDeadline(waitUntil(() -> Math.abs(inputs.currentHoodVelocity) < 0.01)
-                        .beforeStarting(waitSeconds(0.25))
-                        .andThen(() -> {
-                            io.resetHoodPosition(constants.minimumHoodPosition);
-                            hoodZeroed = true;
-                        }));
-    }
+//
+//    public Command zeroHood() {
+//        return runEnd(() -> {
+//            io.setHoodTargetVoltage(-1.5);
+//            targetHoodPosition = constants.minimumHoodPosition;
+//        }, io::stopHood)
+//                .withDeadline(waitUntil(() -> Math.abs(inputs.currentHoodVelocity) < 0.01)
+//                        .beforeStarting(waitSeconds(0.25))
+//                        .andThen(() -> {
+//                            io.resetHoodPosition(constants.minimumHoodPosition);
+//                            hoodZeroed = true;
+//                        }));
+//    }
 
     // Turret
     public double getTurretVelocity() {
@@ -222,7 +219,6 @@ public class Shooter extends SubsystemBase {
     }
 
     public record Constants(
-            double minimumHoodPosition,
             double maximumHoodPosition,
             double minimumTurretPosition,
             double maximumTurretPosition

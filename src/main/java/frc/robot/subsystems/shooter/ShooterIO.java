@@ -4,7 +4,7 @@ import edu.wpi.first.math.util.Units;
 
 public interface ShooterIO {
     default Shooter.Constants getConstants() {
-        return new Shooter.Constants(0, Units.degreesToRadians(90), Units.degreesToRadians(-180), Units.degreesToRadians(180));
+        return new Shooter.Constants(100.0 / 1000.0, Units.degreesToRadians(-180), Units.degreesToRadians(180));
     }
 
     default void updateInputs(ShooterInputs inputs) {
@@ -12,16 +12,9 @@ public interface ShooterIO {
 
     // Hood
     default void stopHood() {
-        setHoodTargetVoltage(0.0);
-    }
-
-    default void resetHoodPosition(double position) {
     }
 
     default void setHoodTargetPosition(double position) {
-    }
-
-    default void setHoodTargetVoltage(double voltage) {
     }
 
     // Turret

@@ -10,14 +10,14 @@ import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import frc.robot.Robot;
 
 public class SimShooterIO implements ShooterIO {
-    private static final Shooter.Constants CONSTANTS = new Shooter.Constants(0, Units.degreesToRadians(90), Units.degreesToRadians(-180), Units.degreesToRadians(180));
+    private static final Shooter.Constants CONSTANTS = new Shooter.Constants(100.0 / 1000.0, Units.degreesToRadians(-180), Units.degreesToRadians(180));
 
     private static final double HOOD_GEAR_RATIO = 1.0;
     private static final double TURRET_GEAR_RATIO = 1.0;
     private static final double SHOOTER_GEAR_RATIO = 1.0;
     private static final double STDEV = 0.1;
 
-    private final DCMotor hoodMotor = DCMotor.getFalcon500Foc(1);
+    private final DCMotor hoodMotor = DCMotor.getFalcon500Foc(2);
     private final DCMotor turretMotor = DCMotor.getFalcon500Foc(1);
     private final DCMotor shooterMotors = DCMotor.getFalcon500Foc(2);
 
@@ -35,7 +35,6 @@ public class SimShooterIO implements ShooterIO {
 
 
     private double targetHoodPosition = Double.NaN;
-    private double targetHoodVoltage = Double.NaN;
 
     private double targetTurretPosition = Double.NaN;
     private double targetTurretVoltage = Double.NaN;
@@ -53,16 +52,15 @@ public class SimShooterIO implements ShooterIO {
         double hoodVoltage = 0.0;
         if (Double.isFinite(targetHoodPosition)) {
             hoodVoltage = hoodController.calculate(hoodSim.getAngularPositionRad(), targetHoodPosition);
-        } else if (Double.isFinite(targetHoodVoltage)) {
-            hoodVoltage = targetHoodVoltage;
         }
         hoodSim.setInputVoltage(hoodVoltage);
 
         hoodSim.update(Robot.defaultPeriodSecs);
 
-        inputs.currentHoodAppliedVoltage = hoodSim.getInput().get(0, 0);
-        inputs.currentHoodPosition = hoodSim.getAngularPositionRad();
-        inputs.currentHoodVelocity = hoodSim.getAngularVelocityRadPerSec();
+        inputs.currentHoodPosition1 = hoodSim.getAngularPositionRad();
+        inputs.currentHoodVelocity1 = hoodSim.getAngularVelocityRadPerSec();
+        inputs.currentHoodPosition2 = hoodSim.getAngularPositionRad();
+        inputs.currentHoodVelocity2 = hoodSim.getAngularVelocityRadPerSec();
 
         double turretVoltage = 0.0;
         if (Double.isFinite(targetTurretPosition)) {
@@ -95,13 +93,6 @@ public class SimShooterIO implements ShooterIO {
     @Override
     public void setHoodTargetPosition(double position) {
         targetHoodPosition = position;
-        targetHoodVoltage = Double.NaN;
-    }
-
-    @Override
-    public void setHoodTargetVoltage(double voltage) {
-        targetHoodPosition = Double.NaN;
-        targetHoodVoltage = voltage;
     }
 
     @Override

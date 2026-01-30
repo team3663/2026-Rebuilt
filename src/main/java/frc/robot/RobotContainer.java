@@ -11,6 +11,7 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -89,10 +90,11 @@ public class RobotContainer {
                 ));
 
                 shooter = new Shooter(new C2026ShooterIO(
-                        new TalonFX(16),
-                        new TalonFX(17),
+                        new Servo(1),
+                        new Servo(2),
                         new TalonFX(18),
                         new TalonFX(19),
+                        new TalonFX(20),
                         new CANcoder(7),
                         new CANcoder(8)
                 ));

@@ -5,12 +5,10 @@ import org.littletonrobotics.junction.AutoLog;
 @AutoLog
 public class ShooterInputs {
     // Hood Motor
-    public double currentHoodAppliedVoltage;
-    public double currentHoodVelocity;
-    public double currentHoodPosition;
-
-    public double hoodMotorTemperature;
-    public double currentHoodDraw;
+    public double currentHoodVelocity1;
+    public double currentHoodPosition1;
+    public double currentHoodVelocity2;
+    public double currentHoodPosition2;
 
     // Turret Motor
     public double currentTurretAppliedVoltage;
