@@ -191,8 +191,8 @@ public class RobotContainer {
         ));
 
         // Zero all subsystems when start button is pressed
-        controller.start().onTrue(Commands.parallel(shooter.zeroHood()
-//                , intake.zeroPivot(), climber.zero()
+        controller.start().onTrue(Commands.parallel(shooter.zeroHood(), intake.zeroPivot()
+//                , climber.zero()
         ));
 
         // Reset gyro to 0° when B button is pressed
