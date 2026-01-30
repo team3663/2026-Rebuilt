@@ -190,6 +190,11 @@ public class RobotContainer {
                 () -> -controller.getRightX()
         ));
 
+        // Zero all subsystems when start button is pressed
+        controller.start().onTrue(Commands.parallel(shooter.zeroHood()
+//                , intake.zeroPivot(), climber.zero()
+        ));
+
         // Reset gyro to 0° when B button is pressed
         controller.back().onTrue(drive.resetOdometry(() ->
                 new Pose2d(
@@ -199,21 +204,11 @@ public class RobotContainer {
                                 Rotation2d.kZero)));
 
         controller.a().onTrue(intake.stop());
-        controller.x().whileTrue(intake.intakeAndPivot(6.5, 0.0));
-
-        // Zero all subsystems when start button is pressed
-        controller.start().onTrue(Commands.parallel(shooter.zeroHood()
-//                , intake.zeroPivot(), climber.zero()
-        ));
-        // Reset gyro to 0° when back button is pressed
-        controller.back().onTrue(Commands.runOnce(() -> drive.setPose(
-                        new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
-                drive).ignoringDisable(true));
 
         controller.rightTrigger().whileTrue(commandFactory.aimShooter(() -> !controller.y().getAsBoolean()));
         controller.rightBumper().and(controller.rightTrigger()).whileTrue(feeder.withVoltage(4.0));
         controller.leftBumper().onTrue(commandFactory.toggleIntake(() -> intakeOut).andThen(() -> intakeOut = !intakeOut));
-        controller.leftTrigger().and(() -> intakeOut).whileTrue(intake.intakeWithVoltage(6.0).alongWith(hopper.withVoltage(3.0)));
+        controller.leftTrigger().and(() -> intakeOut).whileTrue(intake.deployAndIntake().alongWith(hopper.withVoltage(3.0)));
     }
 
     /**
