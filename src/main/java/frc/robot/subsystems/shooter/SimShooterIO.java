@@ -1,5 +1,6 @@
 package frc.robot.subsystems.shooter;
 
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
@@ -21,15 +22,15 @@ public class SimShooterIO implements ShooterIO {
     private final DCMotor turretMotor = DCMotor.getFalcon500Foc(1);
     private final DCMotor shooterMotors = DCMotor.getFalcon500Foc(2);
 
-    private final DCMotorSim hoodSim = new DCMotorSim(LinearSystemId.createDCMotorSystem(hoodMotor, 0.01, HOOD_GEAR_RATIO), hoodMotor, STDEV);
+    private final DCMotorSim hoodSim = new DCMotorSim(LinearSystemId.createDCMotorSystem(hoodMotor, 0.01, HOOD_GEAR_RATIO), hoodMotor);
 
     private final ProfiledPIDController hoodController = new ProfiledPIDController(1.0, 0.0, 0.0, new TrapezoidProfile.Constraints(Units.rotationsPerMinuteToRadiansPerSecond(500.0), Units.rotationsPerMinuteToRadiansPerSecond(700.0)));
 
-    private final DCMotorSim turretSim = new DCMotorSim(LinearSystemId.createDCMotorSystem(turretMotor, 0.01, TURRET_GEAR_RATIO), turretMotor, STDEV);
+    private final DCMotorSim turretSim = new DCMotorSim(LinearSystemId.createDCMotorSystem(turretMotor, 0.01, TURRET_GEAR_RATIO), turretMotor);
 
     private final ProfiledPIDController turretController = new ProfiledPIDController(1.0, 0.0, 0.0, new TrapezoidProfile.Constraints(Units.rotationsPerMinuteToRadiansPerSecond(500.0), Units.rotationsPerMinuteToRadiansPerSecond(700.0)));
 
-    private final FlywheelSim shooterSim = new FlywheelSim(LinearSystemId.createFlywheelSystem(shooterMotors, 0.1, SHOOTER_GEAR_RATIO), shooterMotors, STDEV);
+    private final FlywheelSim shooterSim = new FlywheelSim(LinearSystemId.createFlywheelSystem(shooterMotors, 0.1, SHOOTER_GEAR_RATIO), shooterMotors);
 
     private final ProfiledPIDController shooterController = new ProfiledPIDController(1.0, 0.0, 0.0, new TrapezoidProfile.Constraints(Units.rotationsPerMinuteToRadiansPerSecond(500.0), Units.rotationsPerMinuteToRadiansPerSecond(700.0)));
 
