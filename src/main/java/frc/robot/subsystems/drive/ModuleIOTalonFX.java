@@ -8,6 +8,7 @@
 package frc.robot.subsystems.drive;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -27,7 +28,6 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
-import frc.robot.generated.TunerConstants;
 
 import java.util.Queue;
 
@@ -88,12 +88,13 @@ public class ModuleIOTalonFX implements ModuleIO {
             new Debouncer(0.5, Debouncer.DebounceType.kFalling);
 
     public ModuleIOTalonFX(
+            PhoenixOdometryThread odometryThread, double odometryFrequencyHz,
             SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
-                    constants) {
+                    constants, CANBus canBus) {
         this.constants = constants;
-        driveTalon = new TalonFX(constants.DriveMotorId, TunerConstants.kCANBus);
-        turnTalon = new TalonFX(constants.SteerMotorId, TunerConstants.kCANBus);
-        cancoder = new CANcoder(constants.EncoderId, TunerConstants.kCANBus);
+        driveTalon = new TalonFX(constants.DriveMotorId, canBus);
+        turnTalon = new TalonFX(constants.SteerMotorId, canBus);
+        cancoder = new CANcoder(constants.EncoderId, canBus);
 
         // Configure drive motor
         var driveConfig = constants.DriveMotorInitialConfigs;
@@ -147,11 +148,11 @@ public class ModuleIOTalonFX implements ModuleIO {
         cancoder.getConfigurator().apply(cancoderConfig);
 
         // Create timestamp queue
-        timestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
+        timestampQueue = odometryThread.makeTimestampQueue();
 
         // Create drive status signals
         drivePosition = driveTalon.getPosition();
-        drivePositionQueue = PhoenixOdometryThread.getInstance().registerSignal(drivePosition.clone());
+        drivePositionQueue = odometryThread.registerSignal(drivePosition.clone());
         driveVelocity = driveTalon.getVelocity();
         driveAppliedVolts = driveTalon.getMotorVoltage();
         driveCurrent = driveTalon.getStatorCurrent();
@@ -159,14 +160,14 @@ public class ModuleIOTalonFX implements ModuleIO {
         // Create turn status signals
         turnAbsolutePosition = cancoder.getAbsolutePosition();
         turnPosition = turnTalon.getPosition();
-        turnPositionQueue = PhoenixOdometryThread.getInstance().registerSignal(turnPosition.clone());
+        turnPositionQueue = odometryThread.registerSignal(turnPosition.clone());
         turnVelocity = turnTalon.getVelocity();
         turnAppliedVolts = turnTalon.getMotorVoltage();
         turnCurrent = turnTalon.getStatorCurrent();
 
         // Configure periodic frames
         BaseStatusSignal.setUpdateFrequencyForAll(
-                Drive.ODOMETRY_FREQUENCY, drivePosition, turnPosition);
+                odometryFrequencyHz, drivePosition, turnPosition);
         BaseStatusSignal.setUpdateFrequencyForAll(
                 50.0,
                 driveVelocity,
