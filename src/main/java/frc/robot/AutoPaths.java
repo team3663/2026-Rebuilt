@@ -11,12 +11,11 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shooter.Shooter;
 
 import java.util.Set;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 public class AutoPaths {
     private final Drive drive;
-    private final Feeder feeder;
-    private final Hopper hopper;
     private final Intake intake;
     private final Shooter shooter;
 
@@ -24,8 +23,6 @@ public class AutoPaths {
 
     public AutoPaths(Drive drive, Feeder feeder, Hopper hopper, Intake intake, Shooter shooter) {
         this.drive = drive;
-        this.feeder = feeder;
-        this.hopper = hopper;
         this.intake = intake;
         this.shooter = shooter;
     }
@@ -51,7 +48,7 @@ public class AutoPaths {
      * @param redAlliancePose  the pose to reset the odometry to if on the red alliance
      */
     private Command resetOdometry(Pose2d blueAlliancePose, Pose2d redAlliancePose) {
-        return Commands.defer(() -> drive.resetOdometry(alliancePose(blueAlliancePose, redAlliancePose)), Set.of(drive));
+        return Commands.defer(() -> drive.resetOdometry(() -> alliancePose(blueAlliancePose, redAlliancePose)), Set.of(drive));
     }
 
     /**
@@ -64,29 +61,28 @@ public class AutoPaths {
      * * If the intermediate position supplier has no more intermediate positions, or no longer wishes the for the robot to go to an intermediate position, it should return {@code null}.
      * * Once a supplier has returned {@code null}, it will no longer be checked for intermediate positions and the robot will drive directly to the target position.
      * </p>
-     * @see #goToPosition(Pose2d, Pose2d)
-     * @see #goToPosition(Pose2d) 
+     *
      * @param targetPose               the target position of the robot
      * @param intermediatePoseSupplier a supplier that is possibly {@code null} of intermediate positions to travel to
+     * @see #goToPosition(Pose2d, Pose2d)
+     * @see #goToPosition(Pose2d)
      */
-    private Command goToPosition(Pose2d targetPose, Supplier<Pose2d> intermediatePoseSupplier, boolean shouldZero, boolean intake, boolean shoot) {
+    private Command goToPosition(Supplier<Pose2d> targetPose, Supplier<Pose2d> intermediatePoseSupplier, BooleanSupplier slowAccel) {
         Pose2d[] intermediateHolder = new Pose2d[]{null};
 
-        return drive.goToPosition(
-                drive,
-                () -> {
-                    Pose2d target;
-                    if (intermediateHolder[0] != null && (intermediateHolder[0] = intermediatePoseSupplier.get()) != null) {
-                        target = intermediateHolder[0];
-                    } else {
-                        target = targetPose;
-                    }
-                    goToPositionTarget = target;
-                    return target;
-                },
-                () -> false,
-                () -> drive.getMaxLinearSpeedMetersPerSec()
-        ).beforeStarting(() -> intermediateHolder[0] = intermediatePoseSupplier.get());
+        return drive.goToPosition(() -> {
+                            Pose2d target;
+                            if (intermediateHolder[0] != null && (intermediateHolder[0] = intermediatePoseSupplier.get()) != null)
+                                target = intermediateHolder[0];
+                            else
+                                target = targetPose.get();
+                            goToPositionTarget = target;
+                            return target;
+                        },
+                        () -> false,
+                        () -> drive.getMaxLinearSpeedMetersPerSec())
+                .beforeStarting(() -> intermediateHolder[0] = intermediatePoseSupplier.get());
+
     }
 
     /**
@@ -94,12 +90,13 @@ public class AutoPaths {
      * <p>
      * this command requires {@link Drive} and does not end
      * </p>
-     * @see #goToPosition(Pose2d, Pose2d)
-     * @see #goToPosition(Pose2d, Supplier, boolean, boolean, boolean)
+     *
      * @param targetPose the target position of the robot
+     * @see #goToPosition(Pose2d, Pose2d)
+     * @see #goToPosition(Supplier, Supplier, BooleanSupplier)
      */
     private Command goToPosition(Pose2d targetPose) {
-        return goToPosition(targetPose, () -> null, false, false, false);
+        return goToPosition(() -> targetPose, () -> null, () -> false);
     }
 
     /**
@@ -107,10 +104,10 @@ public class AutoPaths {
      * <p>
      * This command requires {@link Drive} and does not end
      * </p>
-     * @see #goToPositionWhileShooting(Pose2d)
-     * @see #goToPosition(Pose2d, Supplier, boolean, boolean, boolean)
+     *
      * @param blueAlliancePose target position of the robot if on blue alliance
      * @param redAlliancePose  target position of the robot if on red alliance
+     * @see #goToPosition(Pose2d)
      */
     private Command goToPosition(Pose2d blueAlliancePose, Pose2d redAlliancePose) {
         return Commands.defer(() -> goToPosition(alliancePose(blueAlliancePose, redAlliancePose)), Set.of(drive));
@@ -121,41 +118,79 @@ public class AutoPaths {
      * Drives the robot to the target position while intaking
      * <p>
      * This command requires {@link Drive} and does not end
-     * @see #goToPositionWhileIntaking(Pose2d,Pose2d)
-     * @param targetPose target position of the robot
+     *
+     * @param blueAlliancePose         target position of the robot if on the blue alliance
+     * @param redAlliancePose          target position of the robot if on the red alliance
+     * @param intermediatePoseSupplier a supplier that is possibly {@code null} of intermediate positions to travel to
+     * @see #intaking(Pose2d, Pose2d)
      */
-    private Command goToPositionWhileIntaking(Pose2d targetPose) {
-        return goToPosition(targetPose, () -> null, false, true, false);
+    private Command intaking(Pose2d blueAlliancePose, Pose2d redAlliancePose, Supplier<Pose2d> intermediatePoseSupplier) {
+        Pose2d[] targetPoseHolder = new Pose2d[]{null};
+
+        return Commands.defer(() -> goToPosition(() -> targetPoseHolder[0], intermediatePoseSupplier, () -> false), Set.of(drive))
+                .withDeadline(Commands.sequence(
+                        intake.deployAndIntake(),
+                        Commands.waitUntil(() -> drive.atPosition(targetPoseHolder[0].getTranslation()))))
+                .andThen(intake.stow())
+                .beforeStarting(() -> targetPoseHolder[0] = alliancePose(blueAlliancePose, redAlliancePose));
     }
 
     /**
      * Drives the robot to the target position while intaking
-     * @see #goToPositionWhileIntaking(Pose2d)
+     * <p>
+     * This command requires {@link Intake}
+     *
      * @param blueAlliancePose target position of the robot if on blue alliance
-     * @param redAlliancePose target position of the robot if on red alliance
+     * @param redAlliancePose  target position of the robot if on red alliance
+     * @see #intaking(Pose2d, Pose2d, Supplier)
      */
-    private Command goToPositionWhileIntaking(Pose2d blueAlliancePose, Pose2d redAlliancePose) {
-        return Commands.defer(() -> goToPositionWhileIntaking(alliancePose(blueAlliancePose, redAlliancePose)), Set.of(drive));
+    private Command intaking(Pose2d blueAlliancePose, Pose2d redAlliancePose) {
+        return Commands.defer(() -> intaking(blueAlliancePose, redAlliancePose), Set.of(drive));
     }
 
     /**
-     * Drives the robot to the target position while shooting
-     * @param targetPose target position of the robot
-     * @see #goToPositionWhileShooting(Pose2d, Pose2d)
+     * Runs the shooter and has an option to zero subsystems
+     * <p>
+     * This command requires {@link Shooter}
+     *
+     * @param shouldZero if we want to zero the intake pivot and climber
+     * @see #shooting()
+     * @see #zeroAndShoot() a zeroing alternative
      */
-    private Command goToPositionWhileShooting(Pose2d targetPose) {
-        return goToPosition(targetPose, () -> null, false, false, true);
+    // TODO wait till shooting command gets merged into main
+    // TODO add zeroing for pivot and climber if necessary
+    private Command shooting(boolean shouldZero) {
+        return null;
     }
 
     /**
-     *  Drives the robot to the target position while shooting
-     * @see #goToPositionWhileShooting(Pose2d)
-     * @param blueAlliancePose target position of the robot if on blue alliance
-     * @param redAlliancePose target position of the robot if on red alliance
+     * Runs the shooter
+     * <p>
+     * This command requires {@link Shooter}
+     *
+     * @see #zeroAndShoot() a zeroing alternative
      */
-    private Command goToPositionWhileShooting(Pose2d blueAlliancePose, Pose2d redAlliancePose) {
-        return Commands.defer(() -> goToPositionWhileShooting(alliancePose(blueAlliancePose, redAlliancePose)), Set.of(drive));
+    private Command shooting() {
+        return Commands.defer(() -> shooting(false), Set.of(shooter));
     }
+
+    /**
+     * Runs the shooter and zeros the Intake and Climber subsystems
+     * <p>
+     * This command requires {@link Shooter} {@link Intake}
+     */
+    private Command zeroAndShoot() {
+        return Commands.defer(() -> shooting(true), Set.of(shooter));
+    }
+
+    // TODO fix this so that we don't start intaking until after zeroed
+    private Command intakeAndShoot(Pose2d blueAlliancePose, Pose2d redAlliancePose,
+                                   Supplier<Pose2d> intermediatePoseSupplier, boolean shouldZero) {
+        return Commands.defer(() -> shooting(shouldZero), Set.of(shooter))
+                .alongWith(intaking(blueAlliancePose, redAlliancePose, intermediatePoseSupplier));
+    }
+
+
 
 
 }
