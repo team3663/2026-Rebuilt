@@ -183,7 +183,7 @@ public class RobotContainer {
         autoChooser.addOption(
                 "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
-        shooter.setDefaultCommand(shooter.goToWithShooter(shooter.getConstants().minimumHoodPosition(), 0.0));
+        shooter.setDefaultCommand(shooter.goToDefaultState());
 
         // Configure the button bindings
         configureButtonBindings();

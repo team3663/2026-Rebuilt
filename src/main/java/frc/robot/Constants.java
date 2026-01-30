@@ -9,8 +9,7 @@ package frc.robot;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
 
@@ -48,13 +47,13 @@ public final class Constants {
     public static class Shooter {
         // TODO: get actual values
         // The Pose2d's of the six locations we will want to shoot fuel to
-        public static final Pose2d RED_HUB = new Pose2d(4.4, 4.0, Rotation2d.kZero);
-        public static final Pose2d BLUE_HUB = new Pose2d(11.8, 4.0, Rotation2d.kZero);
+        public static final Translation2d RED_HUB = new Translation2d(4.4, 4.0);
+        public static final Translation2d BLUE_HUB = new Translation2d(11.8, 4.0);
 
-        public static final Pose2d UPPER_PASS_RED = new Pose2d(0.0, 8.0, Rotation2d.kZero);
-        public static final Pose2d LOWER_PASS_RED = new Pose2d(0.0, 0.0, Rotation2d.kZero);
-        public static final Pose2d UPPER_PASS_BLUE = new Pose2d(16.5, 8.0, Rotation2d.kZero);
-        public static final Pose2d LOWER_PASS_BLUE = new Pose2d(16.5, 0.0, Rotation2d.kZero);
+        public static final Translation2d UPPER_PASS_RED = new Translation2d(0.0, 8.0);
+        public static final Translation2d LOWER_PASS_RED = new Translation2d(0.0, 0.0);
+        public static final Translation2d UPPER_PASS_BLUE = new Translation2d(16.5, 8.0);
+        public static final Translation2d LOWER_PASS_BLUE = new Translation2d(16.5, 0.0);
 
         // The heights we will attempt to pass to when passing to the hub and our alliance zone, respectively
         public static final double HUB_HEIGHT = Units.inchesToMeters(45.0);
