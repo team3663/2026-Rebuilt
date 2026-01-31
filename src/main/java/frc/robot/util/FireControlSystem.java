@@ -12,33 +12,46 @@ import static edu.wpi.first.math.util.Units.degreesToRadians;
 import static edu.wpi.first.math.util.Units.rotationsPerMinuteToRadiansPerSecond;
 
 public class FireControlSystem {
-    private static final InterpolatingTreeMap<Double, LookupEntry> DISTANCE_LOOKUP_TABLE = new InterpolatingTreeMap<>(
+    private static final InterpolatingTreeMap<Double, LookupEntry> DISTANCE_LOOKUP_TABLE_HUB = new InterpolatingTreeMap<>(
+            InverseInterpolator.forDouble(),
+            LookupEntry::interpolate
+    );
+    private static final InterpolatingTreeMap<Double, LookupEntry> DISTANCE_LOOKUP_TABLE_PASS = new InterpolatingTreeMap<>(
             InverseInterpolator.forDouble(),
             LookupEntry::interpolate
     );
 
-    private static final double SHOOTER_VELOCITY_OFFSET = rotationsPerMinuteToRadiansPerSecond(500.0);
-
-    private static final double ANGLED_PIVOT_OFFSET = degreesToRadians(1.0);
-
     static {
-        DISTANCE_LOOKUP_TABLE.put(1.0, new LookupEntry(degreesToRadians(50.0), rotationsPerMinuteToRadiansPerSecond(2500.0)));
-        DISTANCE_LOOKUP_TABLE.put(2.0, new LookupEntry(degreesToRadians(40.0), rotationsPerMinuteToRadiansPerSecond(3000.0)));
-        DISTANCE_LOOKUP_TABLE.put(2.5, new LookupEntry(degreesToRadians(32.0), rotationsPerMinuteToRadiansPerSecond(3250.0)));
-        DISTANCE_LOOKUP_TABLE.put(3.0, new LookupEntry(degreesToRadians(25.0), rotationsPerMinuteToRadiansPerSecond(3250.0)));
-        DISTANCE_LOOKUP_TABLE.put(3.5, new LookupEntry(degreesToRadians(21.5), rotationsPerMinuteToRadiansPerSecond(3250.0)));
-        DISTANCE_LOOKUP_TABLE.put(4.0, new LookupEntry(degreesToRadians(17.75), rotationsPerMinuteToRadiansPerSecond(3500.0)));
-        DISTANCE_LOOKUP_TABLE.put(4.5, new LookupEntry(degreesToRadians(14.0), rotationsPerMinuteToRadiansPerSecond(3750.0)));
-        DISTANCE_LOOKUP_TABLE.put(5.0, new LookupEntry(degreesToRadians(11.0), rotationsPerMinuteToRadiansPerSecond(4000.0)));
-        DISTANCE_LOOKUP_TABLE.put(5.5, new LookupEntry(degreesToRadians(9.75), rotationsPerMinuteToRadiansPerSecond(4250.0)));
-        DISTANCE_LOOKUP_TABLE.put(6.0, new LookupEntry(degreesToRadians(9.25), rotationsPerMinuteToRadiansPerSecond(4250.0)));
+        // Hub
+        DISTANCE_LOOKUP_TABLE_HUB.put(1.0, new LookupEntry(degreesToRadians(50.0), rotationsPerMinuteToRadiansPerSecond(2500.0)));
+        DISTANCE_LOOKUP_TABLE_HUB.put(2.0, new LookupEntry(degreesToRadians(40.0), rotationsPerMinuteToRadiansPerSecond(3000.0)));
+        DISTANCE_LOOKUP_TABLE_HUB.put(2.5, new LookupEntry(degreesToRadians(32.0), rotationsPerMinuteToRadiansPerSecond(3250.0)));
+        DISTANCE_LOOKUP_TABLE_HUB.put(3.0, new LookupEntry(degreesToRadians(25.0), rotationsPerMinuteToRadiansPerSecond(3250.0)));
+        DISTANCE_LOOKUP_TABLE_HUB.put(3.5, new LookupEntry(degreesToRadians(21.5), rotationsPerMinuteToRadiansPerSecond(3250.0)));
+        DISTANCE_LOOKUP_TABLE_HUB.put(4.0, new LookupEntry(degreesToRadians(17.75), rotationsPerMinuteToRadiansPerSecond(3500.0)));
+        DISTANCE_LOOKUP_TABLE_HUB.put(4.5, new LookupEntry(degreesToRadians(14.0), rotationsPerMinuteToRadiansPerSecond(3750.0)));
+        DISTANCE_LOOKUP_TABLE_HUB.put(5.0, new LookupEntry(degreesToRadians(11.0), rotationsPerMinuteToRadiansPerSecond(4000.0)));
+        DISTANCE_LOOKUP_TABLE_HUB.put(5.5, new LookupEntry(degreesToRadians(9.75), rotationsPerMinuteToRadiansPerSecond(4250.0)));
+        DISTANCE_LOOKUP_TABLE_HUB.put(6.0, new LookupEntry(degreesToRadians(9.25), rotationsPerMinuteToRadiansPerSecond(4250.0)));
+
+        // Passing
+        DISTANCE_LOOKUP_TABLE_PASS.put(1.0, new LookupEntry(degreesToRadians(50.0), rotationsPerMinuteToRadiansPerSecond(2500.0)));
+        DISTANCE_LOOKUP_TABLE_PASS.put(2.0, new LookupEntry(degreesToRadians(40.0), rotationsPerMinuteToRadiansPerSecond(3000.0)));
+        DISTANCE_LOOKUP_TABLE_PASS.put(2.5, new LookupEntry(degreesToRadians(32.0), rotationsPerMinuteToRadiansPerSecond(3250.0)));
+        DISTANCE_LOOKUP_TABLE_PASS.put(3.0, new LookupEntry(degreesToRadians(25.0), rotationsPerMinuteToRadiansPerSecond(3250.0)));
+        DISTANCE_LOOKUP_TABLE_PASS.put(3.5, new LookupEntry(degreesToRadians(21.5), rotationsPerMinuteToRadiansPerSecond(3250.0)));
+        DISTANCE_LOOKUP_TABLE_PASS.put(4.0, new LookupEntry(degreesToRadians(17.75), rotationsPerMinuteToRadiansPerSecond(3500.0)));
+        DISTANCE_LOOKUP_TABLE_PASS.put(4.5, new LookupEntry(degreesToRadians(14.0), rotationsPerMinuteToRadiansPerSecond(3750.0)));
+        DISTANCE_LOOKUP_TABLE_PASS.put(5.0, new LookupEntry(degreesToRadians(11.0), rotationsPerMinuteToRadiansPerSecond(4000.0)));
+        DISTANCE_LOOKUP_TABLE_PASS.put(5.5, new LookupEntry(degreesToRadians(9.75), rotationsPerMinuteToRadiansPerSecond(4250.0)));
+        DISTANCE_LOOKUP_TABLE_PASS.put(6.0, new LookupEntry(degreesToRadians(9.25), rotationsPerMinuteToRadiansPerSecond(4250.0)));
     }
 
-    public FiringSolution calculate(Pose2d currentPose, ChassisSpeeds currentVelocity, Translation2d goalPosition, double targetHeight) {
+    public FiringSolution calculate(Pose2d turretPose, ChassisSpeeds currentVelocity, Translation2d goalPosition, boolean aimAtHub) {
         ChassisSpeeds fieldOrientedVelocity =
-                ChassisSpeeds.fromRobotRelativeSpeeds(currentVelocity, currentPose.getRotation());
+                ChassisSpeeds.fromRobotRelativeSpeeds(currentVelocity, turretPose.getRotation());
 
-        Translation2d delta = goalPosition.minus(currentPose.getTranslation())
+        Translation2d delta = goalPosition.minus(turretPose.getTranslation())
                 .minus(new Translation2d(
                         0.15 * fieldOrientedVelocity.vxMetersPerSecond,
                         0.15 * fieldOrientedVelocity.vyMetersPerSecond
@@ -46,16 +59,18 @@ public class FireControlSystem {
 
         double distance = delta.getNorm();
 
-        LookupEntry entry = DISTANCE_LOOKUP_TABLE.get(distance + targetHeight / 2.0);
+        LookupEntry entry;
+        if  (aimAtHub)
+            entry = DISTANCE_LOOKUP_TABLE_HUB.get(distance);
+        else
+            entry = DISTANCE_LOOKUP_TABLE_PASS.get(distance);
 
         Rotation2d rotation = delta.getAngle();
 
         // Add a slight offset when we are shooting at an angle
-        double angleOffset = ANGLED_PIVOT_OFFSET * Math.abs(rotation.getSin());
-
         return new FiringSolution(rotation.getRadians(),
-                entry.pivotAngle + angleOffset,
-                entry.shooterVelocity + SHOOTER_VELOCITY_OFFSET);
+                entry.pivotAngle,
+                entry.shooterVelocity);
     }
 
     private record LookupEntry(double pivotAngle, double shooterVelocity) {
