@@ -19,16 +19,16 @@ public class SimIntakeIO implements IntakeIO {
     );
 
     // TODO Get gear ratio
-    private static final double INTAKE_GEAR_RATIO = 0.0;
-    private static final double INTAKE_LENGTH = 0.0;
-    private static final double PIVOT_GEAR_RATIO = 0.0;
-    private static final double PIVOT_MOMENT_OF_INERTIA = 0.0;
-    private static final double PIVOT_STARTING_ANGLE = 0.0;
+    private static final double INTAKE_GEAR_RATIO = 1.0;
+    private static final double INTAKE_LENGTH = 1.0;
+    private static final double PIVOT_GEAR_RATIO = 1.0;
+    private static final double PIVOT_MOMENT_OF_INERTIA = 1.0;
+    private static final double PIVOT_STARTING_ANGLE = 1.0;
 
     // Get values
     private final DCMotorSim intakeSim = new DCMotorSim(
             LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60(1),
-                    0.001, INTAKE_GEAR_RATIO),
+                    1.0, INTAKE_GEAR_RATIO),
             DCMotor.getKrakenX60(1).withReduction(INTAKE_GEAR_RATIO)
     );
     private final SingleJointedArmSim pivotSim = new SingleJointedArmSim(

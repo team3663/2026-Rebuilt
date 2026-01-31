@@ -52,6 +52,7 @@ public class RobotContainer {
     private final Hopper hopper;
     private final Intake intake;
     private final Shooter shooter;
+    private final AutoPaths autoPaths;
 
     // Controller
     private final CommandXboxController controller = new CommandXboxController(0);
@@ -102,6 +103,8 @@ public class RobotContainer {
                         new CANcoder(8)
                 ));
 
+                autoPaths = new AutoPaths(drive, feeder, hopper, intake, shooter);
+
                 // Start odometry thread
                 odometryThread.start();
 
@@ -122,8 +125,10 @@ public class RobotContainer {
                         TunerConstants.BackRight);
                 feeder = new Feeder(new SimFeederIO());
                 hopper = new Hopper(new SimHopperIO());
-                intake = new Intake(new SimIntakeIO());
-                shooter = new Shooter(new SimShooterIO());
+                intake = new Intake(new IntakeIO() {});
+                shooter = new Shooter(new ShooterIO() {});
+
+                autoPaths = new AutoPaths(drive, feeder, hopper, intake, shooter);
 
                 break;
             default:
@@ -153,6 +158,8 @@ public class RobotContainer {
                 shooter = new Shooter(new ShooterIO() {
                 });
 
+                autoPaths = new AutoPaths(drive, feeder, hopper, intake, shooter);
+
                 break;
         }
 
@@ -170,6 +177,7 @@ public class RobotContainer {
                 "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
         autoChooser.addOption(
                 "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+        autoChooser.addOption("Test Auto", autoPaths.testAuto());
 
         shooter.setDefaultCommand(shooter.goToWithShooter(shooter.getConstants().minimumHoodPosition(), 0.0));
 

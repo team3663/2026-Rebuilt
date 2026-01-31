@@ -12,9 +12,9 @@ import static edu.wpi.first.wpilibj2.command.Commands.waitUntil;
 
 public class Intake extends SubsystemBase {
     public static final double POSITION_THRESHOLD = Units.degreesToRadians(2.0);
-    public static final double DEPLOY_ANGLE = Units.degreesToRadians(0.0);
+    public static final double DEPLOY_ANGLE = Units.degreesToRadians(120.0);
     public static final double STOW_ANGLE = Units.degreesToRadians(0.0);
-    public static final double INTAKE_VOLTAGE = 0.0;
+    public static final double INTAKE_VOLTAGE = 3.0;
 
     private final IntakeIO io;
     private final Constants constants;
@@ -51,6 +51,10 @@ public class Intake extends SubsystemBase {
 
     public boolean isAtPosition(double position, double threshold) {
         return Math.abs(inputs.currentPivot1Position - position) < threshold;
+    }
+
+    public boolean isZeroed(){
+        return pivotZeroed;
     }
 
     public double getValidPivotPosition(double position) {
