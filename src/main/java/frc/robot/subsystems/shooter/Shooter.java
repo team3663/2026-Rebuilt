@@ -17,7 +17,7 @@ public class Shooter extends SubsystemBase {
     private final static double TURRET_POSITION_THRESHOLD = Units.degreesToRadians(1);
     private final static double SHOOTER_VELOCITY_THRESHOLD = Units.rotationsPerMinuteToRadiansPerSecond(1);
 
-    private final static double DEFAULT_SHOOTER_VELOCITY = Units.rotationsPerMinuteToRadiansPerSecond(500.0);
+    private final static double DEFAULT_SHOOTER_VELOCITY = Units.rotationsPerMinuteToRadiansPerSecond(3500.0);
 
     private final ShooterIO io;
     private final ShooterInputsAutoLogged inputs = new ShooterInputsAutoLogged();
