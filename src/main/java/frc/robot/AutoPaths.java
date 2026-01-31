@@ -131,9 +131,11 @@ public class AutoPaths {
      * <p>
      * This command requires {@link Drive} and does not end
      *
-//     * @param targetPose               target position of the robot
-//     * @param intermediatePoseSupplier a supplier that is possibly {@code null} of intermediate positions to travel to
-//     * @see #intaking(Pose2d, Pose2d)
+     * @param blueAlliancePose             target position of the robot if on blue alliance
+     * @param redAlliancePose              target position of the robot if on red alliance
+     * @param blueIntermediatePoseSupplier a supplier that is possibly {@code null} of intermediate positions to travel to if on blue alliance
+     * @param redIntermediatePoseSupplier  a supplier that is possibly {@code null} of intermediate positions to travel to if on red alliance
+     * @see #intaking(Pose2d, Pose2d) for an option with no intermediate suppliers
      */
     private Command intaking(Pose2d blueAlliancePose, Pose2d redAlliancePose, Supplier<Pose2d> blueIntermediatePoseSupplier, Supplier<Pose2d> redIntermediatePoseSupplier) {
         Pose2d[] targetPoseHolder = new Pose2d[]{null};
@@ -146,11 +148,6 @@ public class AutoPaths {
                 .beforeStarting(() -> targetPoseHolder[0] = alliancePose(blueAlliancePose, redAlliancePose));
     }
 
-//    private Command intaking(Pose2d blueAlliancePose, Pose2d redAlliancePose, Supplier<Pose2d> blueIntermediatePoseSupplier, Supplier<Pose2d> redIntermediatePoseSupplier) {
-//        return intaking(alliancePose(blueAlliancePose, redAlliancePose),
-//                () -> alliancePose(blueIntermediatePoseSupplier.get(), redIntermediatePoseSupplier.get()));
-//    }
-
     /**
      * Drives the robot to the target position while intaking
      * <p>
@@ -158,12 +155,11 @@ public class AutoPaths {
      *
      * @param blueAlliancePose target position of the robot if on blue alliance
      * @param redAlliancePose  target position of the robot if on red alliance
-//     * @see #intaking(Pose2d, Supplier)
      * @see #intaking(Pose2d, Pose2d, Supplier, Supplier)
      */
-//    private Command intaking(Pose2d blueAlliancePose, Pose2d redAlliancePose) {
-//        return intaking(alliancePose(blueAlliancePose, redAlliancePose), ()-> null, ()-> null);
-//    }
+    private Command intaking(Pose2d redAlliancePose, Pose2d blueAlliancePose) {
+        return intaking(redAlliancePose, blueAlliancePose, () -> null, () -> null);
+    }
 
     /**
      * Runs the shooter and has an option to zero subsystems
