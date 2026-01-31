@@ -17,7 +17,7 @@ public class C2026ShooterIO implements ShooterIO {
             0, Units.degreesToRadians(90), Units.degreesToRadians(-180), Units.degreesToRadians(180));
     private static final double HOOD_GEAR_RATIO = 1.0;
     private static final double TURRET_GEAR_RATIO = 1.0;
-    private static final double SHOOTER_GEAR_RATIO = 36.0 / 15.0;
+    private static final double SHOOTER_GEAR_RATIO = 18.0 / 15.0;
     private static final double SHOOTER_WHEEL_RADIUS = Units.inchesToMeters(2.0);
 
     // CANCoder values/ratios
@@ -102,14 +102,14 @@ public class C2026ShooterIO implements ShooterIO {
         // Shooter motors config
         TalonFXConfiguration shooterConfig = new TalonFXConfiguration();
         shooterConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-        shooterConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        shooterConfig.Feedback.RotorToSensorRatio = SHOOTER_GEAR_RATIO;
+        shooterConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        shooterConfig.Feedback.SensorToMechanismRatio = SHOOTER_GEAR_RATIO;
         shooterConfig.CurrentLimits.SupplyCurrentLimit = 60;
         shooterConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-        shooterConfig.Slot0.kV = 0.019;
+        shooterConfig.Slot0.kV = 0.15;
         shooterConfig.Slot0.kA = 0.0;
-        shooterConfig.Slot0.kP = 0.01;
+        shooterConfig.Slot0.kP = 0.5;
         shooterConfig.Slot0.kI = 0.0;
         shooterConfig.Slot0.kD = 0.0;
 
@@ -223,7 +223,7 @@ public class C2026ShooterIO implements ShooterIO {
 
     @Override
     public void setShooterTargetVelocity(double velocity) {
-        shooterMotor.setControl(velocityRequest.withVelocity(velocity));
+        shooterMotor.setControl(velocityRequest.withVelocity(Units.radiansToRotations(velocity)));
     }
 
     @Override

@@ -47,15 +47,16 @@ public class Shooter extends SubsystemBase {
     }
 
     public Command stop() {
-        return runOnce(() -> {
-                    targetHoodPosition = 0.0;
-                    targetTurretPosition = 0.0;
-                    targetShooterVelocity = 0.0;
-                    io.stopHood();
-                    io.stopTurret();
-                    io.stopShooter();
-                }
-        );
+        return runOnce(this::stopInternal);
+    }
+
+    private void stopInternal() {
+        targetHoodPosition = 0.0;
+        targetTurretPosition = 0.0;
+        targetShooterVelocity = 0.0;
+        io.stopHood();
+        io.stopTurret();
+        io.stopShooter();
     }
 
     public boolean atTargetPositions() {
@@ -93,7 +94,7 @@ public class Shooter extends SubsystemBase {
             // Shooter
             targetShooterVelocity = shooterVelocity;
             io.setShooterTargetVelocity(targetShooterVelocity);
-        }, this::stop).until(this::atTargetPositions);
+        }, this::stopInternal).until(this::atTargetPositions);
     }
 
     public Command followWithShooter(DoubleSupplier hoodPosition, DoubleSupplier turretPosition) {
@@ -215,10 +216,17 @@ public class Shooter extends SubsystemBase {
     }
 
     // For running shooter prototypes w/o turret or hood:
-    public Command runShooter(double voltage) {
+    public Command runShooterVoltage(double voltage) {
         return Commands.runEnd(() -> {
             io.setShooterTargetVoltage(voltage);
-        }, this::stop);
+        }, this::stopInternal);
+    }
+
+    public Command runShooterVelocity(double velocity) {
+        return Commands.runEnd(() -> {
+            targetShooterVelocity = velocity;
+            io.setShooterTargetVelocity(targetShooterVelocity);
+        }, this::stopInternal);
     }
 
     public record Constants(
