@@ -17,7 +17,7 @@ public class C2026ShooterIO implements ShooterIO {
             0, Units.degreesToRadians(90), Units.degreesToRadians(-180), Units.degreesToRadians(180));
     private static final double HOOD_GEAR_RATIO = 1.0;
     private static final double TURRET_GEAR_RATIO = 1.0;
-    private static final double SHOOTER_GEAR_RATIO = 1.0;
+    private static final double SHOOTER_GEAR_RATIO = 36.0 / 15.0;
     private static final double SHOOTER_WHEEL_RADIUS = Units.inchesToMeters(2.0);
 
     // CANCoder values/ratios
