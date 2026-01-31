@@ -7,6 +7,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.math.interpolation.InverseInterpolator;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import frc.robot.Constants;
+import org.littletonrobotics.junction.Logger;
 
 import static edu.wpi.first.math.util.Units.degreesToRadians;
 import static edu.wpi.first.math.util.Units.rotationsPerMinuteToRadiansPerSecond;
@@ -47,7 +49,7 @@ public class FireControlSystem {
         DISTANCE_LOOKUP_TABLE_PASS.put(6.0, new LookupEntry(degreesToRadians(9.25), rotationsPerMinuteToRadiansPerSecond(4250.0)));
     }
 
-    public FiringSolution calculate(Pose2d turretPose, ChassisSpeeds currentVelocity, Translation2d goalPosition, boolean aimAtHub) {
+    public FiringSolution calculate(Pose2d turretPose, Rotation2d robotRot, ChassisSpeeds currentVelocity, Translation2d goalPosition, boolean aimAtHub) {
         ChassisSpeeds fieldOrientedVelocity =
                 ChassisSpeeds.fromRobotRelativeSpeeds(currentVelocity, turretPose.getRotation());
 
@@ -65,18 +67,19 @@ public class FireControlSystem {
         else
             entry = DISTANCE_LOOKUP_TABLE_PASS.get(distance);
 
-        Rotation2d rotation = delta.getAngle();
+        Rotation2d rotation =  new Rotation2d(delta.getAngle().getRadians() - Constants.Shooter.TURRET_ROTATION_OFFSET);
+
+        Logger.recordOutput("CommandFactory/TargetTurretPose", new Pose2d(turretPose.getTranslation(), rotation));
 
         // Add a slight offset when we are shooting at an angle
-        return new FiringSolution(rotation.getRadians(),
-                entry.pivotAngle,
-                entry.shooterVelocity);
+        return new FiringSolution(rotation.getRadians() - robotRot.getRadians(),
+                entry.hoodAngle, entry.shooterVelocity);
     }
 
-    private record LookupEntry(double pivotAngle, double shooterVelocity) {
+    private record LookupEntry(double hoodAngle, double shooterVelocity) {
         public static LookupEntry interpolate(LookupEntry start, LookupEntry end, double t) {
             return new LookupEntry(
-                    MathUtil.interpolate(start.pivotAngle, end.pivotAngle, t),
+                    MathUtil.interpolate(start.hoodAngle, end.hoodAngle, t),
                     MathUtil.interpolate(start.shooterVelocity, end.shooterVelocity, t)
             );
         }

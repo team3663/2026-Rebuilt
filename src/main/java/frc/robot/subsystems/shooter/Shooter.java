@@ -49,14 +49,13 @@ public class Shooter extends SubsystemBase {
 
     public Command stop() {
         return runOnce(() -> {
-                    targetHoodPosition = 0.0;
-                    targetTurretPosition = 0.0;
-                    targetShooterVelocity = 0.0;
-                    io.stopHood();
-                    io.stopTurret();
-                    io.stopShooter();
-                }
-        );
+            targetHoodPosition = 0.0;
+            targetTurretPosition = 0.0;
+            targetShooterVelocity = 0.0;
+            io.stopHood();
+            io.stopTurret();
+            io.stopShooter();
+        });
     }
 
     public boolean atTargetPositions() {
@@ -76,7 +75,7 @@ public class Shooter extends SubsystemBase {
     }
 
     public Command goToDefaultState() {
-        return goTo(this.getConstants().minimumHoodPosition(), 0.0, DEFAULT_SHOOTER_VELOCITY);
+        return follow(() -> this.getConstants().minimumHoodPosition(), () -> 0.0, () -> DEFAULT_SHOOTER_VELOCITY);
     }
 
     public Command goTo(double hoodPosition, double turretPosition, double shooterVelocity) {
@@ -188,6 +187,14 @@ public class Shooter extends SubsystemBase {
 
     private double getValidTurretPosition(double position) {
         return Math.max(constants.minimumTurretPosition, Math.min(constants.maximumTurretPosition, position));
+    }
+
+    public Command turret(double voltage) {
+        return runEnd(() -> io.setTurretTargetVoltage(voltage), io::stopTurret);
+    }
+
+    public Command turret2(double position) {
+        return runEnd(() -> io.setTurretTargetPosition(position), io::stopTurret);
     }
 
     // Shooter

@@ -13,21 +13,21 @@ public class SimShooterIO implements ShooterIO {
     private static final Shooter.Constants CONSTANTS = new Shooter.Constants(0, Units.degreesToRadians(90), Units.degreesToRadians(-180), Units.degreesToRadians(180));
 
     private static final double HOOD_GEAR_RATIO = 1.0;
-    private static final double TURRET_GEAR_RATIO = 1.0;
+    private static final double TURRET_GEAR_RATIO = 50.0;
     private static final double SHOOTER_GEAR_RATIO = 1.0;
-    private static final double STDEV = 0.1;
+    private static final double STDEV = 0.0;
 
     private final DCMotor hoodMotor = DCMotor.getFalcon500Foc(1);
     private final DCMotor turretMotor = DCMotor.getFalcon500Foc(1);
     private final DCMotor shooterMotors = DCMotor.getFalcon500Foc(2);
 
-    private final DCMotorSim hoodSim = new DCMotorSim(LinearSystemId.createDCMotorSystem(hoodMotor, 0.01, HOOD_GEAR_RATIO), hoodMotor, STDEV);
+    private final DCMotorSim hoodSim = new DCMotorSim(LinearSystemId.createDCMotorSystem(hoodMotor, 0.01, HOOD_GEAR_RATIO), hoodMotor, STDEV, STDEV);
 
     private final ProfiledPIDController hoodController = new ProfiledPIDController(1.0, 0.0, 0.0, new TrapezoidProfile.Constraints(Units.rotationsPerMinuteToRadiansPerSecond(500.0), Units.rotationsPerMinuteToRadiansPerSecond(700.0)));
 
-    private final DCMotorSim turretSim = new DCMotorSim(LinearSystemId.createDCMotorSystem(turretMotor, 0.01, TURRET_GEAR_RATIO), turretMotor, STDEV);
+    private final DCMotorSim turretSim = new DCMotorSim(LinearSystemId.createDCMotorSystem(turretMotor, 1.0, TURRET_GEAR_RATIO), turretMotor, STDEV, STDEV);
 
-    private final ProfiledPIDController turretController = new ProfiledPIDController(1.0, 0.0, 0.0, new TrapezoidProfile.Constraints(Units.rotationsPerMinuteToRadiansPerSecond(500.0), Units.rotationsPerMinuteToRadiansPerSecond(700.0)));
+    private final ProfiledPIDController turretController = new ProfiledPIDController(10.0, 0.0, 0.0, new TrapezoidProfile.Constraints(Units.rotationsPerMinuteToRadiansPerSecond(500.0), Units.rotationsPerMinuteToRadiansPerSecond(700.0)));
 
     private final FlywheelSim shooterSim = new FlywheelSim(LinearSystemId.createFlywheelSystem(shooterMotors, 0.1, SHOOTER_GEAR_RATIO), shooterMotors, STDEV);
 

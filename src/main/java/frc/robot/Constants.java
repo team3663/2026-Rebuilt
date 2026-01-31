@@ -55,10 +55,12 @@ public final class Constants {
         public static final Translation2d UPPER_PASS_RED = new Translation2d(16.5, 8.0);
         public static final Translation2d LOWER_PASS_RED = new Translation2d(16.5, 0.0);
 
-        // The Radians from the turrets 0 position to the angle of turrets location around the center of the robot
-        public static final double TURRET_OFFSET_ANGLE = Units.degreesToRadians(45.0);
+        // The Radians from the forward on the robot to the angle of turrets location around the center of the robot
+        public static final double TURRET_OFF_CENTER_ANGLE = Units.degreesToRadians(-135.0);
         // The meters the center of the turret is from the center of the robot
-        public static final double TURRET_OFFSET_DISTANCE = Units.inchesToMeters(Math.sqrt(365) - 4.0);
-        public static final double LAUNCH_HEIGHT = Units.inchesToMeters(21.0);
+        public static final double TURRET_OFF_CENTER_DISTANCE = Units.inchesToMeters(Math.sqrt(365) - 4.0);
+
+        // The Radians offset the default or "0" point of the turret is from the robots "0" direction
+        public static final double TURRET_ROTATION_OFFSET = Units.degreesToRadians(90);
     }
 }
