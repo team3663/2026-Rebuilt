@@ -16,7 +16,7 @@ public class C2026IntakeIO implements IntakeIO {
      * Minimum pivot angle and maximum pivot angle
      */
     private static final Intake.Constants CONSTANTS = new Intake.Constants(
-            Units.degreesToRadians(0.0), Units.degreesToRadians(0.0)
+            Units.degreesToRadians(0.0), Units.degreesToRadians(120.5)
     );
 
     private final TalonFX intakeMotor;
