@@ -32,7 +32,7 @@ public class C2026ShooterIO implements ShooterIO {
     private final TalonFX shooterMotor2;
 
     private final MotionMagicVoltage positionRequest = new MotionMagicVoltage(0.0);
-    private final VelocityVoltage velocityRequest = new VelocityVoltage(0.0);
+    private final MotionMagicVelocityVoltage velocityRequest = new MotionMagicVelocityVoltage(0.0);
     private final VoltageOut voltageRequest = new VoltageOut(0.0);
     private final NeutralOut stopRequest = new NeutralOut();
 
@@ -109,13 +109,13 @@ public class C2026ShooterIO implements ShooterIO {
 
         shooterConfig.Slot0.kV = 0.15;
         shooterConfig.Slot0.kA = 0.0;
-        shooterConfig.Slot0.kP = 0.5;
+        shooterConfig.Slot0.kP = 0.1;
         shooterConfig.Slot0.kI = 0.0;
         shooterConfig.Slot0.kD = 0.0;
 
 //        shooterConfig.MotionMagic.MotionMagicJerk = 15.0;
-//        shooterConfig.MotionMagic.MotionMagicAcceleration = 5.0;
-//        shooterConfig.MotionMagic.MotionMagicCruiseVelocity = 2.0;
+        shooterConfig.MotionMagic.MotionMagicAcceleration = 10.0;
+        shooterConfig.MotionMagic.MotionMagicCruiseVelocity = 0.2;
 
         shooterMotor.getConfigurator().apply(shooterConfig);
         shooterMotor2.getConfigurator().apply(shooterConfig);
