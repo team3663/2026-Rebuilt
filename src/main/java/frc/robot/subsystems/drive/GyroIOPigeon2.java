@@ -8,6 +8,7 @@
 package frc.robot.subsystems.drive;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
@@ -16,7 +17,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
-import frc.robot.generated.TunerConstants;
 
 import java.util.Queue;
 
@@ -24,26 +24,30 @@ import java.util.Queue;
  * IO implementation for Pigeon 2.
  */
 public class GyroIOPigeon2 implements GyroIO {
-    private final Pigeon2 pigeon =
-            new Pigeon2(TunerConstants.DrivetrainConstants.Pigeon2Id, TunerConstants.kCANBus);
-    private final StatusSignal<Angle> yaw = pigeon.getYaw();
+    private final Pigeon2 pigeon;
+    private final StatusSignal<Angle> yaw;
     private final Queue<Double> yawPositionQueue;
     private final Queue<Double> yawTimestampQueue;
-    private final StatusSignal<AngularVelocity> yawVelocity = pigeon.getAngularVelocityZWorld();
+    private final StatusSignal<AngularVelocity> yawVelocity;
 
-    public GyroIOPigeon2() {
-        if (TunerConstants.DrivetrainConstants.Pigeon2Configs != null) {
-            pigeon.getConfigurator().apply(TunerConstants.DrivetrainConstants.Pigeon2Configs);
+    public GyroIOPigeon2(PhoenixOdometryThread odometryThread, double odometryFrequencyHz,
+                         int id, Pigeon2Configuration configuration, CANBus canBus) {
+        pigeon = new Pigeon2(id, canBus);
+
+        if (configuration != null) {
+            pigeon.getConfigurator().apply(configuration);
         } else {
             pigeon.getConfigurator().apply(new Pigeon2Configuration());
         }
 
         pigeon.getConfigurator().setYaw(0.0);
-        yaw.setUpdateFrequency(Drive.ODOMETRY_FREQUENCY);
+        yaw = pigeon.getYaw();
+        yaw.setUpdateFrequency(odometryFrequencyHz);
+        yawVelocity = pigeon.getAngularVelocityZWorld();
         yawVelocity.setUpdateFrequency(50.0);
         pigeon.optimizeBusUtilization();
-        yawTimestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
-        yawPositionQueue = PhoenixOdometryThread.getInstance().registerSignal(yaw.clone());
+        yawTimestampQueue = odometryThread.makeTimestampQueue();
+        yawPositionQueue = odometryThread.registerSignal(yaw.clone());
     }
 
     @Override
@@ -56,7 +60,7 @@ public class GyroIOPigeon2 implements GyroIO {
                 yawTimestampQueue.stream().mapToDouble((Double value) -> value).toArray();
         inputs.odometryYawPositions =
                 yawPositionQueue.stream()
-                        .map((Double value) -> Rotation2d.fromDegrees(value))
+                        .map(Rotation2d::fromDegrees)
                         .toArray(Rotation2d[]::new);
         yawTimestampQueue.clear();
         yawPositionQueue.clear();

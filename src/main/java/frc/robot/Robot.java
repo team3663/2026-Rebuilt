@@ -7,14 +7,20 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.config.*;
+import frc.robot.util.MacAddressUtils;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+
+import java.util.Arrays;
+import java.util.Set;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -63,12 +69,45 @@ public class Robot extends LoggedRobot {
                 break;
         }
 
+        RobotFactory robotFactory = switch (Constants.currentMode) {
+            // Real robot, instantiate hardware IO implementations
+            case REAL -> {
+                Set<String> macAddresses = MacAddressUtils.getMacAddresses();
+
+                Logger.recordMetadata("MacAddresses", macAddresses.toString());
+
+                RobotIdentity identity =
+                        Arrays.stream(RobotIdentity.values())
+                                .filter(x -> macAddresses.contains(x.getMacAddress()))
+                                .findFirst()
+                                .orElse(RobotIdentity.UNKNOWN);
+
+                Logger.recordMetadata("RobotIdentity", identity.name());
+
+                yield switch (identity) {
+                    case C2025 -> new C2025RobotFactory();
+                    case C2026 -> new C2026RobotFactory();
+                    case TEST_BOT -> new TestBotRobotFactory();
+                    case UNKNOWN -> {
+                        new Alert("Unrecognized RoboRIO MAC address %s. Defaulting to competition robot.".formatted(macAddresses),
+                                Alert.AlertType.kWarning).set(true);
+                        yield new C2026RobotFactory();
+                    }
+                };
+            }
+            // Sim robot, instantiate physics sim IO implementations
+            case SIM -> new SimRobotFactory();
+            // Replayed robot, disable IO implementations
+            case REPLAY -> new RobotFactory() {
+            };
+        };
+
         // Start AdvantageKit logger
         Logger.start();
 
         // Instantiate our RobotContainer. This will perform all our button bindings,
         // and put our autonomous chooser on the dashboard.
-        robotContainer = new RobotContainer();
+        robotContainer = new RobotContainer(robotFactory);
     }
 
     /**

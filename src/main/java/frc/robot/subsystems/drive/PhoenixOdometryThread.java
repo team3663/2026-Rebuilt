@@ -8,10 +8,10 @@
 package frc.robot.subsystems.drive;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.RobotController;
-import frc.robot.generated.TunerConstants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,17 +38,14 @@ public class PhoenixOdometryThread extends Thread {
     private final List<Queue<Double>> genericQueues = new ArrayList<>();
     private final List<Queue<Double>> timestampQueues = new ArrayList<>();
 
-    private static boolean isCANFD = TunerConstants.kCANBus.isNetworkFD();
-    private static PhoenixOdometryThread instance = null;
+    private final double odometryFrequencyHz;
 
-    public static PhoenixOdometryThread getInstance() {
-        if (instance == null) {
-            instance = new PhoenixOdometryThread();
-        }
-        return instance;
-    }
+    private final boolean isCANFD;
 
-    private PhoenixOdometryThread() {
+    public PhoenixOdometryThread(double odometryFrequencyHz, CANBus canBus) {
+        this.odometryFrequencyHz = odometryFrequencyHz;
+        this.isCANFD = canBus.isNetworkFD();
+
         setName("PhoenixOdometryThread");
         setDaemon(true);
     }
@@ -118,12 +115,12 @@ public class PhoenixOdometryThread extends Thread {
             signalsLock.lock();
             try {
                 if (isCANFD && phoenixSignals.length > 0) {
-                    BaseStatusSignal.waitForAll(2.0 / Drive.ODOMETRY_FREQUENCY, phoenixSignals);
+                    BaseStatusSignal.waitForAll(2.0 / odometryFrequencyHz, phoenixSignals);
                 } else {
                     // "waitForAll" does not support blocking on multiple signals with a bus
                     // that is not CAN FD, regardless of Pro licensing. No reasoning for this
                     // behavior is provided by the documentation.
-                    Thread.sleep((long) (1000.0 / Drive.ODOMETRY_FREQUENCY));
+                    Thread.sleep((long) (1000.0 / odometryFrequencyHz));
                     if (phoenixSignals.length > 0) BaseStatusSignal.refreshAll(phoenixSignals);
                 }
             } catch (InterruptedException e) {

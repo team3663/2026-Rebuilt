@@ -11,6 +11,9 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.hardware.TalonFX;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -18,23 +21,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.commands.DriveCommands;
-import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.drive.*;
-import frc.robot.subsystems.feeder.C2026FeederIO;
+import frc.robot.config.RobotFactory;
+import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.feeder.Feeder;
-import frc.robot.subsystems.feeder.FeederIO;
-import frc.robot.subsystems.hopper.C2026HopperIO;
 import frc.robot.subsystems.hopper.Hopper;
-import frc.robot.subsystems.hopper.HopperIO;
-import frc.robot.subsystems.hopper.SimHopperIO;
-import frc.robot.subsystems.intake.C2026IntakeIO;
 import frc.robot.subsystems.intake.Intake;
-import frc.robot.subsystems.intake.IntakeIO;
-import frc.robot.subsystems.shooter.C2026ShooterIO;
 import frc.robot.subsystems.shooter.Shooter;
-import frc.robot.subsystems.shooter.ShooterIO;
-import frc.robot.subsystems.shooter.SimShooterIO;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -60,111 +52,17 @@ public class RobotContainer {
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
-    public RobotContainer() {
-        switch (Constants.currentMode) {
-            case REAL:
-                // Real robot, instantiate hardware IO implementations
-                // ModuleIOTalonFX is intended for modules with TalonFX drive, TalonFX turn, and
-                // a CANcoder
-                drive = new Drive(
-                        new GyroIOPigeon2(),
-                        new ModuleIOTalonFX(TunerConstants.FrontLeft),
-                        new ModuleIOTalonFX(TunerConstants.FrontRight),
-                        new ModuleIOTalonFX(TunerConstants.BackLeft),
-                        new ModuleIOTalonFX(TunerConstants.BackRight));
-
-                feeder = new Feeder(new C2026FeederIO(
-                        new TalonFX(14),
-                        new TalonFX(15),
-                        new CANrange(1))
-                );
-                hopper = new Hopper(new C2026HopperIO(new TalonFX(10)));
-
-                intake = new Intake(new C2026IntakeIO(
-                        new TalonFX(11),
-                        new TalonFX(12),
-                        new TalonFX(13)
-                ));
-
-                shooter = new Shooter(new C2026ShooterIO(
-                        new TalonFX(16),
-                        new TalonFX(17),
-                        new TalonFX(18),
-                        new TalonFX(19),
-                        new CANcoder(7),
-                        new CANcoder(8)
-                ));
-
-
-                // The ModuleIOTalonFXS implementation provides an example implementation for
-                // TalonFXS controller connected to a CANdi with a PWM encoder. The
-                // implementations
-                // of ModuleIOTalonFX, ModuleIOTalonFXS, and ModuleIOSpark (from the Spark
-                // swerve
-                // template) can be freely intermixed to support alternative hardware
-                // arrangements.
-                // Please see the AdvantageKit template documentation for more information:
-                // https://docs.advantagekit.org/getting-started/template-projects/talonfx-swerve-template#custom-module-implementations
-                //
-                // drive =
-                // new Drive(
-                // new GyroIOPigeon2(),
-                // new ModuleIOTalonFXS(TunerConstants.FrontLeft),
-                // new ModuleIOTalonFXS(TunerConstants.FrontRight),
-                // new ModuleIOTalonFXS(TunerConstants.BackLeft),
-                // new ModuleIOTalonFXS(TunerConstants.BackRight));
-                break;
-
-            case SIM:
-                // Sim robot, instantiate physics sim IO implementations
-                drive = new Drive(
-                        new GyroIO() {
-                        },
-                        new ModuleIOSim(TunerConstants.FrontLeft),
-                        new ModuleIOSim(TunerConstants.FrontRight),
-                        new ModuleIOSim(TunerConstants.BackLeft),
-                        new ModuleIOSim(TunerConstants.BackRight));
-                feeder = new Feeder(new FeederIO() {
-                });
-                hopper = new Hopper(new SimHopperIO());
-                intake = new Intake(new IntakeIO() {
-                });
-                shooter = new Shooter(new SimShooterIO());
-                break;
-
-            default:
-                // Replayed robot, disable IO implementations
-                drive =
-                        new Drive(
-                                new GyroIO() {
-                                },
-                                new ModuleIO() {
-                                },
-                                new ModuleIO() {
-                                },
-                                new ModuleIO() {
-                                },
-                                new ModuleIO() {
-                                });
-                feeder = new Feeder(new FeederIO() {
-                });
-                hopper = new Hopper(new HopperIO() {
-                });
-                intake = new Intake(new IntakeIO() {
-                });
-                shooter = new Shooter(new ShooterIO() {
-                });
-                break;
-        }
+    public RobotContainer(RobotFactory robotFactory) {
+        this.drive = robotFactory.createDrive();
+        this.feeder = robotFactory.createFeeder();
+        this.hopper = robotFactory.createHopper();
+        this.intake = robotFactory.createIntake();
+        this.shooter = robotFactory.createShooter();
 
         // Set up auto routines
         autoChooser = new LoggedDashboardChooser<>("Auto Choices", new SendableChooser<>());
 
         // Set up SysId routines
-        autoChooser.addOption(
-                "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
-        autoChooser.addOption(
-                "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
         autoChooser.addOption(
                 "Drive SysId (Quasistatic Forward)",
                 drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
@@ -190,39 +88,22 @@ public class RobotContainer {
      */
     private void configureButtonBindings() {
         // Default command, normal field-relative drive
-        drive.setDefaultCommand(
-                DriveCommands.joystickDrive(
-                        drive,
-                        () -> -controller.getLeftY(),
-                        () -> -controller.getLeftX(),
-                        () -> -controller.getRightX()));
+        drive.setDefaultCommand(drive.joystickDrive(
+                () -> -controller.getLeftY(),
+                () -> -controller.getLeftX(),
+                () -> -controller.getRightX()
+        ));
 
-//        // Lock to 0° when A button is held
-//        controller
-//                .a()
-//                .whileTrue(
-//                        DriveCommands.joystickDriveAtAngle(
-//                                drive,
-//                                () -> -controller.getLeftY(),
-//                                () -> -controller.getLeftX(),
-//                                () -> Rotation2d.kZero));
-//
-//        // Switch to X pattern when X button is pressed
-//        controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
-//
-//        // Reset gyro to 0° when B button is pressed
-//        controller
-//                .b()
-//                .onTrue(
-//                        Commands.runOnce(
-//                                        () ->
-//                                                drive.setPose(
-//                                                        new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
-//                                        drive)
-//                                .ignoringDisable(true));
-//
-        controller.a().onTrue(intake.stopIntake());
-        controller.x().whileTrue(intake.intakeWithVoltage(3.0));
+        // Reset gyro to 0° when B button is pressed
+        controller.back().onTrue(drive.resetOdometry(() ->
+                new Pose2d(
+                        drive.getPose().getTranslation(),
+                        DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == DriverStation.Alliance.Red ?
+                                Rotation2d.k180deg :
+                                Rotation2d.kZero)));
+
+        controller.a().onTrue(intake.stop());
+        controller.x().whileTrue(intake.intakeAndPivot(6.5, 0.0));
 
         //Hopper Controls
         controller.b().whileTrue(hopper.withVoltage(3));
