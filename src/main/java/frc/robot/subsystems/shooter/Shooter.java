@@ -87,7 +87,7 @@ public class Shooter extends SubsystemBase {
             }
 
             // Turret
-            targetTurretPosition = getValidTurretPosition(turretPosition);
+            targetTurretPosition = getNearestTargetTurretAngle(turretPosition);
             io.setTurretTargetPosition(targetTurretPosition);
 
             // Shooter
@@ -105,7 +105,7 @@ public class Shooter extends SubsystemBase {
             }
 
             // Turret
-            targetTurretPosition = getValidTurretPosition(turretPosition.getAsDouble());
+            targetTurretPosition = getNearestTargetTurretAngle(turretPosition.getAsDouble());
             io.setTurretTargetPosition(targetTurretPosition);
 
             // Shooter
@@ -183,6 +183,29 @@ public class Shooter extends SubsystemBase {
 
     public double getTargetTurretPosition() {
         return targetTurretPosition;
+    }
+
+    private double getNearestTargetTurretAngle(double target) {
+        System.out.println("target = " + target);
+        double current = inputs.currentTurretPosition;
+        if (Math.abs(current - target) > Math.PI) {
+            System.out.println("YAY");
+        }
+        System.out.println("current:" + current);
+        for (int i = 0; i * 2 * Math.PI < constants.maximumTurretPosition - Math.abs(target); i++) {
+            double tempTarget = target + 2 * Math.PI * i;
+            System.out.println("tempTarget = " + tempTarget);
+            if (Math.abs(tempTarget - current) <= Math.PI) return tempTarget;
+        }
+        for (int i = -1; i * 2 * Math.PI < constants.minimumTurretPosition + Math.abs(target); i--) {
+            double tempTarget = target + 2 * Math.PI * i;
+            System.out.println("tempTarget = " + tempTarget);
+            if (Math.abs(tempTarget - current) < Math.PI) return tempTarget;
+        }
+
+        // It is an issue if this is reached
+        System.out.println("MISSED");
+        return -1;
     }
 
     private double getValidTurretPosition(double position) {

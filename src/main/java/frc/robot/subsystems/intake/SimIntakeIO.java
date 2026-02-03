@@ -19,10 +19,10 @@ public class SimIntakeIO implements IntakeIO {
     );
 
     // TODO Get gear ratio
-    private static final double INTAKE_GEAR_RATIO = 0.0;
-    private static final double INTAKE_LENGTH = 0.0;
-    private static final double PIVOT_GEAR_RATIO = 0.0;
-    private static final double PIVOT_MOMENT_OF_INERTIA = 0.0;
+    private static final double INTAKE_GEAR_RATIO = 1.0;
+    private static final double INTAKE_LENGTH = 1.0;
+    private static final double PIVOT_GEAR_RATIO = 1.0;
+    private static final double PIVOT_MOMENT_OF_INERTIA = 0.1;
     private static final double PIVOT_STARTING_ANGLE = 0.0;
 
     // Get values

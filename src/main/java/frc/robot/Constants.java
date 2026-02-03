@@ -61,6 +61,6 @@ public final class Constants {
         public static final double TURRET_OFF_CENTER_DISTANCE = Units.inchesToMeters(Math.sqrt(365) - 4.0);
 
         // The Radians offset the default or "0" point of the turret is from the robots "0" direction
-        public static final double TURRET_ROTATION_OFFSET = Units.degreesToRadians(90);
+        public static final double TURRET_ROTATION_OFFSET = Units.degreesToRadians(180.0);
     }
 }

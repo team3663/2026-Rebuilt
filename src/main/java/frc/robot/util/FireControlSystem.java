@@ -67,12 +67,12 @@ public class FireControlSystem {
         else
             entry = DISTANCE_LOOKUP_TABLE_PASS.get(distance);
 
-        Rotation2d rotation =  new Rotation2d(delta.getAngle().getRadians() - Constants.Shooter.TURRET_ROTATION_OFFSET);
+        Rotation2d rotation = delta.getAngle();
 
         Logger.recordOutput("CommandFactory/TargetTurretPose", new Pose2d(turretPose.getTranslation(), rotation));
 
         // Add a slight offset when we are shooting at an angle
-        return new FiringSolution(rotation.getRadians() - robotRot.getRadians(),
+        return new FiringSolution(rotation.getRadians() - Constants.Shooter.TURRET_ROTATION_OFFSET - robotRot.getRadians(),
                 entry.hoodAngle, entry.shooterVelocity);
     }
 
