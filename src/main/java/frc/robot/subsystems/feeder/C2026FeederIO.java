@@ -24,8 +24,7 @@ public class C2026FeederIO implements FeederIO {
     private final static double PROXIMITY_THRESHOLD = 0.0;
     private final static double PROXIMITY_HYSTERESIS = 0.0;
     private final static double MIN_SIGNAL_STRENGTH = 0.0;
-    //two motors created, may only need one though
-    //TODO figure out how many motors will be used
+    //motor and CANrange created
     private final TalonFX motor1; //ID 14;
     private final CANrange canrange;
 

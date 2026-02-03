@@ -7,7 +7,6 @@ public class FeederInputs {
     public double currentVelocity;
     public double currentAppliedVoltage;
 
-    //TODO figure out how many motors will be used
     public double motor1Temperature;
     public double motor1CurrentDraw;
 
