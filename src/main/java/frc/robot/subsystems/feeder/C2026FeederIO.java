@@ -27,16 +27,14 @@ public class C2026FeederIO implements FeederIO {
     //two motors created, may only need one though
     //TODO figure out how many motors will be used
     private final TalonFX motor1; //ID 14;
-    private final TalonFX motor2; //ID 15;
     private final CANrange canrange;
 
     private final VoltageOut voltageRequest = new VoltageOut(0.0);
     private final NeutralOut stopRequest = new NeutralOut();
     private final VelocityVoltage velocityVoltage = new VelocityVoltage(0.0);
 
-    public C2026FeederIO(TalonFX motor1, TalonFX motor2, CANrange canrange) {
+    public C2026FeederIO(TalonFX motor1, CANrange canrange) {
         this.motor1 = motor1;
-        this.motor2 = motor2;
         this.canrange = canrange;
 
         TalonFXConfiguration motor1Config = new TalonFXConfiguration();
@@ -48,9 +46,6 @@ public class C2026FeederIO implements FeederIO {
 //        motor1Config.Slot0.kD = 0.0;
 
         motor1.getConfigurator().apply(motor1Config);
-        motor2.getConfigurator().apply(motor1Config);
-
-        motor2.setControl(new Follower(motor1.getDeviceID(), MotorAlignmentValue.Opposed));
 
         CANrangeConfiguration canRangeConfig = new CANrangeConfiguration();
         canRangeConfig.ProximityParams.ProximityThreshold = Units.inchesToMeters(PROXIMITY_THRESHOLD);
@@ -58,6 +53,16 @@ public class C2026FeederIO implements FeederIO {
         canRangeConfig.ProximityParams.MinSignalStrengthForValidMeasurement = MIN_SIGNAL_STRENGTH;
         canRangeConfig.ToFParams.withUpdateMode(UpdateModeValue.LongRangeUserFreq);
         canrange.getConfigurator().apply(canRangeConfig);
+    }
+
+    @Override
+    public void updateInputs(FeederInputs inputs){
+        inputs.currentVelocity = motor1.getVelocity().getValueAsDouble();
+        inputs.canrangeObjectDetected = canrange.getIsDetected().getValue();
+        inputs.currentAppliedVoltage = motor1.getMotorVoltage().getValueAsDouble();
+        inputs.canrangeSignalConfidence = canrange.getSignalStrength().getValueAsDouble();
+        inputs.motor1CurrentDraw = motor1.getSupplyCurrent().getValueAsDouble();
+        inputs.motor1Temperature = motor1.getDeviceTemp().getValueAsDouble();
     }
 
     @Override

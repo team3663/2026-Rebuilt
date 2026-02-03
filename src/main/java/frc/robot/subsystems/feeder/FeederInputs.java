@@ -11,9 +11,6 @@ public class FeederInputs {
     public double motor1Temperature;
     public double motor1CurrentDraw;
 
-    public double motor2Temperature;
-    public double motor2CurrentDraw;
-
     public boolean canrangeObjectDetected;
     public double canrangeSignalConfidence;
 }
