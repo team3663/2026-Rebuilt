@@ -25,7 +25,7 @@ public interface ShooterIO {
     default void setHoodTargetVoltage(double voltage) {
     }
 
-    default void sysId(Voltage voltage) {
+    default void sysIdHood(Voltage voltage) {
     }
 
     // Turret

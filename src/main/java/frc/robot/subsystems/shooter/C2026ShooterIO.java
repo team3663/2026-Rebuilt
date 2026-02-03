@@ -197,7 +197,7 @@ public class C2026ShooterIO implements ShooterIO {
     }
 
     @Override
-    public void sysId(Voltage voltage) {
+    public void sysIdHood(Voltage voltage) {
         hoodMotor.setControl(voltageRequest.withOutput(voltage));
     }
 

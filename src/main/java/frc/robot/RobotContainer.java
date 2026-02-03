@@ -112,11 +112,16 @@ public class RobotContainer {
         //SysID routines
 //        controller.leftStick().onTrue(Commands.runOnce(SignalLogger::start));
 //        controller.rightStick().onTrue(Commands.runOnce(SignalLogger::stop));
+        
 //        controller.a().whileTrue(shooter.sysIdQuasistaticHood(SysIdRoutine.Direction.kForward));
 //        controller.b().whileTrue(shooter.sysIdQuasistaticHood(SysIdRoutine.Direction.kReverse));
 //        controller.x().whileTrue(shooter.sysIdDynamicHood(SysIdRoutine.Direction.kForward));
 //        controller.y().whileTrue(shooter.sysIdDynamicHood(SysIdRoutine.Direction.kReverse));
 
+//        controller.a().whileTrue(intake.sysIdQuasistaticPivot(SysIdRoutine.Direction.kForward));
+//        controller.b().whileTrue(intake.sysIdQuasistaticPivot(SysIdRoutine.Direction.kReverse));
+//        controller.x().whileTrue(shooter.sysIdDynamicHood(SysIdRoutine.Direction.kForward));
+//        controller.y().whileTrue(shooter.sysIdDynamicHood(SysIdRoutine.Direction.kReverse));
     }
 
     /**
