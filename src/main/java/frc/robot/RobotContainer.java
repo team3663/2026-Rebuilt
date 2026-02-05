@@ -177,7 +177,12 @@ public class RobotContainer {
                 "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
         autoChooser.addOption(
                 "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-        autoChooser.addOption("Test Auto", autoPaths.testAuto());
+        autoChooser.addOption("leftStarting-Depot-LeftClimb", autoPaths.leftSide_depot_leftClimb());
+        autoChooser.addOption("rightStarting-Outpost-RightClimb", autoPaths.rightSide_outpost_rightClimb());
+        autoChooser.addOption("leftStarting-neutralZone", autoPaths.leftStarting_neutralZone_middleLine());
+        autoChooser.addOption("rightStarting-neutralZone", autoPaths.rightStarting_neutralZone_middleLine());
+        autoChooser.addOption("leftStarting-neutralZone-neutralZone", autoPaths.leftStarting_neutralZone_middleLine_x2());
+        autoChooser.addOption("rightStarting-neutralZone-neutralZone", autoPaths.rightStarting_neutralZone_middleLine_x2());
 
         shooter.setDefaultCommand(shooter.goToWithShooter(shooter.getConstants().minimumHoodPosition(), 0.0));
 

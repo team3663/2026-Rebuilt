@@ -1,7 +1,6 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -32,12 +31,12 @@ public class AutoPaths {
     /**
      * Returns the pose of the correct alliance
      *
-     * @param blueAlliancePose the pose to return when the robot is on the blue alliance
-     * @param redAlliancePose  the pose to return when the robot is on the red alliance
+     * @param blueTargetPose the pose to return when the robot is on the blue alliance
+     * @param redTargetPose  the pose to return when the robot is on the red alliance
      */
-    private Pose2d alliancePose(Pose2d blueAlliancePose, Pose2d redAlliancePose) {
+    private Pose2d alliancePose(Pose2d blueTargetPose, Pose2d redTargetPose) {
         return DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) ==
-                DriverStation.Alliance.Blue ? blueAlliancePose : redAlliancePose;
+                DriverStation.Alliance.Blue ? blueTargetPose : redTargetPose;
     }
 
     /**
@@ -46,11 +45,11 @@ public class AutoPaths {
      * requires the {@link Drive} subsystem and executes instantly
      * </p>
      *
-     * @param blueAlliancePose the pose to reset the odometry to if on the blue alliance
-     * @param redAlliancePose  the pose to reset the odometry to if on the red alliance
+     * @param blueTargetPose the pose to reset the odometry to if on the blue alliance
+     * @param redTargetPose  the pose to reset the odometry to if on the red alliance
      */
-    private Command resetOdometry(Pose2d blueAlliancePose, Pose2d redAlliancePose) {
-        return Commands.defer(() -> drive.resetOdometry(() -> alliancePose(blueAlliancePose, redAlliancePose)), Set.of(drive));
+    private Command resetOdometry(Pose2d blueTargetPose, Pose2d redTargetPose) {
+        return Commands.defer(() -> drive.resetOdometry(() -> alliancePose(blueTargetPose, redTargetPose)), Set.of(drive));
     }
 
     /**
@@ -81,9 +80,12 @@ public class AutoPaths {
                             goToPositionTarget = target;
                             return target;
                         },
-                        () -> false,
+                        () -> slowAccel.getAsBoolean(),
                         () -> drive.getMaxLinearSpeedMetersPerSec())
-                .beforeStarting(() -> intermediateHolder[0] = intermediatePoseSupplier.get());
+                .beforeStarting(() -> {
+                    if (intermediatePoseSupplier != null) intermediateHolder[0] = intermediatePoseSupplier.get();
+                    else Commands.none();
+                });
     }
 
     /**
@@ -106,24 +108,32 @@ public class AutoPaths {
      * This command requires {@link Drive} and does not end
      * </p>
      *
-     * @param blueAlliancePose target position of the robot if on blue alliance
-     * @param redAlliancePose  target position of the robot if on red alliance
+     * @param blueTargetPose target position of the robot if on blue alliance
+     * @param redTargetPose  target position of the robot if on red alliance
      * @see #goToPosition(Pose2d)
      */
-    private Command goToPosition(Pose2d blueAlliancePose, Pose2d redAlliancePose) {
-        return Commands.defer(() -> goToPosition(alliancePose(blueAlliancePose, redAlliancePose)), Set.of(drive));
-
+    private Command goToPosition(Pose2d blueTargetPose, Pose2d redTargetPose) {
+        return goToPosition(alliancePose(blueTargetPose, redTargetPose));
     }
 
-    private Command goToPosition(Pose2d blueAlliancePose, Pose2d redAlliancePose, Supplier<Pose2d> blueAllianceIntermediateSupplier, Supplier<Pose2d> redAllianceIntermediateSupplier) {
+    private Command goToPosition(Pose2d blueTargetPose, Pose2d redTargetPose, Supplier<Pose2d> blueAllianceIntermediateSupplier, Supplier<Pose2d> redAllianceIntermediateSupplier) {
         Pose2d[] intermediatePoseHolder = new Pose2d[]{null};
 
-        return Commands.defer(() -> goToPosition(
-                        () -> alliancePose(blueAlliancePose, redAlliancePose),
-                        () -> drive.atPosition(intermediatePoseHolder[0].getTranslation(),
-                                Units.feetToMeters(1.0)) ? null : intermediatePoseHolder[0],
-                        () -> false), Set.of(drive))
-                .beforeStarting(() -> intermediatePoseHolder[0] = alliancePose(blueAllianceIntermediateSupplier.get(), redAllianceIntermediateSupplier.get()));
+        return goToPosition(
+                () -> alliancePose(blueTargetPose, redTargetPose),
+                () -> {
+                    if (intermediatePoseHolder[0] != null) {
+                        if (!drive.atPosition(intermediatePoseHolder[0].getTranslation(), Units.feetToMeters(3.5)))
+                            return intermediatePoseHolder[0];
+                        else return null;
+                    } else return null;
+                },
+                () -> false)
+                .beforeStarting(() -> {
+                    if (blueAllianceIntermediateSupplier != null)
+                        intermediatePoseHolder[0] = alliancePose(blueAllianceIntermediateSupplier.get(), redAllianceIntermediateSupplier.get());
+                    else Commands.none();
+                });
     }
 
     /**
@@ -131,21 +141,19 @@ public class AutoPaths {
      * <p>
      * This command requires {@link Drive} and does not end
      *
-     * @param blueAlliancePose             target position of the robot if on blue alliance
-     * @param redAlliancePose              target position of the robot if on red alliance
+     * @param blueTargetPose               target position of the robot if on blue alliance
+     * @param redTargetPose                target position of the robot if on red alliance
      * @param blueIntermediatePoseSupplier a supplier that is possibly {@code null} of intermediate positions to travel to if on blue alliance
      * @param redIntermediatePoseSupplier  a supplier that is possibly {@code null} of intermediate positions to travel to if on red alliance
      * @see #intaking(Pose2d, Pose2d) for an option with no intermediate suppliers
      */
-    private Command intaking(Pose2d blueAlliancePose, Pose2d redAlliancePose, Supplier<Pose2d> blueIntermediatePoseSupplier, Supplier<Pose2d> redIntermediatePoseSupplier) {
-        Pose2d[] targetPoseHolder = new Pose2d[]{null};
-
-        return Commands.defer(() -> goToPosition(blueAlliancePose, redAlliancePose,
-                        blueIntermediatePoseSupplier, redIntermediatePoseSupplier), Set.of(drive))
+    private Command intaking(Pose2d blueTargetPose, Pose2d redTargetPose, Supplier<Pose2d> blueIntermediatePoseSupplier, Supplier<Pose2d> redIntermediatePoseSupplier) {
+        return goToPosition(blueTargetPose, redTargetPose,
+                blueIntermediatePoseSupplier, redIntermediatePoseSupplier)
                 .withDeadline(Commands.sequence(
-                        intake.deployAndIntake()))
-                .andThen(intake.stow())
-                .beforeStarting(() -> targetPoseHolder[0] = alliancePose(blueAlliancePose, redAlliancePose));
+                                intake.deployAndIntake())
+                        .andThen(intake.stow()))
+                .until(() -> drive.atPosition(alliancePose(blueTargetPose, redTargetPose).getTranslation()));
     }
 
     /**
@@ -153,12 +161,12 @@ public class AutoPaths {
      * <p>
      * This command requires {@link Intake}
      *
-     * @param blueAlliancePose target position of the robot if on blue alliance
-     * @param redAlliancePose  target position of the robot if on red alliance
+     * @param blueTargetPose target position of the robot if on blue alliance
+     * @param redTargetPose  target position of the robot if on red alliance
      * @see #intaking(Pose2d, Pose2d, Supplier, Supplier)
      */
-    private Command intaking(Pose2d redAlliancePose, Pose2d blueAlliancePose) {
-        return intaking(redAlliancePose, blueAlliancePose, () -> null, () -> null);
+    private Command intaking(Pose2d blueTargetPose, Pose2d redTargetPose) {
+        return intaking(blueTargetPose, redTargetPose, () -> null, () -> null);
     }
 
     /**
@@ -166,25 +174,13 @@ public class AutoPaths {
      * <p>
      * This command requires {@link Shooter}
      *
-     * @param shouldZero if we want to zero the intake pivot and climber
      * @see #shooting()
      * @see #zeroAndShoot() a zeroing alternative
      */
     // TODO wait till shooting command gets merged into main
     // TODO add zeroing for pivot and climber if necessary
-    private Command shooting(boolean shouldZero) {
-        return null;
-    }
-
-    /**
-     * Runs the shooter
-     * <p>
-     * This command requires {@link Shooter}
-     *
-     * @see #zeroAndShoot() a zeroing alternative
-     */
     private Command shooting() {
-        return Commands.defer(() -> shooting(false), Set.of(shooter));
+        return Commands.none();
     }
 
     /**
@@ -193,29 +189,127 @@ public class AutoPaths {
      * This command requires {@link Shooter} {@link Intake}
      */
     private Command zeroAndShoot() {
-        return Commands.defer(() -> shooting(true), Set.of(shooter));
+        return shooting().alongWith(intake.zeroPivot());
     }
 
-    // TODO fix this so that we don't start intaking until after zeroed
-    private Command intakeAndShoot(Pose2d blueAlliancePose, Pose2d redAlliancePose,
-                                   Supplier<Pose2d> intermediatePoseSupplier, boolean shouldZero) {
-        return null;
-//        return Commands.defer(() -> shooting(shouldZero), Set.of(shooter))
-//                .alongWith(intaking(blueAlliancePose, redAlliancePose, intermediatePoseSupplier));
+    private Command goToPositionAndShoot(Pose2d blueTargetPose, Pose2d redTargetPose, Supplier<Pose2d> blueIntermediatePose, Supplier<Pose2d> redIntermediatePose, boolean shouldZero) {
+        return goToPosition(blueTargetPose, redTargetPose, blueIntermediatePose, redIntermediatePose)
+                .alongWith(shouldZero ? zeroAndShoot() : shooting())
+                .until(() -> drive.atPosition(alliancePose(blueTargetPose, redTargetPose).getTranslation()));
     }
 
-    public Command testAuto() {
-        Pose2d[] intermediatePoseHolder = new Pose2d[]{null};
+    private Command goToPositionAndShoot(Pose2d blueTargetPose, Pose2d redTargetPose, boolean shouldZero) {
+        return goToPositionAndShoot(blueTargetPose, redTargetPose, () -> null, () -> null, shouldZero);
+    }
+
+    private Command intakeAndShoot(Pose2d blueTargetPose, Pose2d redTargetPose,
+                                   Supplier<Pose2d> blueIntermediatePose, Supplier<Pose2d> redIntermediatePose,
+                                   boolean shouldZero) {
+        return intaking(blueTargetPose, redTargetPose, blueIntermediatePose, redIntermediatePose)
+                .alongWith(shouldZero ? zeroAndShoot() : Commands.none())
+                .alongWith(shooting())
+                .until(() -> drive.atPosition(alliancePose(blueTargetPose, redTargetPose).getTranslation()));
+    }
+
+    private Command intakeAndShoot(Pose2d blueTargetPose, Pose2d redTargetPose, boolean shouldZero) {
+        return intakeAndShoot(blueTargetPose, redTargetPose, () -> null, () -> null, shouldZero);
+    }
+
+    private Command intakeAndShoot(Pose2d blueTargetPose, Pose2d redTargetPose) {
+        return intakeAndShoot(blueTargetPose, redTargetPose, () -> null, () -> null, false);
+    }
+
+    private Command intakeAndPass(Pose2d blueTargetPose, Pose2d redTargetPose, Supplier<Pose2d> blueIntermediatePose, Supplier<Pose2d> redIntermediatePose) {
+        return intaking(blueTargetPose, redTargetPose, blueIntermediatePose, redIntermediatePose)
+                // TODO add passing command
+                .alongWith(Commands.none())
+                .until(() -> drive.atPosition(alliancePose(blueTargetPose, redTargetPose).getTranslation()));
+    }
+
+    private Command goToPositionAndClimb(Pose2d blueTargetPose, Pose2d redTargetPose,
+                                         Supplier<Pose2d> blueIntermediatePose, Supplier<Pose2d> redIntermediatePose) {
+        return goToPosition(blueTargetPose, redTargetPose, blueIntermediatePose, redIntermediatePose)
+                .alongWith(shooting());
+    }
+
+    private Command goToPositionAndClimb(Pose2d blueTargetPose, Pose2d redTargetPose) {
+        return goToPositionAndClimb(blueTargetPose, redTargetPose, () -> null, () -> null)
+                .until(() -> drive.atPosition(alliancePose(blueTargetPose, redTargetPose).getTranslation()));
+    }
+
+    // Auto Routines
+    public Command leftSide_depot_leftClimb() {
         return Commands.sequence(
-                resetOdometry(new Pose2d(0, 0, new Rotation2d(0)),
-                        new Pose2d(Constants.FIELD.getFieldLength(), Constants.FIELD.getFieldWidth(),
-                                new Rotation2d(Units.degreesToRadians(180)))).alongWith(intake.zeroPivot()),
-                intaking(new Pose2d(Units.feetToMeters(10), Units.inchesToMeters(5), new Rotation2d(Units.degreesToRadians(180))),
-                        new Pose2d(Constants.FIELD.getFieldLength() - Units.feetToMeters(10), Constants.FIELD.getFieldWidth() - Units.feetToMeters(5), new Rotation2d(0)),
-                        () -> new Pose2d(Units.feetToMeters(5), Units.feetToMeters(2.5), new Rotation2d(Units.degreesToRadians(270))),
-                        () -> new Pose2d(Constants.FIELD.getFieldLength() - Units.feetToMeters(5), Constants.FIELD.getFieldWidth() - Units.feetToMeters(2.5),
-                                new Rotation2d(Units.degreesToRadians(270)))));
+                resetOdometry(Constants.BLUE_LEFT_AUTO_LINE, Constants.RED_LEFT_AUTO_LINE),
+                goToPositionAndShoot(Constants.BLUE_LEFT_DEPOT, Constants.RED_LEFT_DEPOT, true),
+                intakeAndShoot(Constants.BLUE_RIGHT_DEPOT, Constants.RED_RIGHT_DEPOT),
+                intake.stow().alongWith(goToPositionAndClimb(Constants.BLUE_LEFT_RUNG_CLIMB, Constants.RED_LEFT_RUNG_CLIMB)));
     }
 
+    public Command rightSide_outpost_rightClimb() {
+        return Commands.sequence(
+                resetOdometry(Constants.BLUE_RIGHT_AUTO_LINE, Constants.RED_RIGHT_AUTO_LINE),
+                goToPositionAndShoot(Constants.BLUE_OUTPOST_CENTERED, Constants.RED_OUTPOST_CENTERED, true),
+                goToPositionAndClimb(Constants.BLUE_RIGHT_RUNG_CLIMB, Constants.RED_RIGHT_RUNG_CLIMB,
+                        () -> Constants.BLUE_OUTPOST_INTERMEDIATE, () -> Constants.RED_OUTPOST_INTERMEDIATE));
+    }
+
+    public Command leftStarting_neutralZone_middleLine() {
+        return Commands.sequence(
+                resetOdometry(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE,
+                        Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE),
+                zeroAndShoot().withTimeout(2.0),
+                intakeAndPass(Constants.BLUE_MIDDLE_CENTER_LINE, Constants.RED_MIDDLE_CENTER_LINE,
+                        () -> Constants.BLUE_LEFT_CENTER_LINE, () -> Constants.RED_LEFT_CENTER_LINE),
+                intaking(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE,
+                        () -> Constants.BLUE_RIGHT_CENTER_LINE_TO_TRENCH, () -> Constants.RED_RIGHT_CENTER_LINE_TO_TRENCH),
+                shooting().alongWith(intake.stow()));
+    }
+
+    public Command rightStarting_neutralZone_middleLine() {
+        return Commands.sequence(
+                resetOdometry(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE),
+                zeroAndShoot().withTimeout(2.0),
+                intakeAndPass(Constants.BLUE_MIDDLE_CENTER_LINE, Constants.RED_MIDDLE_CENTER_LINE,
+                        () -> Constants.BLUE_RIGHT_CENTER_LINE, () -> Constants.RED_RIGHT_CENTER_LINE),
+                intaking(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE,
+                        () -> Constants.BLUE_LEFT_CENTER_LINE_TO_TRENCH, () -> Constants.RED_LEFT_CENTER_LINE_TO_TRENCH),
+                shooting().alongWith(intake.stow()));
+    }
+
+    public Command leftStarting_neutralZone_middleLine_x2() {
+        return Commands.sequence(
+                resetOdometry(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE,
+                        Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE),
+                zeroAndShoot().withTimeout(2.0),
+                intakeAndPass(Constants.BLUE_MIDDLE_CENTER_LINE, Constants.RED_MIDDLE_CENTER_LINE,
+                        () -> Constants.BLUE_LEFT_CENTER_LINE, () -> Constants.RED_LEFT_CENTER_LINE),
+                intaking(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE,
+                        () -> Constants.BLUE_RIGHT_CENTER_LINE_TO_TRENCH, () -> Constants.RED_RIGHT_CENTER_LINE_TO_TRENCH),
+//                shooting().withTimeout(2.0),
+                intakeAndPass(Constants.BLUE_MIDDLE_CENTER_LINE, Constants.RED_MIDDLE_CENTER_LINE,
+                        () -> Constants.BLUE_RIGHT_CENTER_LINE, () -> Constants.RED_RIGHT_CENTER_LINE),
+                intaking(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE,
+                        () -> Constants.BLUE_LEFT_CENTER_LINE_TO_TRENCH, () -> Constants.RED_LEFT_CENTER_LINE_TO_TRENCH),
+                shooting()
+        );
+    }
+
+    public Command rightStarting_neutralZone_middleLine_x2() {
+        return Commands.sequence(
+                resetOdometry(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE),
+                zeroAndShoot().withTimeout(2.0),
+                intakeAndPass(Constants.BLUE_MIDDLE_CENTER_LINE, Constants.RED_MIDDLE_CENTER_LINE,
+                        () -> Constants.BLUE_RIGHT_CENTER_LINE, () -> Constants.RED_RIGHT_CENTER_LINE),
+                intaking(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE,
+                        () -> Constants.BLUE_LEFT_CENTER_LINE_TO_TRENCH, () -> Constants.RED_LEFT_CENTER_LINE_TO_TRENCH),
+//                shooting().withTimeout(2.0),
+                intakeAndPass(Constants.BLUE_MIDDLE_CENTER_LINE, Constants.RED_MIDDLE_CENTER_LINE,
+                        () -> Constants.BLUE_LEFT_CENTER_LINE, () -> Constants.RED_LEFT_CENTER_LINE),
+                intaking(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE,
+                        () -> Constants.BLUE_RIGHT_CENTER_LINE_TO_TRENCH, () -> Constants.RED_RIGHT_CENTER_LINE_TO_TRENCH),
+                shooting()
+        );
+    }
 
 }
