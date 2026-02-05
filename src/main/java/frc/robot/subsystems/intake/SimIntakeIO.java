@@ -15,20 +15,19 @@ public class SimIntakeIO implements IntakeIO {
      * Minimum pivot angle and maximum pivot angle
      */
     private static final Intake.Constants CONSTANTS = new Intake.Constants(
-            Units.degreesToRadians(0.0), Units.degreesToRadians(0.0)
+            Units.degreesToRadians(0.0), Units.degreesToRadians(120.5)
     );
 
-    // TODO Get gear ratio
     private static final double INTAKE_GEAR_RATIO = 1.0;
-    private static final double INTAKE_LENGTH = 1.0;
-    private static final double PIVOT_GEAR_RATIO = 1.0;
+    private static final double INTAKE_LENGTH = Units.feetToMeters(1.0);
+    private static final double PIVOT_GEAR_RATIO = 30.1587;
     private static final double PIVOT_MOMENT_OF_INERTIA = 1.0;
-    private static final double PIVOT_STARTING_ANGLE = 1.0;
+    private static final double PIVOT_STARTING_ANGLE = 0.0;
 
     // Get values
     private final DCMotorSim intakeSim = new DCMotorSim(
             LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60(1),
-                    1.0, INTAKE_GEAR_RATIO),
+                    0.001, INTAKE_GEAR_RATIO),
             DCMotor.getKrakenX60(1).withReduction(INTAKE_GEAR_RATIO)
     );
     private final SingleJointedArmSim pivotSim = new SingleJointedArmSim(
@@ -91,4 +90,40 @@ public class SimIntakeIO implements IntakeIO {
 
 
     }
+
+    // Pivot
+    @Override
+    public void stopPivot() {
+        pivotSim.setInputVoltage(0.0);
+    }
+
+    @Override
+    public void resetPivotPosition(double position) {
+        pivotSim.setState(Units.degreesToRadians(position), pivotSim.getVelocityRadPerSec());
+    }
+
+    @Override
+    public void setTargetPivotPosition(double position) {
+        targetPivotPosition = position;
+        targetPivotVoltage = Double.NaN;
+    }
+
+    @Override
+    public void setTargetPivotVoltage(double voltage) {
+        targetPivotVoltage = voltage;
+        targetPivotPosition = Double.NaN;
+    }
+
+    // Intake
+    @Override
+    public void stopIntake() {
+        intakeSim.setInputVoltage(0.0);
+    }
+
+    @Override
+    public void setTargetIntakeVoltage(double voltage) {
+        targetIntakeVoltage = voltage;
+        targetIntakePosition = Double.NaN;
+    }
+
 }
