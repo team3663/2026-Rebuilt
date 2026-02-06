@@ -70,12 +70,16 @@ public class RobotContainer {
                 "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
         autoChooser.addOption(
                 "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-        autoChooser.addOption("leftStarting-Depot-LeftClimb", autoPaths.leftSide_depot_leftClimb());
-        autoChooser.addOption("rightStarting-Outpost-RightClimb", autoPaths.rightSide_outpost_rightClimb());
-        autoChooser.addOption("leftStarting-neutralZone", autoPaths.leftStarting_neutralZone_middleLine());
-        autoChooser.addOption("rightStarting-neutralZone", autoPaths.rightStarting_neutralZone_middleLine());
-        autoChooser.addOption("leftStarting-neutralZone-neutralZone", autoPaths.leftStarting_neutralZone_middleLine_x2());
-        autoChooser.addOption("rightStarting-neutralZone-neutralZone", autoPaths.rightStarting_neutralZone_middleLine_x2());
+        autoChooser.addOption("LeftInFrontOfBump5ft-Depot-LeftClimb", autoPaths.leftSide_depot_leftClimb());
+        autoChooser.addOption("RightAllianceZone2ft-Outpost-RightClimb", autoPaths.rightSide_outpost_rightClimb());
+        autoChooser.addOption("LeftUnderTrench2ft-NeutralZone", autoPaths.leftStarting_neutralZone_middleLine());
+        autoChooser.addOption("RightUnderTrench2ft-NeutralZone", autoPaths.rightStarting_neutralZone_middleLine());
+        autoChooser.addOption("RightUnderTrench2ft-NeutralZone-LeftClimb", autoPaths.rightStarting_neutralZone_middleLine_leftClimb());
+        autoChooser.addOption("LeftUnderTrench2ft-NeutralZone-RightClimb", autoPaths.leftStarting_neutralZone_middleLine_rightClimb());
+        autoChooser.addOption("LeftUnderTrench2ft-NeutralZone-UnderTrench-NeutralZone", autoPaths.leftStarting_neutralZone_middleLine_x2());
+        autoChooser.addOption("RightUnderTrench2ft-NeutralZone-UnderTrench-NeutralZone", autoPaths.rightStarting_neutralZone_middleLine_x2());
+        autoChooser.addOption("LeftInFrontOfBump5ft-Depot-Outpost-RightClimb", autoPaths.leftStarting_depot_outpost_rightClimb());
+        autoChooser.addOption("RightAllianceZone2ft-Outpost-Depot-LeftClimb", autoPaths.rightStarting_outpost_depot_leftClimb());
 
         shooter.setDefaultCommand(shooter.goToWithShooter(shooter.getConstants().minimumHoodPosition(), 0.0));
 

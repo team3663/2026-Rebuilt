@@ -202,6 +202,15 @@ public class AutoPaths {
         return goToPositionAndShoot(blueTargetPose, redTargetPose, () -> null, () -> null, shouldZero);
     }
 
+    private Command goToPositionAndShoot(Pose2d blueTargetPose, Pose2d redTargetPose,
+                                         Supplier<Pose2d> blueIntermediatePose, Supplier<Pose2d> redIntermediatePose) {
+        return goToPositionAndShoot(blueTargetPose, redTargetPose, blueIntermediatePose, redIntermediatePose, false);
+    }
+
+    private Command goToPositionAndShoot(Pose2d blueTargetPose, Pose2d redTargetPose) {
+        return goToPositionAndShoot(blueTargetPose, redTargetPose, () -> null, () -> null, false);
+    }
+
     private Command intakeAndShoot(Pose2d blueTargetPose, Pose2d redTargetPose,
                                    Supplier<Pose2d> blueIntermediatePose, Supplier<Pose2d> redIntermediatePose,
                                    boolean shouldZero) {
@@ -240,8 +249,9 @@ public class AutoPaths {
     // Auto Routines
     public Command leftSide_depot_leftClimb() {
         return Commands.sequence(
-                resetOdometry(Constants.BLUE_LEFT_AUTO_LINE, Constants.RED_LEFT_AUTO_LINE),
-                goToPositionAndShoot(Constants.BLUE_LEFT_DEPOT, Constants.RED_LEFT_DEPOT, true),
+                resetOdometry(Constants.BLUE_DEPOT_AUTO_LINE, Constants.RED_DEPOT_AUTO_LINE),
+                goToPositionAndShoot(Constants.BLUE_LEFT_DEPOT, Constants.RED_LEFT_DEPOT,
+                        () -> Constants.BLUE_STARTING_TO_DEPOT_INTERMEDIATE, () -> Constants.RED_STARTING_TO_DEPOT_INTERMEDIATE, true),
                 intakeAndShoot(Constants.BLUE_RIGHT_DEPOT, Constants.RED_RIGHT_DEPOT),
                 intake.stow().alongWith(goToPositionAndClimb(Constants.BLUE_LEFT_RUNG_CLIMB, Constants.RED_LEFT_RUNG_CLIMB)));
     }
@@ -263,7 +273,7 @@ public class AutoPaths {
                         () -> Constants.BLUE_LEFT_CENTER_LINE, () -> Constants.RED_LEFT_CENTER_LINE),
                 intaking(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE,
                         () -> Constants.BLUE_RIGHT_CENTER_LINE_TO_TRENCH, () -> Constants.RED_RIGHT_CENTER_LINE_TO_TRENCH),
-                shooting().alongWith(intake.stow()));
+                shooting());
     }
 
     public Command rightStarting_neutralZone_middleLine() {
@@ -274,7 +284,34 @@ public class AutoPaths {
                         () -> Constants.BLUE_RIGHT_CENTER_LINE, () -> Constants.RED_RIGHT_CENTER_LINE),
                 intaking(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE,
                         () -> Constants.BLUE_LEFT_CENTER_LINE_TO_TRENCH, () -> Constants.RED_LEFT_CENTER_LINE_TO_TRENCH),
-                shooting().alongWith(intake.stow()));
+                shooting());
+    }
+
+    public Command leftStarting_neutralZone_middleLine_rightClimb() {
+        return Commands.sequence(
+                resetOdometry(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE,
+                        Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE),
+                zeroAndShoot().withTimeout(2.0),
+                intakeAndPass(Constants.BLUE_MIDDLE_CENTER_LINE, Constants.RED_MIDDLE_CENTER_LINE,
+                        () -> Constants.BLUE_LEFT_CENTER_LINE, () -> Constants.RED_LEFT_CENTER_LINE),
+                intaking(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE,
+                        () -> Constants.BLUE_RIGHT_CENTER_LINE_TO_TRENCH, () -> Constants.RED_RIGHT_CENTER_LINE_TO_TRENCH),
+                shooting().withTimeout(2.5),
+                goToPositionAndClimb(Constants.BLUE_RIGHT_RUNG_CLIMB, Constants.RED_RIGHT_RUNG_CLIMB,
+                        () -> Constants.BLUE_RIGHT_TRENCH_TO_CLIMB_INTERMEDIATE, () -> Constants.RED_RIGHT_TRENCH_TO_CLIMB_INTERMEDIATE));
+    }
+
+    public Command rightStarting_neutralZone_middleLine_leftClimb() {
+        return Commands.sequence(
+                resetOdometry(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE),
+                zeroAndShoot().withTimeout(2.0),
+                intakeAndPass(Constants.BLUE_MIDDLE_CENTER_LINE, Constants.RED_MIDDLE_CENTER_LINE,
+                        () -> Constants.BLUE_RIGHT_CENTER_LINE, () -> Constants.RED_RIGHT_CENTER_LINE),
+                intaking(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE,
+                        () -> Constants.BLUE_LEFT_CENTER_LINE_TO_TRENCH, () -> Constants.RED_LEFT_CENTER_LINE_TO_TRENCH),
+                shooting(),
+                goToPositionAndClimb(Constants.BLUE_LEFT_RUNG_CLIMB, Constants.RED_LEFT_RUNG_CLIMB,
+                        () -> Constants.BLUE_LEFT_TRENCH_TO_CLIMB_INTERMEDIATE, () -> Constants.RED_LEFT_TRENCH_TO_CLIMB_INTERMEDIATE));
     }
 
     public Command leftStarting_neutralZone_middleLine_x2() {
@@ -312,4 +349,26 @@ public class AutoPaths {
         );
     }
 
+    public Command leftStarting_depot_outpost_rightClimb() {
+        return Commands.sequence(
+                resetOdometry(Constants.BLUE_DEPOT_AUTO_LINE, Constants.RED_DEPOT_AUTO_LINE),
+                goToPositionAndShoot(Constants.BLUE_LEFT_DEPOT, Constants.RED_LEFT_DEPOT,
+                        () -> Constants.BLUE_STARTING_TO_DEPOT_INTERMEDIATE, () -> Constants.RED_STARTING_TO_DEPOT_INTERMEDIATE, true),
+                intakeAndShoot(Constants.BLUE_RIGHT_DEPOT, Constants.RED_RIGHT_DEPOT),
+                goToPositionAndShoot(Constants.BLUE_OUTPOST_CENTERED, Constants.RED_OUTPOST_CENTERED,
+                        () -> Constants.BLUE_AROUND_TOWER_TO_OUTPOST_INTERMEDIATE, () -> Constants.RED_AROUND_TOWER_TO_OUTPOST_INTERMEDIATE),
+                goToPositionAndClimb(Constants.BLUE_RIGHT_RUNG_CLIMB, Constants.RED_RIGHT_RUNG_CLIMB,
+                        () -> Constants.BLUE_OUTPOST_INTERMEDIATE, () -> Constants.RED_OUTPOST_INTERMEDIATE));
+    }
+
+    public Command rightStarting_outpost_depot_leftClimb() {
+        return Commands.sequence(
+                resetOdometry(Constants.BLUE_RIGHT_AUTO_LINE, Constants.RED_RIGHT_AUTO_LINE),
+                goToPositionAndShoot(Constants.BLUE_OUTPOST_CENTERED, Constants.RED_OUTPOST_CENTERED, true),
+                goToPositionAndShoot(Constants.BLUE_OUTPOST_INTERMEDIATE, Constants.RED_OUTPOST_INTERMEDIATE),
+                goToPositionAndShoot(Constants.BLUE_LEFT_DEPOT, Constants.RED_LEFT_DEPOT,
+                        () -> Constants.BLUE_AROUND_TOWER_TO_DEPOT_INTERMEDIATE, () -> Constants.RED_AROUND_TOWER_TO_DEPOT_INTERMEDIATE),
+                intakeAndShoot(Constants.BLUE_RIGHT_DEPOT, Constants.RED_RIGHT_DEPOT),
+                goToPositionAndClimb(Constants.BLUE_LEFT_RUNG_CLIMB, Constants.RED_LEFT_RUNG_CLIMB));
+    }
 }
