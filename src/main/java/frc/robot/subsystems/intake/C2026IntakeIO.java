@@ -12,12 +12,18 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.util.Units;
 
 public class C2026IntakeIO implements IntakeIO {
-    // TODO get minimum and maximum angles for pivot
-    // TODO finish pivot
+    /**
+     * Minimum pivot angle and maximum pivot angle
+     */
+    private static final Intake.Constants CONSTANTS = new Intake.Constants(
+            Units.degreesToRadians(0.0), Units.degreesToRadians(120.5)
+    );
+
     private final TalonFX intakeMotor;
     private final TalonFX pivotMotor1;
     private final TalonFX pivotMotor2;
 
+    // Motor Requests
     private final NeutralOut stopRequest = new NeutralOut();
     private final VoltageOut voltageRequest = new VoltageOut(0.0);
     private final MotionMagicVoltage positionRequest = new MotionMagicVoltage(0.0);
@@ -35,15 +41,18 @@ public class C2026IntakeIO implements IntakeIO {
 
         // Pivot Motor Configurations
         TalonFXConfiguration pivotMotor1Config = new TalonFXConfiguration();
-//        motor1Config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         pivotMotor1Config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        pivotMotor1Config.MotionMagic.MotionMagicAcceleration = 0.0;
+        pivotMotor1Config.MotionMagic.MotionMagicCruiseVelocity = 0.0;
         pivotMotor1.getConfigurator().apply(pivotMotor1Config);
 
         TalonFXConfiguration pivotMotor2Config = new TalonFXConfiguration();
-//        pivotMotor2Config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         pivotMotor2Config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        pivotMotor2Config.MotionMagic.MotionMagicAcceleration = 0.0;
+        pivotMotor2Config.MotionMagic.MotionMagicCruiseVelocity = 0.0;
         pivotMotor2.getConfigurator().apply(pivotMotor2Config);
 
+        // Setting one of the pivot motors to follow the other motor
         pivotMotor2.setControl(new Follower(pivotMotor1.getDeviceID(), MotorAlignmentValue.Aligned));
     }
 
@@ -71,10 +80,11 @@ public class C2026IntakeIO implements IntakeIO {
     }
 
     @Override
-    public void stopIntake() {
-        intakeMotor.setControl(stopRequest);
+    public Intake.Constants getConstants() {
+        return CONSTANTS;
     }
 
+    // Pivot
     @Override
     public void stopPivot() {
         pivotMotor1.setControl(stopRequest);
@@ -93,6 +103,12 @@ public class C2026IntakeIO implements IntakeIO {
     @Override
     public void setTargetPivotVoltage(double voltage) {
         pivotMotor1.setControl(voltageRequest.withOutput(voltage));
+    }
+
+    // Intake
+    @Override
+    public void stopIntake() {
+        intakeMotor.setControl(stopRequest);
     }
 
     @Override
