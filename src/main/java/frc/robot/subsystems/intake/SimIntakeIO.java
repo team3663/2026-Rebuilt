@@ -17,7 +17,7 @@ public class SimIntakeIO implements IntakeIO {
     private static final Intake.Constants CONSTANTS = new Intake.Constants(
             Units.degreesToRadians(0.0), Units.degreesToRadians(120.5)
     );
-    
+
     private static final double INTAKE_GEAR_RATIO = 1.0;
     private static final double INTAKE_LENGTH = Units.feetToMeters(1.0);
     private static final double PIVOT_GEAR_RATIO = 30.1587;
