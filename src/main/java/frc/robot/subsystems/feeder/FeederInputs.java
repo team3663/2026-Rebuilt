@@ -7,8 +7,8 @@ public class FeederInputs {
     public double currentVelocity;
     public double currentAppliedVoltage;
 
-    public double motor1Temperature;
-    public double motor1CurrentDraw;
+    public double motorTemperature;
+    public double motorCurrentDraw;
 
     public boolean canrangeObjectDetected;
     public double canrangeSignalConfidence;
