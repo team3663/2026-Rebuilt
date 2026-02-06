@@ -7,6 +7,10 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.CANrange;
+import com.ctre.phoenix6.SignalLogger;
+import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -14,6 +18,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.config.RobotFactory;
@@ -103,6 +108,20 @@ public class RobotContainer {
         //Hopper Controls
         controller.b().whileTrue(hopper.withVoltage(3));
         controller.y().onTrue(hopper.stop());
+
+        //SysID routines
+//        controller.leftStick().onTrue(Commands.runOnce(SignalLogger::start));
+//        controller.rightStick().onTrue(Commands.runOnce(SignalLogger::stop));
+        
+//        controller.a().whileTrue(shooter.sysIdQuasistaticHood(SysIdRoutine.Direction.kForward));
+//        controller.b().whileTrue(shooter.sysIdQuasistaticHood(SysIdRoutine.Direction.kReverse));
+//        controller.x().whileTrue(shooter.sysIdDynamicHood(SysIdRoutine.Direction.kForward));
+//        controller.y().whileTrue(shooter.sysIdDynamicHood(SysIdRoutine.Direction.kReverse));
+
+//        controller.a().whileTrue(intake.sysIdQuasistaticPivot(SysIdRoutine.Direction.kForward));
+//        controller.b().whileTrue(intake.sysIdQuasistaticPivot(SysIdRoutine.Direction.kReverse));
+//        controller.x().whileTrue(shooter.sysIdDynamicHood(SysIdRoutine.Direction.kForward));
+//        controller.y().whileTrue(shooter.sysIdDynamicHood(SysIdRoutine.Direction.kReverse));
     }
 
     /**

@@ -10,6 +10,7 @@ import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Voltage;
 
 public class C2026ShooterIO implements ShooterIO {
     // TODO: get actual values for these constants
@@ -193,6 +194,11 @@ public class C2026ShooterIO implements ShooterIO {
     @Override
     public void setHoodTargetPosition(double position) {
         hoodMotor.setControl(positionRequest.withPosition(Units.radiansToRotations(position)));
+    }
+
+    @Override
+    public void sysIdHood(Voltage voltage) {
+        hoodMotor.setControl(voltageRequest.withOutput(voltage));
     }
 
     @Override

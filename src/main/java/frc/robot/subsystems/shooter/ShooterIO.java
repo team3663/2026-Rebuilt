@@ -1,6 +1,7 @@
 package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Voltage;
 
 public interface ShooterIO {
     default Shooter.Constants getConstants() {
@@ -22,6 +23,9 @@ public interface ShooterIO {
     }
 
     default void setHoodTargetVoltage(double voltage) {
+    }
+
+    default void sysIdHood(Voltage voltage) {
     }
 
     // Turret

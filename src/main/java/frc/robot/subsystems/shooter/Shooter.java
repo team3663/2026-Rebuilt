@@ -3,10 +3,13 @@ package frc.robot.subsystems.shooter;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.subsystems.intake.Intake;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.function.DoubleSupplier;
 
+import static edu.wpi.first.units.Units.Volts;
 import static edu.wpi.first.wpilibj2.command.Commands.waitSeconds;
 import static edu.wpi.first.wpilibj2.command.Commands.waitUntil;
 
@@ -26,9 +29,23 @@ public class Shooter extends SubsystemBase {
     private double targetTurretPosition;
     private double targetShooterVelocity;
 
+    private final SysIdRoutine sysIdRoutine;
+
     public Shooter(ShooterIO io) {
         this.io = io;
         this.constants = io.getConstants();
+
+        //creating a SysID routine
+        sysIdRoutine = new SysIdRoutine(
+                new SysIdRoutine.Config(
+                        null, null, null, // Use default config
+                        (state) -> Logger.recordOutput("SysIdTestState", state.toString())
+                ),
+                new SysIdRoutine.Mechanism(
+                        (voltage) -> io.setHoodTargetVoltage(voltage.in(Volts)),
+                        null, // No log consumer, since data is recorded by AdvantageKit
+                        this
+                ));
     }
 
     public Constants getConstants() {
@@ -157,6 +174,14 @@ public class Shooter extends SubsystemBase {
                             io.resetHoodPosition(constants.minimumHoodPosition);
                             hoodZeroed = true;
                         }));
+    }
+
+    public Command sysIdQuasistaticHood(SysIdRoutine.Direction direction) {
+        return sysIdRoutine.quasistatic(direction);
+    }
+
+    public Command sysIdDynamicHood(SysIdRoutine.Direction direction) {
+        return sysIdRoutine.dynamic(direction);
     }
 
     // Turret

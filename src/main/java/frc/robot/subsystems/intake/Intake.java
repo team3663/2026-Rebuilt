@@ -3,10 +3,12 @@ package frc.robot.subsystems.intake;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.function.DoubleSupplier;
 
+import static edu.wpi.first.units.Units.Volts;
 import static edu.wpi.first.wpilibj2.command.Commands.waitSeconds;
 import static edu.wpi.first.wpilibj2.command.Commands.waitUntil;
 
@@ -24,9 +26,23 @@ public class Intake extends SubsystemBase {
     private double targetVoltage = 0.0;
     private double targetPivotPosition = 0.0;
 
+    private SysIdRoutine sysIdRoutine;
+
     public Intake(IntakeIO io) {
         this.io = io;
         this.constants = io.getConstants();
+
+        //creating a SysID routine
+        sysIdRoutine = new SysIdRoutine(
+                new SysIdRoutine.Config(
+                        null, null, null, // Use default config
+                        (state) -> Logger.recordOutput("SysIdTestState", state.toString())
+                ),
+                new SysIdRoutine.Mechanism(
+                        (voltage) -> io.setTargetPivotVoltage(voltage.in(Volts)),
+                        null, // No log consumer, since data is recorded by AdvantageKit
+                        this
+                ));
     }
 
     @Override
@@ -117,6 +133,14 @@ public class Intake extends SubsystemBase {
         return intakeAndPivot(0.0, DEPLOY_ANGLE);
     }
 
+    public Command sysIdQuasistaticPivot(SysIdRoutine.Direction direction) {
+        return sysIdRoutine.quasistatic(direction);
+    }
+
+    public Command sysIdDynamicPivot(SysIdRoutine.Direction direction) {
+        return sysIdRoutine.dynamic(direction);
+    }
+
     public Command stop() {
         return runOnce(() -> {
             targetVoltage = 0.0;
@@ -129,5 +153,4 @@ public class Intake extends SubsystemBase {
     public record Constants(double minimumPivotAngle, double maximumPivotAngle) {
 
     }
-
 }
