@@ -106,8 +106,6 @@ public class RobotContainer {
                                 Rotation2d.k180deg :
                                 Rotation2d.kZero)));
 
-         // Zeroing
-//        controller.back().onTrue(drive.resetFieldOriented());
         controller.start().onTrue(Commands.parallel(shooter.zeroHood()));
 
         // Intake

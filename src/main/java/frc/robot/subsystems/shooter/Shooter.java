@@ -75,7 +75,7 @@ public class Shooter extends SubsystemBase {
     }
 
     public Command goToDefaultState() {
-        return follow(() -> this.getConstants().minimumHoodPosition(), () -> 0.0, () -> DEFAULT_SHOOTER_VELOCITY);
+        return follow(() -> this.getConstants().minimumHoodPosition(), () -> Units.degreesToRadians(-180.0), () -> DEFAULT_SHOOTER_VELOCITY);
     }
 
     public Command goTo(double hoodPosition, double turretPosition, double shooterVelocity) {
@@ -186,31 +186,29 @@ public class Shooter extends SubsystemBase {
     }
 
     private double getNearestTargetTurretAngle(double target) {
-        double current = inputs.currentTurretPosition;
+        double current = getValidTurretPosition(inputs.currentTurretPosition);
 
-        for (int i = 0; i * 2 * Math.PI < constants.maximumTurretPosition - Math.abs(target); i++) {
-            double tempTarget = target + 2 * Math.PI * i;
-            if (Math.abs(tempTarget - current) <= Math.PI) return tempTarget;
-        }
-        for (int i = -1; i * 2 * Math.PI < constants.minimumTurretPosition + Math.abs(target); i--) {
-            double tempTarget = target + 2 * Math.PI * i;
-            if (Math.abs(tempTarget - current) < Math.PI) return tempTarget;
-        }
+        target = getSmallestEquivalentAngle(target);
+        double reducedCurrent = getSmallestEquivalentAngle(current);
+        double fullTarget = target + (current - reducedCurrent);
 
-        // It is an issue if this is reached
-        return -1;
+        if (fullTarget > constants.maximumTurretPosition)
+            return fullTarget - 2 * Math.PI;
+        if (fullTarget < constants.minimumTurretPosition)
+            return fullTarget + 2 * Math.PI;
+        return fullTarget;
+    }
+
+    // Returns the angle reduced to be equivalent and <= Math.PI and > -Math.PI
+    private double getSmallestEquivalentAngle(double angle) {
+        double modded = angle % (2 * Math.PI);
+        if (modded > Math.PI) return modded - 2 * Math.PI;
+        if (modded <= -Math.PI) return  modded + 2 * Math.PI;
+        return modded;
     }
 
     private double getValidTurretPosition(double position) {
         return Math.max(constants.minimumTurretPosition, Math.min(constants.maximumTurretPosition, position));
-    }
-
-    public Command turret(double voltage) {
-        return runEnd(() -> io.setTurretTargetVoltage(voltage), io::stopTurret);
-    }
-
-    public Command turret2(double position) {
-        return runEnd(() -> io.setTurretTargetPosition(position), io::stopTurret);
     }
 
     // Shooter

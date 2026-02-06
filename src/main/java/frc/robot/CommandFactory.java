@@ -13,6 +13,7 @@ import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.util.FireControlSystem;
 import org.littletonrobotics.junction.Logger;
 
+import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
@@ -34,10 +35,10 @@ public class CommandFactory {
     }
 
     public Command aimShooter(BooleanSupplier aimAtHub) {
-        var alliance = DriverStation.getAlliance();
-        boolean redAlliance = alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red;
+        Supplier<Optional<DriverStation.Alliance>> alliance = DriverStation::getAlliance;
+        BooleanSupplier redAlliance = () -> alliance.get().isPresent() && alliance.get().get() == DriverStation.Alliance.Red;
 
-        Supplier<Translation2d> target = () -> getShooterTarget(drive.getPose(), redAlliance, aimAtHub.getAsBoolean());
+        Supplier<Translation2d> target = () -> getShooterTarget(drive.getPose(), redAlliance.getAsBoolean(), aimAtHub.getAsBoolean());
 
         return shooter.follow(() -> fireControlSystem.calculate(getTurretPose(), drive.getRotation(), drive.getFieldOrientedVelocity(), target.get(), aimAtHub.getAsBoolean()));
     }
@@ -57,9 +58,8 @@ public class CommandFactory {
     }
 
     public Pose2d getTurretPose() {
-        Rotation2d angleTowardsTurret = new Rotation2d(drive.getRotation().getRadians() + Constants.Shooter.TURRET_OFF_CENTER_ANGLE);
-        Translation2d turretTranslation = drive.getPose().getTranslation().plus(new Translation2d(Constants.Shooter.TURRET_OFF_CENTER_DISTANCE, angleTowardsTurret));
-        Rotation2d turretAngle = new Rotation2d(drive.getRotation().getRadians() + Constants.Shooter.TURRET_ROTATION_OFFSET + shooter.getTurretPosition());
+        Rotation2d turretAngle = new Rotation2d(drive.getRotation().getRadians() + shooter.getTurretPosition());
+        Translation2d turretTranslation = drive.getPose().getTranslation().plus(Constants.Shooter.TURRET_OFF_CENTER);
         Pose2d turretPose = new Pose2d(turretTranslation, turretAngle);
         Logger.recordOutput("CommandFactory/TurretPose", turretPose);
         return turretPose;

@@ -7,7 +7,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.math.interpolation.InverseInterpolator;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import frc.robot.Constants;
 import org.littletonrobotics.junction.Logger;
 
 import static edu.wpi.first.math.util.Units.degreesToRadians;
@@ -72,7 +71,7 @@ public class FireControlSystem {
         Logger.recordOutput("CommandFactory/TargetTurretPose", new Pose2d(turretPose.getTranslation(), rotation));
 
         // Add a slight offset when we are shooting at an angle
-        return new FiringSolution(rotation.getRadians() - Constants.Shooter.TURRET_ROTATION_OFFSET - robotRot.getRadians(),
+        return new FiringSolution(rotation.getRadians() - robotRot.getRadians(),
                 entry.hoodAngle, entry.shooterVelocity);
     }
 
