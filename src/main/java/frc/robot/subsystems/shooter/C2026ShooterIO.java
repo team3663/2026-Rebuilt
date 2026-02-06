@@ -230,9 +230,4 @@ public class C2026ShooterIO implements ShooterIO {
     public void setShooterTargetVoltage(double voltage) {
         shooterMotor.setControl(voltageRequest.withOutput(voltage));
     }
-
-    @Override
-    public double getShootingOutputVelocity(double motorVelocity) {
-        return motorVelocity * SHOOTER_GEAR_RATIO * SHOOTER_WHEEL_RADIUS;
-    }
 }

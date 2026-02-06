@@ -39,7 +39,7 @@ public class CommandFactory {
 
         Supplier<Translation2d> target = () -> getShooterTarget(drive.getPose(), redAlliance, aimAtHub.getAsBoolean());
 
-        return shooter.follow(() -> fireControlSystem.calculate(getTurretPose(), drive.getRotation(), drive.getVelocity(), target.get(), aimAtHub.getAsBoolean()));
+        return shooter.follow(() -> fireControlSystem.calculate(getTurretPose(), drive.getRotation(), drive.getFieldOrientedVelocity(), target.get(), aimAtHub.getAsBoolean()));
     }
 
     public Translation2d getShooterTarget(Pose2d robot, boolean redAlliance, boolean aimAtHub) {

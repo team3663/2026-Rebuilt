@@ -14,6 +14,8 @@ import static edu.wpi.first.math.util.Units.degreesToRadians;
 import static edu.wpi.first.math.util.Units.rotationsPerMinuteToRadiansPerSecond;
 
 public class FireControlSystem {
+    private static final double SPEED_FACTOR = 0.15;
+
     private static final InterpolatingTreeMap<Double, LookupEntry> DISTANCE_LOOKUP_TABLE_HUB = new InterpolatingTreeMap<>(
             InverseInterpolator.forDouble(),
             LookupEntry::interpolate
@@ -24,6 +26,7 @@ public class FireControlSystem {
     );
 
     static {
+        // TODO: get values
         // Hub
         DISTANCE_LOOKUP_TABLE_HUB.put(1.0, new LookupEntry(degreesToRadians(50.0), rotationsPerMinuteToRadiansPerSecond(2500.0)));
         DISTANCE_LOOKUP_TABLE_HUB.put(2.0, new LookupEntry(degreesToRadians(40.0), rotationsPerMinuteToRadiansPerSecond(3000.0)));
@@ -49,14 +52,11 @@ public class FireControlSystem {
         DISTANCE_LOOKUP_TABLE_PASS.put(6.0, new LookupEntry(degreesToRadians(9.25), rotationsPerMinuteToRadiansPerSecond(4250.0)));
     }
 
-    public FiringSolution calculate(Pose2d turretPose, Rotation2d robotRot, ChassisSpeeds currentVelocity, Translation2d goalPosition, boolean aimAtHub) {
-        ChassisSpeeds fieldOrientedVelocity =
-                ChassisSpeeds.fromRobotRelativeSpeeds(currentVelocity, turretPose.getRotation());
-
+    public FiringSolution calculate(Pose2d turretPose, Rotation2d robotRot, ChassisSpeeds fieldOrientedVelocity, Translation2d goalPosition, boolean aimAtHub) {
         Translation2d delta = goalPosition.minus(turretPose.getTranslation())
                 .minus(new Translation2d(
-                        0.15 * fieldOrientedVelocity.vxMetersPerSecond,
-                        0.15 * fieldOrientedVelocity.vyMetersPerSecond
+                        SPEED_FACTOR * fieldOrientedVelocity.vxMetersPerSecond,
+                        SPEED_FACTOR * fieldOrientedVelocity.vyMetersPerSecond
                 ));
 
         double distance = delta.getNorm();
