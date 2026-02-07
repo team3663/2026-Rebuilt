@@ -5,9 +5,8 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
 import frc.robot.LimelightHelpers;
-import org.littletonrobotics.junction.AutoLog;
 
-@AutoLog
+@Logged
 public class LimelightIO implements VisionIO {
     private static final int LIMELIGHT_IMU_EXTERNAL = 0;
     private static final int LIMELIGHT_IMU_FUSED = 1;
