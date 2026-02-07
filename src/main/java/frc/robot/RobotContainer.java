@@ -59,11 +59,11 @@ public class RobotContainer {
         this.hopper = robotFactory.createHopper();
         this.intake = robotFactory.createIntake();
         this.shooter = robotFactory.createShooter();
-        this.autoPaths = new AutoPaths(drive, feeder, hopper, intake, shooter);
-
         commandFactory = new CommandFactory(drive, feeder, hopper, intake, shooter
 //        , climber
         );
+        this.autoPaths = new AutoPaths(drive, feeder, hopper, intake, shooter, commandFactory);
+
 
         // Set up auto routines
         autoChooser = new LoggedDashboardChooser<>("Auto Choices", new SendableChooser<>());

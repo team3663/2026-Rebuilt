@@ -12,9 +12,6 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -115,7 +112,7 @@ public final class Constants {
     public static final Pose2d RED_RIGHT_CENTER_LINE_TO_TRENCH = RED_RIGHT_CENTER_LINE.plus(new Transform2d(0.0, -Units.feetToMeters(2.5), new Rotation2d(Units.degreesToRadians(90))));
     public static final Pose2d RED_LEFT_CENTER_LINE_TO_TRENCH = RED_LEFT_CENTER_LINE.plus(new Transform2d(0.0, Units.feetToMeters(2.5), new Rotation2d(Units.degreesToRadians(90))));
 
-    public static enum Mode {
+    public enum Mode {
         /**
          * Running on a real robot.
          */
