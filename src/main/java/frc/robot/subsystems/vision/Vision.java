@@ -1,8 +1,6 @@
 package frc.robot.subsystems.vision;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.epilogue.Logged;
-import edu.wpi.first.epilogue.NotLogged;
 import edu.wpi.first.math.InterpolatingMatrixTreeMap;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
@@ -22,16 +20,14 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-@Logged
 public class Vision extends SubsystemBase {
 
     private static final InterpolatingMatrixTreeMap<Double, N3, N1> MEASUREMENT_STD_DEV_DISTANCE_MAP = new InterpolatingMatrixTreeMap<>();
 
-    @NotLogged
     private final VisionIO[] ios;
-    @NotLogged
+
     private final AprilTagFieldLayout fieldLayout;
-    @NotLogged
+
     private final VisionInputsAutoLogged[] visionInputs;
 
     private final VisionInputs leftInputs;
@@ -40,7 +36,7 @@ public class Vision extends SubsystemBase {
 
     // current yaw of robot as provided by the pigeon
     private Rotation2d currentYaw = new Rotation2d();
-    @NotLogged
+
     private final List<VisionMeasurement> acceptedMeasurements = new ArrayList<>();
     private final double[] ioUpdateDurations;
     private final double[] processingDurations;
