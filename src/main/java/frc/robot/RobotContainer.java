@@ -17,15 +17,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.config.RobotFactory;
-import frc.robot.subsystems.drive.Drive;
-import frc.robot.commands.DriveCommands;
-import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.climber.C2026ClimberIO;
 import frc.robot.subsystems.climber.Climber;
-import frc.robot.subsystems.climber.ClimberIO;
-import frc.robot.subsystems.climber.SimClimberIO;
-import frc.robot.subsystems.drive.*;
-import frc.robot.subsystems.feeder.C2026FeederIO;
+import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.hopper.Hopper;
 import frc.robot.subsystems.intake.Intake;
@@ -45,7 +38,7 @@ public class RobotContainer {
     private final Hopper hopper;
     private final Intake intake;
     private final Shooter shooter;
-    private final Climber climber;
+//    private final Climber climber;
 
     // Controller
     private final CommandXboxController controller = new CommandXboxController(0);

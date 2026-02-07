@@ -8,6 +8,8 @@ import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.robot.Robot;
 
 public class SimClimberIO implements ClimberIO {
+    private static final Climber.Constants CONSTANTS = new Climber.Constants(1.0, Math.PI/2, Math.PI);
+
     private final double DEPLOY_GEAR__RATIO = 1.0;
     private final double CLIMB_GEAR_RATIO = 1.0;
 
@@ -69,10 +71,10 @@ public class SimClimberIO implements ClimberIO {
             deploySim.setInputVoltage(targetDeployVoltage);
         }
 
-        inputs.currentDeployMotorVelocity = deploySim.getVelocityRadPerSec();
-        inputs.currentDeployMotorPosition = deploySim.getAngleRads();
-        inputs.currentDeployMotorAppliedCurrent = deploySim.getCurrentDrawAmps();
-        inputs.currentClimbMotorAppliedVoltage = targetDeployVoltage;
+        inputs.currentUpperHooksMotorVelocity = deploySim.getVelocityRadPerSec();
+        inputs.currentUpperHooksMotorPosition = deploySim.getAngleRads();
+        inputs.currentUpperHooksMotorAppliedCurrent = deploySim.getCurrentDrawAmps();
+        inputs.currentClimbMotor1AppliedVoltage = targetDeployVoltage;
 
         //climb inputs
         if (!climbUsingVoltage) {
@@ -83,30 +85,52 @@ public class SimClimberIO implements ClimberIO {
             climbSim.setInputVoltage(targetClimbVoltage);
         }
 
-        inputs.currentClimbMotorVelocity = climbSim.getVelocityMetersPerSecond();
-        inputs.currentClimbMotorPosition = climbSim.getPositionMeters();
-        inputs.currentClimbMotorAppliedCurrent = climbSim.getCurrentDrawAmps();
-        inputs.currentClimbMotorAppliedVoltage = targetClimbVoltage;
+        inputs.currentClimbMotor1Velocity = climbSim.getVelocityMetersPerSecond();
+        inputs.currentClimbMotor1Position = climbSim.getPositionMeters();
+        inputs.currentClimbMotor1AppliedCurrent = climbSim.getCurrentDrawAmps();
+        inputs.currentClimbMotor1AppliedVoltage = targetClimbVoltage;
 
         climbSim.update(Robot.defaultPeriodSecs);
     }
 
     @Override
-    public void setTargetDeployPosition(double degrees) {
+    public Climber.Constants getConstants() {
+        return CONSTANTS;
+    }
+
+    @Override
+    public void setTargetLowerHooksPosition(double degrees) {
         deployStopped = false;
         deployUsingVoltage = false;
         deployController.setSetpoint(Units.degreesToRadians(degrees));
     }
 
     @Override
-    public void setTargetDeployVoltage(double voltage) {
+    public void setTargetUpperHooksPosition(double degrees) {
+        deployStopped = false;
+        deployUsingVoltage = false;
+        deployController.setSetpoint(Units.degreesToRadians(degrees));
+    }
+
+    @Override
+    public void setTargetUpperHooksVoltage(double voltage) {
         deployStopped = false;
         deployUsingVoltage = true;
         deploySim.setInputVoltage(voltage);
     }
-
     @Override
-    public void stopDeploy() {
+    public void setTargetLowerHooksVoltage(double voltage) {
+        deployStopped = false;
+        deployUsingVoltage = true;
+        deploySim.setInputVoltage(voltage);
+    }
+    @Override
+    public void stopUpperHooks() {
+        deployStopped = true;
+        deploySim.setInputVoltage(0.0);
+    }
+    @Override
+    public void stopLowerHooks() {
         deployStopped = true;
         deploySim.setInputVoltage(0.0);
     }
