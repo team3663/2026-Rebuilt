@@ -39,6 +39,8 @@ public class RobotContainer {
     private final Intake intake;
     private final Shooter shooter;
 
+    private final CommandFactory commandFactory;
+
     // Controller
     private final CommandXboxController controller = new CommandXboxController(0);
 
@@ -46,6 +48,7 @@ public class RobotContainer {
     private final LoggedDashboardChooser<Command> autoChooser;
 
     private boolean intakeOut = false;
+    private boolean shootingAtHub = true;
 
     /**
      * The container for the robot. Contains subsystems, IO devices, and commands.
@@ -56,6 +59,10 @@ public class RobotContainer {
         this.hopper = robotFactory.createHopper();
         this.intake = robotFactory.createIntake();
         this.shooter = robotFactory.createShooter();
+
+        commandFactory = new CommandFactory(drive, feeder, hopper, intake, shooter
+//        , climber
+        );
 
         // Set up auto routines
         autoChooser = new LoggedDashboardChooser<>("Auto Choices", new SendableChooser<>());
@@ -75,7 +82,7 @@ public class RobotContainer {
         // Configure the button bindings
         configureButtonBindings();
 
-        shooter.setDefaultCommand(shooter.goToWithShooter(shooter.getConstants().minimumHoodPosition(), 0.0));
+        shooter.setDefaultCommand(shooter.goToDefaultState());
     }
 
     /**
@@ -105,12 +112,21 @@ public class RobotContainer {
                                 Rotation2d.k180deg :
                                 Rotation2d.kZero)));
 
+        controller.start().onTrue(Commands.parallel(shooter.zeroHood()));
+
+        // Intake
         controller.a().onTrue(intake.stop());
 
         controller.rightTrigger().whileTrue(commandFactory.aimShooter(() -> !controller.y().getAsBoolean()));
         controller.rightBumper().and(controller.rightTrigger()).whileTrue(feeder.withVoltage(4.0));
         controller.leftBumper().onTrue(commandFactory.toggleIntake(() -> intakeOut).andThen(() -> intakeOut = !intakeOut));
         controller.leftTrigger().and(() -> intakeOut).whileTrue(intake.deployAndIntake().alongWith(hopper.withVoltage(3.0)));
+
+        // Shooter Controls
+        controller.leftBumper().onTrue(Commands.runOnce(() -> shootingAtHub = !shootingAtHub));
+        controller.rightTrigger().whileTrue(commandFactory.aimShooter(() -> shootingAtHub));
+
+//         controller.x().whileTrue(shooter.runShooter(-8.5));
     }
 
     /**
