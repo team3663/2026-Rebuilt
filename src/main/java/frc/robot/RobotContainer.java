@@ -99,11 +99,6 @@ public class RobotContainer {
                 () -> -controller.getRightX()
         ));
 
-        // Zero all subsystems when start button is pressed
-        controller.start().onTrue(Commands.parallel(shooter.zeroHood(), intake.zeroPivot()
-//                , climber.zero()
-        ));
-
         // Reset gyro to 0° when B button is pressed
         controller.back().onTrue(drive.resetOdometry(() ->
                 new Pose2d(
@@ -112,21 +107,22 @@ public class RobotContainer {
                                 Rotation2d.k180deg :
                                 Rotation2d.kZero)));
 
-        controller.start().onTrue(Commands.parallel(shooter.zeroHood()));
+        // Zero all subsystems
+        controller.start().onTrue(Commands.parallel(shooter.zeroHood(), intake.zeroPivot()));
 
-        // Intake
+        // Stop Intake
         controller.a().onTrue(intake.stop());
 
+        // Aiming and setting the target of the Shooter
         controller.rightTrigger().whileTrue(commandFactory.aimShooter(() -> !controller.y().getAsBoolean()));
+        controller.y().onTrue(Commands.runOnce(() -> shootingAtHub = !shootingAtHub));
+        // Feeding into the shooter to shoot
         controller.rightBumper().and(controller.rightTrigger()).whileTrue(feeder.withVoltage(4.0));
-        controller.leftBumper().onTrue(commandFactory.toggleIntake(() -> intakeOut).andThen(() -> intakeOut = !intakeOut));
+
+        // Deploy and stow the intake
+        controller.leftBumper().onTrue(Commands.runOnce(() -> intakeOut = !intakeOut).andThen(commandFactory.toggleIntake(() -> intakeOut)));
+        // Running the intake
         controller.leftTrigger().and(() -> intakeOut).whileTrue(intake.deployAndIntake().alongWith(hopper.withVoltage(3.0)));
-
-        // Shooter Controls
-        controller.leftBumper().onTrue(Commands.runOnce(() -> shootingAtHub = !shootingAtHub));
-        controller.rightTrigger().whileTrue(commandFactory.aimShooter(() -> shootingAtHub));
-
-//         controller.x().whileTrue(shooter.runShooter(-8.5));
     }
 
     /**
