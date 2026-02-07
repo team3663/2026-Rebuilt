@@ -75,7 +75,7 @@ public class Shooter extends SubsystemBase {
     }
 
     public Command goToDefaultState() {
-        return follow(() -> this.getConstants().minimumHoodPosition(), () -> Units.degreesToRadians(-180.0), () -> DEFAULT_SHOOTER_VELOCITY);
+        return follow(() -> this.getConstants().minimumHoodPosition(), () -> 0.0, () -> DEFAULT_SHOOTER_VELOCITY);
     }
 
     public Command goTo(double hoodPosition, double turretPosition, double shooterVelocity) {

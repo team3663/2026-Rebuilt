@@ -13,7 +13,6 @@ import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.util.FireControlSystem;
 import org.littletonrobotics.junction.Logger;
 
-import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
@@ -35,10 +34,11 @@ public class CommandFactory {
     }
 
     public Command aimShooter(BooleanSupplier aimAtHub) {
-        Supplier<Optional<DriverStation.Alliance>> alliance = DriverStation::getAlliance;
-        BooleanSupplier redAlliance = () -> alliance.get().isPresent() && alliance.get().get() == DriverStation.Alliance.Red;
-
-        Supplier<Translation2d> target = () -> getShooterTarget(drive.getPose(), redAlliance.getAsBoolean(), aimAtHub.getAsBoolean());
+        Supplier<Translation2d> target = () -> {
+            var alliance = DriverStation.getAlliance();
+            boolean redAlliance = alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red;
+            return getShooterTarget(drive.getPose(), redAlliance, aimAtHub.getAsBoolean());
+        };
 
         return shooter.follow(() -> fireControlSystem.calculate(getTurretPose(), drive.getRotation(), drive.getFieldOrientedVelocity(), target.get(), aimAtHub.getAsBoolean()));
     }
