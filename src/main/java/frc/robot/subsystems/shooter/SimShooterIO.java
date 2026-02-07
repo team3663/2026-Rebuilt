@@ -21,11 +21,11 @@ public class SimShooterIO implements ShooterIO {
     private final DCMotor turretMotor = DCMotor.getFalcon500Foc(1);
     private final DCMotor shooterMotors = DCMotor.getFalcon500Foc(2);
 
-    private final DCMotorSim hoodSim = new DCMotorSim(LinearSystemId.createDCMotorSystem(hoodMotor, 0.01, HOOD_GEAR_RATIO), hoodMotor, STDEV);
+    private final DCMotorSim hoodSim = new DCMotorSim(LinearSystemId.createDCMotorSystem(hoodMotor, 0.01, HOOD_GEAR_RATIO), hoodMotor, STDEV, STDEV);
 
     private final ProfiledPIDController hoodController = new ProfiledPIDController(1.0, 0.0, 0.0, new TrapezoidProfile.Constraints(Units.rotationsPerMinuteToRadiansPerSecond(500.0), Units.rotationsPerMinuteToRadiansPerSecond(700.0)));
 
-    private final DCMotorSim turretSim = new DCMotorSim(LinearSystemId.createDCMotorSystem(turretMotor, 0.01, TURRET_GEAR_RATIO), turretMotor, STDEV);
+    private final DCMotorSim turretSim = new DCMotorSim(LinearSystemId.createDCMotorSystem(turretMotor, 0.01, TURRET_GEAR_RATIO), turretMotor, STDEV, STDEV);
 
     private final ProfiledPIDController turretController = new ProfiledPIDController(1.0, 0.0, 0.0, new TrapezoidProfile.Constraints(Units.rotationsPerMinuteToRadiansPerSecond(500.0), Units.rotationsPerMinuteToRadiansPerSecond(700.0)));
 

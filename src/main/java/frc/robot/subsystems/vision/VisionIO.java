@@ -9,7 +9,4 @@ public interface VisionIO {
     default void updateInputs(VisionInputs inputs, double currentYaw) {}
     default void robotStateChanged() {}
 
-    default boolean isIgnoredIfNotNet(){ return false;}
-
-
 }

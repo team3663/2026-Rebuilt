@@ -13,12 +13,9 @@ public class LimelightIO implements VisionIO {
     private static final int LIMELIGHT_IMU_INTERNAL = 2;
 
     private final String cameraName;
-    private boolean isIgnoredNet;
 
     public LimelightIO(String name, Transform3d transform, boolean isIgnored) {
         this.cameraName = name;
-        this.isIgnoredNet= isIgnored;
-
 
         // Initially the Limelight IMU should be in FUSED mode, it will change when robot is enabled.
         LimelightHelpers.SetIMUMode(cameraName, LIMELIGHT_IMU_EXTERNAL);
@@ -32,10 +29,6 @@ public class LimelightIO implements VisionIO {
                 Units.radiansToDegrees(rotation.getX()),
                 Units.radiansToDegrees(rotation.getY()),
                 Units.radiansToDegrees(rotation.getZ()));
-    }
-    @Override
-    public boolean isIgnoredIfNotNet(){
-        return isIgnoredNet;
     }
 
     public void updateInputs(VisionInputs visionInputs, double currentYaw) {
@@ -80,15 +73,5 @@ public class LimelightIO implements VisionIO {
         double filterEnd = System.currentTimeMillis();
         visionInputs.filterDuration = filterEnd - filterStart;
 
-    }
-
-    public void robotStateChanged() {
-        // When the robot is disabled then seed the limelight's IMU with data from the Pigeon but once
-        // the robot is enabled then switch to the Limelight's internal IMU.
-//        if (RobotState.isDisabled()) {
-//            LimelightHelpers.SetIMUMode(cameraName, LIMELIGHT_IMU_FUSED);
-//        } else {
-//            LimelightHelpers.SetIMUMode(cameraName, LIMELIGHT_IMU_INTERNAL);
-//        }
     }
 }

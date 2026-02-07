@@ -7,6 +7,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -22,7 +24,13 @@ import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.hopper.Hopper;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionIO;
+import frc.robot.subsystems.vision.VisionMeasurement;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+
+import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -37,6 +45,7 @@ public class RobotContainer {
     private final Hopper hopper;
     private final Intake intake;
     private final Shooter shooter;
+    private final Vision vision;
 
     // Controller
     private final CommandXboxController controller = new CommandXboxController(0);
@@ -53,6 +62,7 @@ public class RobotContainer {
         this.hopper = robotFactory.createHopper();
         this.intake = robotFactory.createIntake();
         this.shooter = robotFactory.createShooter();
+        this.vision = robotFactory.createVision();
 
         // Set up auto routines
         autoChooser = new LoggedDashboardChooser<>("Auto Choices", new SendableChooser<>());
@@ -71,6 +81,20 @@ public class RobotContainer {
 
         shooter.setDefaultCommand(shooter.goToWithShooter(shooter.getConstants().minimumHoodPosition(), 0.0));
 
+        vision.setDefaultCommand(vision.consumeVisionMeasurements(drive::addVisionMeasurements, () -> {
+            Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+
+            if (alliance.isPresent() && DriverStation.isDisabled()) {
+                if (alliance.get() == DriverStation.Alliance.Red) {
+                    return Rotation2d.fromDegrees(0);
+                }
+                else
+                    return Rotation2d.fromDegrees(180);
+            }
+            else {
+                return drive.getRotation();
+            }
+        }));
         // Configure the button bindings
         configureButtonBindings();
     }

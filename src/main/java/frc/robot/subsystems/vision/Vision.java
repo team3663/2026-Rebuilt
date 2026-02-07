@@ -14,6 +14,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import org.littletonrobotics.junction.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +32,7 @@ public class Vision extends SubsystemBase {
     @NotLogged
     private final AprilTagFieldLayout fieldLayout;
     @NotLogged
-    private final VisionInputs[] visionInputs;
+    private final VisionInputsAutoLogged[] visionInputs;
 
     private final VisionInputs leftInputs;
     private final VisionInputs rightInputs;
@@ -56,9 +57,9 @@ public class Vision extends SubsystemBase {
         this.ioUpdateDurations = new double[ios.length];
         this.processingDurations = new double[ios.length];
 
-        visionInputs = new VisionInputs[ios.length];
+        visionInputs = new VisionInputsAutoLogged[ios.length];
         for (int i = 0; i < visionInputs.length; i++) {
-            visionInputs[i] = new VisionInputs();
+            visionInputs[i] = new VisionInputsAutoLogged();
         }
         if (visionInputs.length > 0) {
             leftInputs = visionInputs[0];
@@ -83,6 +84,9 @@ public class Vision extends SubsystemBase {
 
     @Override
     public void periodic() {
+        for (VisionInputsAutoLogged input : visionInputs) {
+            Logger.processInputs("Vision/VisionInputs", input);
+        }
 
         for (int i = 0; i < ios.length; i++) {
             double start = System.currentTimeMillis();
