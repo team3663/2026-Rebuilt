@@ -3,9 +3,11 @@ package frc.robot.subsystems.shooter;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.util.FiringSolution;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 import static edu.wpi.first.wpilibj2.command.Commands.waitSeconds;
 import static edu.wpi.first.wpilibj2.command.Commands.waitUntil;
@@ -15,7 +17,7 @@ public class Shooter extends SubsystemBase {
     private final static double TURRET_POSITION_THRESHOLD = Units.degreesToRadians(1);
     private final static double SHOOTER_VELOCITY_THRESHOLD = Units.rotationsPerMinuteToRadiansPerSecond(1);
 
-    private final static double TARGET_SHOOTER_VELOCITY = Units.rotationsPerMinuteToRadiansPerSecond(500.0);
+    private final static double DEFAULT_SHOOTER_VELOCITY = Units.rotationsPerMinuteToRadiansPerSecond(3500.0);
 
     private final ShooterIO io;
     private final ShooterInputsAutoLogged inputs = new ShooterInputsAutoLogged();
@@ -47,14 +49,13 @@ public class Shooter extends SubsystemBase {
 
     public Command stop() {
         return runOnce(() -> {
-                    targetHoodPosition = 0.0;
-                    targetTurretPosition = 0.0;
-                    targetShooterVelocity = 0.0;
-                    io.stopHood();
-                    io.stopTurret();
-                    io.stopShooter();
-                }
-        );
+            targetHoodPosition = 0.0;
+            targetTurretPosition = 0.0;
+            targetShooterVelocity = 0.0;
+            io.stopHood();
+            io.stopTurret();
+            io.stopShooter();
+        });
     }
 
     public boolean atTargetPositions() {
@@ -73,8 +74,8 @@ public class Shooter extends SubsystemBase {
         return this.hoodAtPosition(hoodPosition) && this.turretAtPosition(turretPosition) && this.shooterAtVelocity(shooterVelocity);
     }
 
-    public Command goToWithShooter(double hoodPosition, double turretPosition) {
-        return goTo(hoodPosition, turretPosition, TARGET_SHOOTER_VELOCITY);
+    public Command goToDefaultState() {
+        return follow(() -> this.getConstants().minimumHoodPosition(), () -> 0.0, () -> DEFAULT_SHOOTER_VELOCITY);
     }
 
     public Command goTo(double hoodPosition, double turretPosition, double shooterVelocity) {
@@ -86,17 +87,13 @@ public class Shooter extends SubsystemBase {
             }
 
             // Turret
-            targetTurretPosition = getValidTurretPosition(turretPosition);
+            targetTurretPosition = getNearestTargetTurretAngle(turretPosition);
             io.setTurretTargetPosition(targetTurretPosition);
 
             // Shooter
             targetShooterVelocity = shooterVelocity;
             io.setShooterTargetVelocity(targetShooterVelocity);
         }, this::stop).until(this::atTargetPositions);
-    }
-
-    public Command followWithShooter(DoubleSupplier hoodPosition, DoubleSupplier turretPosition) {
-        return follow(hoodPosition, turretPosition, () -> TARGET_SHOOTER_VELOCITY);
     }
 
     public Command follow(DoubleSupplier hoodPosition, DoubleSupplier turretPosition, DoubleSupplier shooterVelocity) {
@@ -108,13 +105,17 @@ public class Shooter extends SubsystemBase {
             }
 
             // Turret
-            targetTurretPosition = getValidTurretPosition(turretPosition.getAsDouble());
+            targetTurretPosition = getNearestTargetTurretAngle(turretPosition.getAsDouble());
             io.setTurretTargetPosition(targetTurretPosition);
 
             // Shooter
             targetShooterVelocity = shooterVelocity.getAsDouble();
             io.setShooterTargetVelocity(targetShooterVelocity);
         });
+    }
+
+    public Command follow(Supplier<FiringSolution> firingSolution) {
+        return follow(() -> firingSolution.get().hoodAngle(), () -> firingSolution.get().turretAngle(), () -> firingSolution.get().shooterVelocity());
     }
 
     // Hood
@@ -182,6 +183,28 @@ public class Shooter extends SubsystemBase {
 
     public double getTargetTurretPosition() {
         return targetTurretPosition;
+    }
+
+    private double getNearestTargetTurretAngle(double target) {
+        double current = getValidTurretPosition(inputs.currentTurretPosition);
+
+        target = getSmallestEquivalentAngle(target);
+        double reducedCurrent = getSmallestEquivalentAngle(current);
+        double fullTarget = target + (current - reducedCurrent);
+
+        if (fullTarget > constants.maximumTurretPosition)
+            return fullTarget - 2 * Math.PI;
+        if (fullTarget < constants.minimumTurretPosition)
+            return fullTarget + 2 * Math.PI;
+        return fullTarget;
+    }
+
+    // Returns the angle reduced to be equivalent and <= Math.PI and > -Math.PI
+    private double getSmallestEquivalentAngle(double angle) {
+        double modded = angle % (2 * Math.PI);
+        if (modded > Math.PI) return modded - 2 * Math.PI;
+        if (modded <= -Math.PI) return  modded + 2 * Math.PI;
+        return modded;
     }
 
     private double getValidTurretPosition(double position) {

@@ -478,4 +478,12 @@ public class Drive extends SubsystemBase {
                                             : getRotation());
                 });
     }
+
+    public ChassisSpeeds getRelativeVelocity() {
+        return kinematics.toChassisSpeeds(this.getModuleStates());
+    }
+
+    public ChassisSpeeds getFieldOrientedVelocity() {
+        return ChassisSpeeds.fromRobotRelativeSpeeds(getRelativeVelocity(), this.getRotation());
+    }
 }

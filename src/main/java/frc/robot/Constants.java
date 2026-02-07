@@ -13,7 +13,12 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
+
 
 /**
  * This class defines the runtime mode used by AdvantageKit. The mode is always "real" when running
@@ -125,5 +130,20 @@ public final class Constants {
          * Replaying from a log file.
          */
         REPLAY
+    }
+
+    public static class Shooter {
+        // TODO: get actual values
+        // The Pose2d's of the six locations we will want to shoot fuel to
+        public static final Translation2d BLUE_HUB = new Translation2d(4.4, 4.0);
+        public static final Translation2d RED_HUB = new Translation2d(11.8, 4.0);
+
+        public static final Translation2d UPPER_PASS_BLUE = new Translation2d(0.0, 8.0);
+        public static final Translation2d LOWER_PASS_BLUE = new Translation2d(0.0, 0.0);
+        public static final Translation2d UPPER_PASS_RED = new Translation2d(16.5, 8.0);
+        public static final Translation2d LOWER_PASS_RED = new Translation2d(16.5, 0.0);
+
+        // The Translation the turret is from the center of the robot
+        public static final Translation2d TURRET_OFF_CENTER = new Translation2d(Units.inchesToMeters(-10.5), Units.inchesToMeters(-10.5));
     }
 }
