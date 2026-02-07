@@ -45,7 +45,6 @@ public class C2026RobotFactory implements RobotFactory {
     public Feeder createFeeder() {
         return new Feeder(new C2026FeederIO(
                 new TalonFX(14),
-                new TalonFX(15),
                 new CANrange(1)
         ));
     }
