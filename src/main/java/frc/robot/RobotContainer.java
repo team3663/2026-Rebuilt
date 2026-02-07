@@ -7,8 +7,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -25,12 +23,9 @@ import frc.robot.subsystems.hopper.Hopper;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.vision.Vision;
-import frc.robot.subsystems.vision.VisionIO;
-import frc.robot.subsystems.vision.VisionMeasurement;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import java.util.Optional;
-import java.util.function.Consumer;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
