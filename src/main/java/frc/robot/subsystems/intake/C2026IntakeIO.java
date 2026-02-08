@@ -16,12 +16,13 @@ public class C2026IntakeIO implements IntakeIO {
      * Minimum pivot angle and maximum pivot angle
      */
     private static final Intake.Constants CONSTANTS = new Intake.Constants(
-            Units.degreesToRadians(0.0), Units.degreesToRadians(120.5)
+            Units.degreesToRadians(0.0), Units.degreesToRadians(160.0)
     );
 
     private final TalonFX intakeMotor;
     private final TalonFX pivotMotor1;
-    private final TalonFX pivotMotor2;
+
+    private final double PIVOT_GEAR_RATIO = 30.1587;
 
     // Motor Requests
     private final NeutralOut stopRequest = new NeutralOut();
@@ -31,7 +32,6 @@ public class C2026IntakeIO implements IntakeIO {
     public C2026IntakeIO(TalonFX intakeMotor, TalonFX pivotMotor1, TalonFX pivotMotor2) {
         this.intakeMotor = intakeMotor;
         this.pivotMotor1 = pivotMotor1;
-        this.pivotMotor2 = pivotMotor2;
 
         // Intake Motor Configurations
         TalonFXConfiguration intakeConfig = new TalonFXConfiguration();
@@ -42,18 +42,19 @@ public class C2026IntakeIO implements IntakeIO {
         // Pivot Motor Configurations
         TalonFXConfiguration pivotMotor1Config = new TalonFXConfiguration();
         pivotMotor1Config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        pivotMotor1Config.MotionMagic.MotionMagicAcceleration = 0.0;
-        pivotMotor1Config.MotionMagic.MotionMagicCruiseVelocity = 0.0;
+        pivotMotor1Config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
+        pivotMotor1Config.MotionMagic.MotionMagicAcceleration = 10.0;
+        pivotMotor1Config.MotionMagic.MotionMagicCruiseVelocity = 3.0;
+        pivotMotor1Config.Slot0.kP = 100.0;
+        pivotMotor1Config.Slot0.kV = 3.619;
+        pivotMotor1Config.MotorOutput.PeakForwardDutyCycle = 0.2;
+        pivotMotor1Config.MotorOutput.PeakReverseDutyCycle = -0.2;
+
+        pivotMotor1Config.Feedback.SensorToMechanismRatio = PIVOT_GEAR_RATIO;
         pivotMotor1.getConfigurator().apply(pivotMotor1Config);
 
-        TalonFXConfiguration pivotMotor2Config = new TalonFXConfiguration();
-        pivotMotor2Config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        pivotMotor2Config.MotionMagic.MotionMagicAcceleration = 0.0;
-        pivotMotor2Config.MotionMagic.MotionMagicCruiseVelocity = 0.0;
-        pivotMotor2.getConfigurator().apply(pivotMotor2Config);
-
         // Setting one of the pivot motors to follow the other motor
-        pivotMotor2.setControl(new Follower(pivotMotor1.getDeviceID(), MotorAlignmentValue.Aligned));
     }
 
     @Override
@@ -65,11 +66,11 @@ public class C2026IntakeIO implements IntakeIO {
         inputs.pivot1CurrentDraw = pivotMotor1.getSupplyCurrent().getValueAsDouble();
         inputs.currentPivot1Position = Units.rotationsToRadians(pivotMotor1.getPosition().getValueAsDouble());
 
-        inputs.currentPivot2Velocity = Units.rotationsToRadians(pivotMotor2.getVelocity().getValueAsDouble());
-        inputs.currentPivot2AppliedVoltage = pivotMotor2.getMotorVoltage().getValueAsDouble();
-        inputs.pivot2MotorTemperature = pivotMotor2.getDeviceTemp().getValueAsDouble();
-        inputs.pivot2CurrentDraw = pivotMotor2.getSupplyCurrent().getValueAsDouble();
-        inputs.currentPivot2Position = Units.rotationsToRadians(pivotMotor2.getPosition().getValueAsDouble());
+//        inputs.currentPivot2Velocity = Units.rotationsToRadians(pivotMotor2.getVelocity().getValueAsDouble());
+//        inputs.currentPivot2AppliedVoltage = pivotMotor2.getMotorVoltage().getValueAsDouble();
+//        inputs.pivot2MotorTemperature = pivotMotor2.getDeviceTemp().getValueAsDouble();
+//        inputs.pivot2CurrentDraw = pivotMotor2.getSupplyCurrent().getValueAsDouble();
+//        inputs.currentPivot2Position = Units.rotationsToRadians(pivotMotor2.getPosition().getValueAsDouble());
 
         // Intake Motor
         inputs.currentIntakeVelocity = Units.rotationsToRadians(intakeMotor.getVelocity().getValueAsDouble());

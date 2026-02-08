@@ -9,6 +9,7 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -92,11 +93,11 @@ public class RobotContainer {
      */
     private void configureButtonBindings() {
         // Default command, normal field-relative drive
-        drive.setDefaultCommand(drive.joystickDrive(
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
-                () -> -controller.getRightX()
-        ));
+//        drive.setDefaultCommand(drive.joystickDrive(
+//                () -> -controller.getLeftY(),
+//                () -> -controller.getLeftX(),
+//                () -> -controller.getRightX()
+//        ));
 
         // Reset gyro to 0° when B button is pressed
         controller.back().onTrue(drive.resetOdometry(() ->
@@ -106,19 +107,33 @@ public class RobotContainer {
                                 Rotation2d.k180deg :
                                 Rotation2d.kZero)));
 
+
         controller.start().onTrue(Commands.parallel(shooter.zeroHood()));
 
+        controller.x().whileTrue(intake.intakeAndPivot(6.0, Units.degreesToRadians(150.0))
+                .alongWith(hopper.withVoltage(3.0)));
+
+        controller.y().onTrue(intake.stop().alongWith(hopper.stop()));
+
+        controller.a().onTrue(intake.zeroPivot());
+
+        controller.povDown().onTrue(intake.followPivotPositions(()-> Units.degreesToRadians(5)));
+        controller.povLeft().onTrue(intake.followPivotPositions(()-> Units.degreesToRadians(30)));
+        controller.povRight().onTrue(intake.followPivotPositions(()-> Units.degreesToRadians(90)));
+        controller.povUp().onTrue(intake.followPivotPositions(()-> Units.degreesToRadians(130)));
+
+
         // Intake
-        controller.a().onTrue(intake.stop());
-        controller.x().whileTrue(intake.intakeAndPivot(6.5, 0.0));
-
-        //Hopper Controls
-        controller.b().whileTrue(hopper.withVoltage(3));
-        controller.y().onTrue(hopper.stop());
-
-        // Shooter Controls
-        controller.leftBumper().onTrue(Commands.runOnce(() -> shootingAtHub = !shootingAtHub));
-        controller.rightTrigger().whileTrue(commandFactory.aimShooter(() -> shootingAtHub));
+////        controller.a().onTrue(intake.stop());
+//        controller.x().whileTrue(intake.intakeAndPivot(6.5, 0.0));
+//
+//        //Hopper Controls
+//        controller.b().whileTrue(hopper.withVoltage(3));
+//        controller.y().onTrue(hopper.stop());
+//
+//        // Shooter Controls
+//        controller.leftBumper().onTrue(Commands.runOnce(() -> shootingAtHub = !shootingAtHub));
+//        controller.rightTrigger().whileTrue(commandFactory.aimShooter(() -> shootingAtHub));
 
 //         controller.x().whileTrue(shooter.runShooter(-8.5));
     }
