@@ -89,6 +89,8 @@ public class RobotContainer {
         autoChooser.addOption("RightUnderTrench2ft-NeutralZone-UnderTrench-NeutralZone", autoPaths.rightStarting_neutralZone_middleLine_x2());
         autoChooser.addOption("LeftInFrontOfBump5ft-Depot-Outpost-RightClimb", autoPaths.leftStarting_depot_outpost_rightClimb());
         autoChooser.addOption("RightAllianceZone2ft-Outpost-Depot-LeftClimb", autoPaths.rightStarting_outpost_depot_leftClimb());
+        autoChooser.addOption("LeftUnderTrench2ft-AllianceSideNeutralZone-RightClimb", autoPaths.leftStarting_neutralZone_AllianceSide_rightClimb());
+        autoChooser.addOption("RightUnderTrench2ft-AllianceSideNeutralZone-LeftClimb", autoPaths.rightStarting_neutralZone_AllianceSide_leftClimb());
 
         shooter.setDefaultCommand(shooter.goToDefaultState());
 

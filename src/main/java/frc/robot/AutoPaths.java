@@ -326,6 +326,34 @@ public class AutoPaths {
                         () -> Constants.BLUE_LEFT_TRENCH_TO_CLIMB_INTERMEDIATE, () -> Constants.RED_LEFT_TRENCH_TO_CLIMB_INTERMEDIATE));
     }
 
+    public Command leftStarting_neutralZone_AllianceSide_rightClimb(){
+        return Commands.sequence(
+                resetOdometry(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE),
+                zeroPivotAndShootInPlace(),
+                intakeAndPass(Constants.BLUE_MIDDLE_ALLIANCE_SIDE, Constants.RED_MIDDLE_ALLIANCE_SIDE,
+                        ()-> Constants.BLUE_LEFT_ALLIANCE_SIDE, ()-> Constants.RED_LEFT_ALLIANCE_SIDE),
+                intaking(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE,
+                        ()-> Constants.BLUE_RIGHT_ALLIANCE_SIDE_TO_TRENCH, ()-> Constants.RED_RIGHT_ALLIANCE_SIDE_TO_TRENCH),
+                shootingInPlace(),
+                goToPositionAndClimb(Constants.BLUE_RIGHT_RUNG_CLIMB, Constants.RED_RIGHT_RUNG_CLIMB,
+                        ()-> Constants.BLUE_RIGHT_TRENCH_TO_CLIMB_INTERMEDIATE, ()-> Constants.RED_RIGHT_TRENCH_TO_CLIMB_INTERMEDIATE)
+
+        );
+    }
+
+    public Command rightStarting_neutralZone_AllianceSide_leftClimb(){
+        return Commands.sequence(
+                resetOdometry(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE),
+                zeroPivotAndShootInPlace(),
+                intakeAndPass(Constants.BLUE_MIDDLE_ALLIANCE_SIDE, Constants.RED_MIDDLE_ALLIANCE_SIDE,
+                        ()-> Constants.BLUE_RIGHT_ALLIANCE_SIDE, ()-> Constants.RED_RIGHT_ALLIANCE_SIDE),
+                intaking(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE,
+                        ()-> Constants.BLUE_LEFT_ALLIANCE_SIDE_TO_TRENCH, ()-> Constants.RED_LEFT_ALLIANCE_SIDE_TO_TRENCH),
+                shootingInPlace(),
+                goToPositionAndClimb(Constants.BLUE_LEFT_RUNG_CLIMB, Constants.RED_LEFT_RUNG_CLIMB,
+                        ()-> Constants.BLUE_LEFT_TRENCH_TO_CLIMB_INTERMEDIATE, ()-> Constants.RED_LEFT_TRENCH_TO_CLIMB_INTERMEDIATE));
+    }
+
     public Command leftStarting_neutralZone_middleLine_x2() {
         return Commands.sequence(
                 resetOdometry(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE,
@@ -336,10 +364,10 @@ public class AutoPaths {
                 intaking(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE,
                         () -> Constants.BLUE_RIGHT_CENTER_LINE_TO_TRENCH, () -> Constants.RED_RIGHT_CENTER_LINE_TO_TRENCH),
                 shootingInPlace(),
-                intakeAndPass(Constants.BLUE_MIDDLE_CENTER_LINE, Constants.RED_MIDDLE_CENTER_LINE,
-                        () -> Constants.BLUE_RIGHT_CENTER_LINE, () -> Constants.RED_RIGHT_CENTER_LINE),
+                intakeAndPass(Constants.BLUE_MIDDLE_ALLIANCE_SIDE, Constants.RED_MIDDLE_ALLIANCE_SIDE,
+                        () -> Constants.BLUE_RIGHT_ALLIANCE_SIDE, () -> Constants.RED_RIGHT_ALLIANCE_SIDE),
                 intaking(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE,
-                        () -> Constants.BLUE_LEFT_CENTER_LINE_TO_TRENCH, () -> Constants.RED_LEFT_CENTER_LINE_TO_TRENCH),
+                        () -> Constants.BLUE_LEFT_ALLIANCE_SIDE_TO_TRENCH, () -> Constants.RED_LEFT_ALLIANCE_SIDE_TO_TRENCH),
                 shootingInPlace()
         );
     }
@@ -353,10 +381,10 @@ public class AutoPaths {
                 intaking(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE,
                         () -> Constants.BLUE_LEFT_CENTER_LINE_TO_TRENCH, () -> Constants.RED_LEFT_CENTER_LINE_TO_TRENCH),
                 shootingInPlace(),
-                intakeAndPass(Constants.BLUE_MIDDLE_CENTER_LINE, Constants.RED_MIDDLE_CENTER_LINE,
-                        () -> Constants.BLUE_LEFT_CENTER_LINE, () -> Constants.RED_LEFT_CENTER_LINE),
+                intakeAndPass(Constants.BLUE_MIDDLE_ALLIANCE_SIDE, Constants.RED_MIDDLE_ALLIANCE_SIDE,
+                        () -> Constants.BLUE_LEFT_ALLIANCE_SIDE, () -> Constants.RED_LEFT_ALLIANCE_SIDE),
                 intaking(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE,
-                        () -> Constants.BLUE_RIGHT_CENTER_LINE_TO_TRENCH, () -> Constants.RED_RIGHT_CENTER_LINE_TO_TRENCH),
+                        () -> Constants.BLUE_RIGHT_ALLIANCE_SIDE_TO_TRENCH, () -> Constants.RED_RIGHT_ALLIANCE_SIDE_TO_TRENCH),
                 shootingInPlace()
         );
     }
