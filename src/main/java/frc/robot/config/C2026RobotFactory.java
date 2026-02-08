@@ -18,28 +18,28 @@ import frc.robot.subsystems.shooter.C2026ShooterIO;
 import frc.robot.subsystems.shooter.Shooter;
 
 public class C2026RobotFactory implements RobotFactory {
-//    @Override
-//    public Drive createDrive() {
-//        double odometryFrequencyHz = C2026TunerConstants.kCANBus.isNetworkFD() ? 250.0 : 100.0;
-//        PhoenixOdometryThread odometryThread = new PhoenixOdometryThread(odometryFrequencyHz, C2026TunerConstants.kCANBus);
-//
-//        Drive drive = new Drive(
-//                new GyroIOPigeon2(odometryThread, odometryFrequencyHz, C2026TunerConstants.DrivetrainConstants.Pigeon2Id,
-//                        C2026TunerConstants.DrivetrainConstants.Pigeon2Configs, C2026TunerConstants.kCANBus),
-//                new ModuleIOTalonFX(odometryThread, odometryFrequencyHz, C2026TunerConstants.FrontLeft, C2026TunerConstants.kCANBus),
-//                C2026TunerConstants.FrontLeft,
-//                new ModuleIOTalonFX(odometryThread, odometryFrequencyHz, C2026TunerConstants.FrontRight, C2026TunerConstants.kCANBus),
-//                C2026TunerConstants.FrontRight,
-//                new ModuleIOTalonFX(odometryThread, odometryFrequencyHz, C2026TunerConstants.BackLeft, C2026TunerConstants.kCANBus),
-//                C2026TunerConstants.BackLeft,
-//                new ModuleIOTalonFX(odometryThread, odometryFrequencyHz, C2026TunerConstants.BackRight, C2026TunerConstants.kCANBus),
-//                C2026TunerConstants.BackRight);
-//
-//        // Start odometry thread
-//        odometryThread.start();
-//
-//        return drive;
-//    }
+    @Override
+    public Drive createDrive() {
+        double odometryFrequencyHz = C2026TunerConstants.kCANBus.isNetworkFD() ? 250.0 : 100.0;
+        PhoenixOdometryThread odometryThread = new PhoenixOdometryThread(odometryFrequencyHz, C2026TunerConstants.kCANBus);
+
+        Drive drive = new Drive(
+                new GyroIOPigeon2(odometryThread, odometryFrequencyHz, C2026TunerConstants.DrivetrainConstants.Pigeon2Id,
+                        C2026TunerConstants.DrivetrainConstants.Pigeon2Configs, C2026TunerConstants.kCANBus),
+                new ModuleIOTalonFX(odometryThread, odometryFrequencyHz, C2026TunerConstants.FrontLeft, C2026TunerConstants.kCANBus),
+                C2026TunerConstants.FrontLeft,
+                new ModuleIOTalonFX(odometryThread, odometryFrequencyHz, C2026TunerConstants.FrontRight, C2026TunerConstants.kCANBus),
+                C2026TunerConstants.FrontRight,
+                new ModuleIOTalonFX(odometryThread, odometryFrequencyHz, C2026TunerConstants.BackLeft, C2026TunerConstants.kCANBus),
+                C2026TunerConstants.BackLeft,
+                new ModuleIOTalonFX(odometryThread, odometryFrequencyHz, C2026TunerConstants.BackRight, C2026TunerConstants.kCANBus),
+                C2026TunerConstants.BackRight);
+
+        // Start odometry thread
+        odometryThread.start();
+
+        return drive;
+    }
 
     @Override
     public Feeder createFeeder() {
