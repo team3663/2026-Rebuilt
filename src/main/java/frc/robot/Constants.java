@@ -14,7 +14,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.Unit;
 import edu.wpi.first.wpilibj.RobotBase;
 
 
@@ -107,7 +106,7 @@ public final class Constants {
     public static final Pose2d BLUE_MIDDLE_CENTER_LINE = new Pose2d((FIELD.getFieldLength() / 2.0), FIELD.getFieldWidth() / 2.0, Rotation2d.fromDegrees(90.0));
     public static final Pose2d BLUE_LEFT_CENTER_LINE = new Pose2d((FIELD.getFieldLength() / 2.0) + Units.feetToMeters(2.0), FIELD.getTagPose(22).get().getY(), Rotation2d.fromDegrees(0.0));
     public static final Pose2d BLUE_LEFT_CENTER_LINE_TO_TRENCH = BLUE_LEFT_CENTER_LINE.plus(new Transform2d(-Units.feetToMeters(2.0), Units.feetToMeters(2.5), Rotation2d.fromDegrees(90.0)));
-    
+
     public static final Pose2d RED_RIGHT_CENTER_LINE = new Pose2d((FIELD.getFieldLength() / 2.0) - Units.feetToMeters(3.0), FIELD.getTagPose(1).get().getY(), Rotation2d.fromDegrees(180.0));
     public static final Pose2d RED_MIDDLE_CENTER_LINE = new Pose2d((FIELD.getFieldLength() / 2.0), FIELD.getFieldWidth() / 2.0, Rotation2d.fromDegrees(270));
     public static final Pose2d RED_LEFT_CENTER_LINE = new Pose2d((FIELD.getFieldLength() / 2.0) - Units.feetToMeters(3.0), FIELD.getTagPose(6).get().getY(), Rotation2d.fromDegrees(180));
@@ -115,18 +114,19 @@ public final class Constants {
     public static final Pose2d RED_LEFT_CENTER_LINE_TO_TRENCH = RED_LEFT_CENTER_LINE.plus(new Transform2d(-Units.feetToMeters(2.0), Units.feetToMeters(2.5), Rotation2d.fromDegrees(90)));
 
     public static final Pose2d BLUE_RIGHT_ALLIANCE_SIDE = BLUE_RIGHT_CENTER_LINE.plus(new Transform2d(-Units.feetToMeters(1.5), 0.0, Rotation2d.fromDegrees(0.0)));
-    public static final Pose2d BLUE_MIDDLE_ALLIANCE_SIDE = new Pose2d((FIELD.getFieldLength() / 2.0 ) - Units.feetToMeters(1.5), FIELD.getFieldWidth() / 2.0, Rotation2d.fromDegrees(90));
+    public static final Pose2d BLUE_MIDDLE_ALLIANCE_SIDE = new Pose2d((FIELD.getFieldLength() / 2.0) - Units.feetToMeters(1.5), FIELD.getFieldWidth() / 2.0, Rotation2d.fromDegrees(90));
     public static final Pose2d BLUE_LEFT_ALLIANCE_SIDE = BLUE_LEFT_CENTER_LINE.plus(new Transform2d(-Units.feetToMeters(1.5), 0.0, Rotation2d.fromDegrees(0.0)));
     public static final Pose2d BLUE_RIGHT_ALLIANCE_SIDE_TO_TRENCH = BLUE_RIGHT_CENTER_LINE_TO_TRENCH.plus(new Transform2d(Units.feetToMeters(0.0), Units.feetToMeters(1.0), Rotation2d.fromDegrees(0.0)));
     public static final Pose2d BLUE_LEFT_ALLIANCE_SIDE_TO_TRENCH = BLUE_LEFT_CENTER_LINE_TO_TRENCH.plus(new Transform2d(Units.feetToMeters(0.0), Units.feetToMeters(1.0), Rotation2d.fromDegrees(0.0)));
 
     public static final Pose2d RED_RIGHT_ALLIANCE_SIDE = RED_RIGHT_CENTER_LINE.plus(new Transform2d(-Units.feetToMeters(0.0), 0.0, Rotation2d.fromDegrees(0.0)));
     public static final Pose2d RED_MIDDLE_ALLIANCE_SIDE = new Pose2d((FIELD.getFieldLength() / 2.0) + Units.feetToMeters(1.5), FIELD.getFieldWidth() / 2.0, Rotation2d.fromDegrees(270));
-    public static final Pose2d RED_LEFT_ALLIANCE_SIDE = RED_LEFT_CENTER_LINE.plus(new Transform2d(-Units.feetToMeters(0.0), 0.0, Rotation2d.fromDegrees(0.0)));;
+    public static final Pose2d RED_LEFT_ALLIANCE_SIDE = RED_LEFT_CENTER_LINE.plus(new Transform2d(-Units.feetToMeters(0.0), 0.0, Rotation2d.fromDegrees(0.0)));
+    
     public static final Pose2d RED_RIGHT_ALLIANCE_SIDE_TO_TRENCH = RED_RIGHT_CENTER_LINE_TO_TRENCH.plus(new Transform2d(Units.feetToMeters(0.0), Units.feetToMeters(3.5), Rotation2d.fromDegrees(0.0)));
     public static final Pose2d RED_LEFT_ALLIANCE_SIDE_TO_TRENCH = RED_LEFT_CENTER_LINE_TO_TRENCH.plus(new Transform2d(Units.feetToMeters(0.0), Units.feetToMeters(3.5), Rotation2d.fromDegrees(0.0)));
-    
-    
+
+
     public enum Mode {
         /**
          * Running on a real robot.
