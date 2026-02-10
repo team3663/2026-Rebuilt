@@ -1,8 +1,7 @@
 package frc.robot.subsystems.led;
 
-import com.ctre.phoenix6.controls.*;
+import com.ctre.phoenix6.controls.ControlRequest;
 import edu.wpi.first.wpilibj.util.Color;
-//import com.ctre.phoenix.led.Animation;
 
 public interface LedIo {
     default void updateInputs(LedInputs inputs) {
