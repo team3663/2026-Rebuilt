@@ -1,5 +1,7 @@
 package frc.robot.config;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import frc.robot.generated.TestBotTunerConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -12,6 +14,8 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterIO;
+import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionIO;
 
 public interface RobotFactory {
     default Drive createDrive() {
@@ -51,5 +55,9 @@ public interface RobotFactory {
     default Shooter createShooter() {
         return new Shooter(new ShooterIO() {
         });
+    }
+
+    default Vision createVision() {
+        return new Vision(AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField), new VisionIO() {});
     }
 }

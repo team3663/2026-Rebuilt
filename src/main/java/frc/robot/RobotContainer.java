@@ -9,6 +9,7 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -23,7 +24,10 @@ import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.hopper.Hopper;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.vision.Vision;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+
+import java.util.Optional;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -38,6 +42,7 @@ public class RobotContainer {
     private final Hopper hopper;
     private final Intake intake;
     private final Shooter shooter;
+    private final Vision vision;
 
     private final CommandFactory commandFactory;
 
@@ -58,6 +63,7 @@ public class RobotContainer {
         this.hopper = robotFactory.createHopper();
         this.intake = robotFactory.createIntake();
         this.shooter = robotFactory.createShooter();
+        this.vision = robotFactory.createVision();
 
         commandFactory = new CommandFactory(drive, feeder, hopper, intake, shooter
 //        , climber
@@ -80,6 +86,20 @@ public class RobotContainer {
 
         shooter.setDefaultCommand(shooter.goToDefaultState());
 
+        vision.setDefaultCommand(vision.consumeVisionMeasurements(drive::addVisionMeasurements, () -> {
+            Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+
+            if (alliance.isPresent() && DriverStation.isDisabled()) {
+                if (alliance.get() == DriverStation.Alliance.Red) {
+                    return Rotation2d.fromDegrees(0);
+                }
+                else
+                    return Rotation2d.fromDegrees(180);
+            }
+            else {
+                return drive.getRotation();
+            }
+        }));
         // Configure the button bindings
         configureButtonBindings();
     }
@@ -106,8 +126,6 @@ public class RobotContainer {
                                 Rotation2d.k180deg :
                                 Rotation2d.kZero)));
 
-        controller.start().onTrue(Commands.parallel(shooter.zeroHood()));
-
         // Intake
         controller.a().onTrue(intake.stop());
         controller.x().whileTrue(intake.intakeAndPivot(6.5, 0.0));
@@ -119,8 +137,6 @@ public class RobotContainer {
         // Shooter Controls
         controller.leftBumper().onTrue(Commands.runOnce(() -> shootingAtHub = !shootingAtHub));
         controller.rightTrigger().whileTrue(commandFactory.aimShooter(() -> shootingAtHub));
-
-//         controller.x().whileTrue(shooter.runShooter(-8.5));
     }
 
     /**
