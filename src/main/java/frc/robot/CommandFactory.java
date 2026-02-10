@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.hopper.Hopper;
@@ -63,5 +64,25 @@ public class CommandFactory {
         Pose2d turretPose = new Pose2d(turretTranslation, turretAngle);
         Logger.recordOutput("CommandFactory/TurretPose", turretPose);
         return turretPose;
+    }
+
+    public Command toggleIntake(BooleanSupplier deploy) {
+        return Commands.either(intake.deploy(), intake.stow(), deploy);
+    }
+
+    public Command alignToTower() {
+        return drive.goToPosition(this::getRobotTowerPose, () -> false);
+    }
+
+    public Pose2d getRobotTowerPose() {
+        boolean upper = drive.getPose().getY() >= Constants.FIELD.getFieldWidth() / 2.0;
+
+        var alliance = DriverStation.getAlliance();
+        if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red) {
+            if (upper) return Constants.RED_RIGHT_RUNG_CLIMB;
+            return Constants.RED_LEFT_RUNG_CLIMB;
+        }
+        if (upper) return Constants.BLUE_LEFT_RUNG_CLIMB;
+        return Constants.BLUE_RIGHT_RUNG_CLIMB;
     }
 }

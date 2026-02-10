@@ -1,6 +1,5 @@
 package frc.robot.config;
 
-import com.ctre.phoenix6.configs.*;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation3d;

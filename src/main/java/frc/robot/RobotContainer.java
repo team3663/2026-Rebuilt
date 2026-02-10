@@ -9,7 +9,6 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -52,10 +51,11 @@ public class RobotContainer {
     // Dashboard inputs
     private final LoggedDashboardChooser<Command> autoChooser;
 
+    private boolean intakeOut = false;
     private boolean shootingAtHub = true;
 
     /**
-     * The container for the robot. Contains subsystems, OI devices, and commands.
+     * The container for the robot. Contains subsystems, IO devices, and commands.
      */
     public RobotContainer(RobotFactory robotFactory) {
         this.drive = robotFactory.createDrive();
@@ -84,6 +84,9 @@ public class RobotContainer {
         autoChooser.addOption(
                 "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
+        // Configure the button bindings
+        configureButtonBindings();
+
         shooter.setDefaultCommand(shooter.goToDefaultState());
 
         vision.setDefaultCommand(vision.consumeVisionMeasurements(drive::addVisionMeasurements, () -> {
@@ -100,8 +103,6 @@ public class RobotContainer {
                 return drive.getRotation();
             }
         }));
-        // Configure the button bindings
-        configureButtonBindings();
     }
 
     /**
@@ -126,17 +127,24 @@ public class RobotContainer {
                                 Rotation2d.k180deg :
                                 Rotation2d.kZero)));
 
-        // Intake
-        controller.a().onTrue(intake.stop());
-        controller.x().whileTrue(intake.intakeAndPivot(6.5, 0.0));
+        // Zero all subsystems
+        controller.start().onTrue(Commands.parallel(shooter.zeroHood(), intake.zeroPivot(), climber.zeroClimbMotors(), climber.zeroHooks()));
 
-        //Hopper Controls
-        controller.b().whileTrue(hopper.withVoltage(3));
-        controller.y().onTrue(hopper.stop());
+        // Aiming and setting the target of the Shooter
+        controller.rightTrigger().whileTrue(commandFactory.aimShooter(() -> !controller.y().getAsBoolean()));
+        controller.y().onTrue(Commands.runOnce(() -> shootingAtHub = !shootingAtHub));
+        // Feeding into the shooter to shoot
+        controller.rightBumper().and(controller.rightTrigger()).whileTrue(feeder.withVoltage(4.0));
 
-        // Shooter Controls
-        controller.leftBumper().onTrue(Commands.runOnce(() -> shootingAtHub = !shootingAtHub));
-        controller.rightTrigger().whileTrue(commandFactory.aimShooter(() -> shootingAtHub));
+        // Deploy and stow the intake
+        controller.leftBumper().onTrue(Commands.runOnce(() -> intakeOut = !intakeOut).andThen(commandFactory.toggleIntake(() -> intakeOut)));
+        // Running the intake
+        controller.leftTrigger().and(() -> intakeOut).whileTrue(intake.deployAndIntake().alongWith(hopper.withVoltage(3.0)));
+
+        // Climbing
+        controller.a().whileTrue(commandFactory.alignToTower());
+        controller.b().onTrue(intake.stow().andThen(climber.deploy()));
+        controller.x().and(() -> climber.isDeployed()).onTrue(climber.fullClimb());
     }
 
     /**
