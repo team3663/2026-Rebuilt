@@ -1,6 +1,7 @@
 package frc.robot.config;
 
 import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.CANdle;
 import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
 import frc.robot.generated.C2026TunerConstants;
@@ -14,6 +15,8 @@ import frc.robot.subsystems.hopper.C2026HopperIO;
 import frc.robot.subsystems.hopper.Hopper;
 import frc.robot.subsystems.intake.C2026IntakeIO;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.led.Led;
+import frc.robot.subsystems.led.LedCandleIo;
 import frc.robot.subsystems.shooter.C2026ShooterIO;
 import frc.robot.subsystems.shooter.Shooter;
 
@@ -72,5 +75,10 @@ public class C2026RobotFactory implements RobotFactory {
                 new TalonFX(19),
                 new CANcoder(7)
         ));
+    }
+
+    @Override
+    public Led createLed() {
+        return new Led(new LedCandleIo(new CANdle(1)));
     }
 }
