@@ -203,7 +203,7 @@ public class Shooter extends SubsystemBase {
     private double getSmallestEquivalentAngle(double angle) {
         double modded = angle % (2 * Math.PI);
         if (modded > Math.PI) return modded - 2 * Math.PI;
-        if (modded <= -Math.PI) return  modded + 2 * Math.PI;
+        if (modded <= -Math.PI) return modded + 2 * Math.PI;
         return modded;
     }
 
@@ -237,5 +237,6 @@ public class Shooter extends SubsystemBase {
             double maximumHoodPosition,
             double minimumTurretPosition,
             double maximumTurretPosition
-    ) {}
+    ) {
+    }
 }
