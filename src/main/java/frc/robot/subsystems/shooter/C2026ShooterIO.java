@@ -24,6 +24,7 @@ public class C2026ShooterIO implements ShooterIO {
     // TODO get actual gear ratio for ENCODER_TO_MECHANISM
     private static final double ENCODER_TO_MECHANISM_RATIO = 1.0;
     private static final double MOTOR_TO_ENCODER_RATIO = 2.0;
+    private static final double ENCODER_OFFSET = 0.0;
 
     private final TalonFX hoodMotor;
     private final TalonFX turretMotor;
@@ -48,7 +49,7 @@ public class C2026ShooterIO implements ShooterIO {
         // CANCoder config
         CANcoderConfiguration canCoderConfig = new CANcoderConfiguration();
         canCoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-        canCoderConfig.MagnetSensor.MagnetOffset = ENCODER_TO_MECHANISM_RATIO;
+        canCoderConfig.MagnetSensor.MagnetOffset = ENCODER_OFFSET;
 
         turretCanCoder.getConfigurator().apply(canCoderConfig);
 
