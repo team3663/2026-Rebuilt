@@ -7,12 +7,8 @@ public class FeederInputs {
     public double currentVelocity;
     public double currentAppliedVoltage;
 
-    //TODO figure out how many motors will be used
-    public double motor1Temperature;
-    public double motor1CurrentDraw;
-
-    public double motor2Temperature;
-    public double motor2CurrentDraw;
+    public double motorTemperature;
+    public double motorCurrentDraw;
 
     public boolean canrangeObjectDetected;
     public double canrangeSignalConfidence;
