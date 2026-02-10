@@ -24,6 +24,8 @@ public final class Constants {
     public static final boolean IS_ANDYMARK = false;
     public static final AprilTagFieldLayout FIELD = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
 
+    public static final boolean ENABLE_TEST_FEATURES = true;
+
     public static final Mode simMode = Mode.SIM;
     public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
 

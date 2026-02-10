@@ -25,9 +25,12 @@ import frc.robot.subsystems.hopper.Hopper;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.vision.Vision;
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import java.util.Optional;
+
+import static frc.robot.Constants.ENABLE_TEST_FEATURES;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -48,6 +51,8 @@ public class RobotContainer {
 
     // Controller
     private final CommandXboxController controller = new CommandXboxController(0);
+
+    private final CommandXboxController testController;
 
     // Dashboard inputs
     private final LoggedDashboardChooser<Command> autoChooser;
@@ -100,8 +105,14 @@ public class RobotContainer {
                 return drive.getRotation();
             }
         }));
+
         // Configure the button bindings
         configureButtonBindings();
+
+        if (ENABLE_TEST_FEATURES) {
+            testController = new CommandXboxController(2);
+            configureTestBindings();
+        } else testController = null;
     }
 
     /**
@@ -137,6 +148,40 @@ public class RobotContainer {
         // Shooter Controls
         controller.leftBumper().onTrue(Commands.runOnce(() -> shootingAtHub = !shootingAtHub));
         controller.rightTrigger().whileTrue(commandFactory.aimShooter(() -> shootingAtHub));
+    }
+
+    private void configureTestBindings() {
+        // Tuning Buttons:
+        // "A" button toggles tuning mode on and off
+        // POV UP/DOWN moves the hood up and down
+        // POV LEFT/RIGHT moves the turret left and right
+        // X/Y increases and decreases the shooters velocity
+
+        final double TUNING_HOOD_ANGLE_CHANGE = Units.degreesToRadians(0.25);
+        final double TUNING_TURRET_ANGLE_CHANGE = Units.degreesToRadians(1.0);
+        final double TUNING_SHOOTER_VELOCITY_CHANGE = Units.rotationsPerMinuteToRadiansPerSecond(50.0);
+
+        final double[] tuningHoodAngle = new double[] {shooter.getConstants().minimumHoodPosition()};
+        final double[] tuningTurretAngle = new double[] {0.0};
+        final double[] tuningShooterVelocity = new double[] {0.0};
+
+        testController.a().toggleOnTrue(Commands.parallel(
+                shooter.follow(() -> tuningHoodAngle[0], () -> tuningTurretAngle[0], () -> tuningShooterVelocity[0]),
+                Commands.run(() -> {
+                    Logger.recordOutput("Tuning/TargetHoodAngle", tuningHoodAngle[0]);
+                    Logger.recordOutput("Tuning/TargetTurretAngle", tuningTurretAngle[0]);
+                    Logger.recordOutput("Tuning/TargetShooterVelocity", tuningShooterVelocity[0]);
+                })
+        ));
+
+        testController.povUp().onTrue(Commands.runOnce(() -> tuningHoodAngle[0] += TUNING_HOOD_ANGLE_CHANGE));
+        testController.povDown().onTrue(Commands.runOnce(() -> tuningHoodAngle[0] -= TUNING_HOOD_ANGLE_CHANGE));
+
+        testController.povLeft().onTrue(Commands.runOnce(() -> tuningTurretAngle[0] += TUNING_TURRET_ANGLE_CHANGE));
+        testController.povRight().onTrue(Commands.runOnce(() -> tuningTurretAngle[0] -= TUNING_TURRET_ANGLE_CHANGE));
+
+        testController.y().onTrue(Commands.runOnce(() -> tuningShooterVelocity[0] += TUNING_SHOOTER_VELOCITY_CHANGE));
+        testController.x().onTrue(Commands.runOnce(() -> tuningShooterVelocity[0] -= TUNING_SHOOTER_VELOCITY_CHANGE));
     }
 
     /**
