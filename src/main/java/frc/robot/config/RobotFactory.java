@@ -12,6 +12,8 @@ import frc.robot.subsystems.hopper.Hopper;
 import frc.robot.subsystems.hopper.HopperIO;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
+import frc.robot.subsystems.led.Led;
+import frc.robot.subsystems.led.LedIo;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterIO;
 import frc.robot.subsystems.vision.Vision;
@@ -59,5 +61,10 @@ public interface RobotFactory {
 
     default Vision createVision() {
         return new Vision(AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField), new VisionIO() {});
+    }
+
+    default Led createLed() {
+        return new Led(new LedIo() {
+        });
     }
 }

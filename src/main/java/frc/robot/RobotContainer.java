@@ -65,6 +65,7 @@ public class RobotContainer {
         this.intake = robotFactory.createIntake();
         this.shooter = robotFactory.createShooter();
         this.vision = robotFactory.createVision();
+        this.led = robotFactory.createLed();
 
         commandFactory = new CommandFactory(drive, feeder, hopper, intake, shooter
 //        , climber
