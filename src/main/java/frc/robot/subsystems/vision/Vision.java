@@ -80,9 +80,6 @@ public class Vision extends SubsystemBase {
 
     @Override
     public void periodic() {
-        for (VisionInputsAutoLogged input : visionInputs) {
-            Logger.processInputs("Vision/VisionInputs", input);
-        }
 
         for (int i = 0; i < ios.length; i++) {
             double start = System.currentTimeMillis();
@@ -90,6 +87,10 @@ public class Vision extends SubsystemBase {
             double end = System.currentTimeMillis();
             double duration = end - start;
             ioUpdateDurations[i] = duration;
+        }
+
+        for (int i = 0; i > visionInputs.length; i++) {
+            Logger.processInputs("Vision/VisionInputs " + i, visionInputs[i]);
         }
 
         acceptedMeasurements.clear();
