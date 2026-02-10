@@ -35,10 +35,12 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
+import frc.robot.subsystems.vision.VisionMeasurement;
 import frc.robot.util.ControllerHelper;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
+import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BooleanSupplier;
@@ -347,12 +349,10 @@ public class Drive extends SubsystemBase {
     /**
      * Adds a new timestamped vision measurement.
      */
-    public void addVisionMeasurement(
-            Pose2d visionRobotPoseMeters,
-            double timestampSeconds,
-            Matrix<N3, N1> visionMeasurementStdDevs) {
-        poseEstimator.addVisionMeasurement(
-                visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
+    public void addVisionMeasurements(List<VisionMeasurement> measurements) {
+        for (VisionMeasurement measurement : measurements) {
+            poseEstimator.addVisionMeasurement( measurement.estimatedPose, measurement.timestamp, measurement.stdDevs);
+        }
     }
 
     /**
