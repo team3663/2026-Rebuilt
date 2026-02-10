@@ -138,7 +138,7 @@ public class C2026ShooterIO implements ShooterIO {
         inputs.turretMotorTemperature = turretMotor.getDeviceTemp().getValueAsDouble();
         inputs.currentTurretDraw = turretMotor.getSupplyCurrent().getValueAsDouble();
 
-        inputs.currentTurretEncoderPosition1 = turretCanCoder.getPosition().getValueAsDouble();
+        inputs.currentTurretEncoderPosition = turretCanCoder.getPosition().getValueAsDouble();
 
         inputs.currentTurretPosition = Units.rotationsToRadians(turretCanCoder.getPosition().getValueAsDouble());
 
