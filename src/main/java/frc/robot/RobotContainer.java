@@ -9,7 +9,6 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -129,7 +128,7 @@ public class RobotContainer {
                                 Rotation2d.kZero)));
 
         // Zero all subsystems
-        controller.start().onTrue(Commands.parallel(shooter.zeroHood(), intake.zeroPivot()));
+        controller.start().onTrue(Commands.parallel(shooter.zeroHood(), intake.zeroPivot(), climber.zeroClimbMotors(), climber.zeroHooks()));
 
         // Aiming and setting the target of the Shooter
         controller.rightTrigger().whileTrue(commandFactory.aimShooter(() -> !controller.y().getAsBoolean()));
