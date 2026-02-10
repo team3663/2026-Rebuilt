@@ -66,12 +66,6 @@ public class C2026IntakeIO implements IntakeIO {
         inputs.pivot1CurrentDraw = pivotMotor1.getSupplyCurrent().getValueAsDouble();
         inputs.currentPivot1Position = Units.rotationsToRadians(pivotMotor1.getPosition().getValueAsDouble());
 
-//        inputs.currentPivot2Velocity = Units.rotationsToRadians(pivotMotor2.getVelocity().getValueAsDouble());
-//        inputs.currentPivot2AppliedVoltage = pivotMotor2.getMotorVoltage().getValueAsDouble();
-//        inputs.pivot2MotorTemperature = pivotMotor2.getDeviceTemp().getValueAsDouble();
-//        inputs.pivot2CurrentDraw = pivotMotor2.getSupplyCurrent().getValueAsDouble();
-//        inputs.currentPivot2Position = Units.rotationsToRadians(pivotMotor2.getPosition().getValueAsDouble());
-
         // Intake Motor
         inputs.currentIntakeVelocity = Units.rotationsToRadians(intakeMotor.getVelocity().getValueAsDouble());
         inputs.currentIntakeAppliedVoltage = intakeMotor.getMotorVoltage().getValueAsDouble();
