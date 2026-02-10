@@ -17,8 +17,7 @@ public class ShooterInputs {
     public double currentTurretVelocity;
     public double currentTurretPosition;
 
-    public double currentTurretEncoderPosition1;
-    public double currentTurretEncoderPosition2;
+    public double currentTurretEncoderPosition;
 
     public double turretMotorTemperature;
     public double currentTurretDraw;

@@ -70,8 +70,7 @@ public class C2026RobotFactory implements RobotFactory {
                 new TalonFX(17),
                 new TalonFX(18),
                 new TalonFX(19),
-                new CANcoder(7),
-                new CANcoder(8)
+                new CANcoder(7)
         ));
     }
 }
