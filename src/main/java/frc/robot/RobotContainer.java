@@ -110,9 +110,6 @@ public class RobotContainer {
         // Zero all subsystems
         controller.start().onTrue(Commands.parallel(shooter.zeroHood(), intake.zeroPivot()));
 
-        // Stop Intake
-        controller.a().onTrue(intake.stop());
-
         // Aiming and setting the target of the Shooter
         controller.rightTrigger().whileTrue(commandFactory.aimShooter(() -> !controller.y().getAsBoolean()));
         controller.y().onTrue(Commands.runOnce(() -> shootingAtHub = !shootingAtHub));
@@ -123,6 +120,11 @@ public class RobotContainer {
         controller.leftBumper().onTrue(Commands.runOnce(() -> intakeOut = !intakeOut).andThen(commandFactory.toggleIntake(() -> intakeOut)));
         // Running the intake
         controller.leftTrigger().and(() -> intakeOut).whileTrue(intake.deployAndIntake().alongWith(hopper.withVoltage(3.0)));
+
+        // Climbing
+        controller.a().whileTrue(commandFactory.alignToTower());
+        controller.b().onTrue(intake.stow().andThen(climber.deploy()));
+        controller.x().and(() -> climber.isDeployed()).onTrue(climber.fullClimb());
     }
 
     /**
