@@ -9,11 +9,13 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.config.RobotFactory;
@@ -42,11 +44,15 @@ public class RobotContainer {
     private final Shooter shooter;
     private final Vision vision;
 
+    private final CommandFactory commandFactory;
+
     // Controller
     private final CommandXboxController controller = new CommandXboxController(0);
 
     // Dashboard inputs
     private final LoggedDashboardChooser<Command> autoChooser;
+
+    private boolean shootingAtHub = true;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -58,6 +64,10 @@ public class RobotContainer {
         this.intake = robotFactory.createIntake();
         this.shooter = robotFactory.createShooter();
         this.vision = robotFactory.createVision();
+
+        commandFactory = new CommandFactory(drive, feeder, hopper, intake, shooter
+//        , climber
+        );
 
         // Set up auto routines
         autoChooser = new LoggedDashboardChooser<>("Auto Choices", new SendableChooser<>());
@@ -74,7 +84,7 @@ public class RobotContainer {
         autoChooser.addOption(
                 "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
-        shooter.setDefaultCommand(shooter.goToWithShooter(shooter.getConstants().minimumHoodPosition(), 0.0));
+        shooter.setDefaultCommand(shooter.goToDefaultState());
 
         vision.setDefaultCommand(vision.consumeVisionMeasurements(drive::addVisionMeasurements, () -> {
             Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
@@ -116,12 +126,17 @@ public class RobotContainer {
                                 Rotation2d.k180deg :
                                 Rotation2d.kZero)));
 
+        // Intake
         controller.a().onTrue(intake.stop());
         controller.x().whileTrue(intake.intakeAndPivot(6.5, 0.0));
 
         //Hopper Controls
         controller.b().whileTrue(hopper.withVoltage(3));
         controller.y().onTrue(hopper.stop());
+
+        // Shooter Controls
+        controller.leftBumper().onTrue(Commands.runOnce(() -> shootingAtHub = !shootingAtHub));
+        controller.rightTrigger().whileTrue(commandFactory.aimShooter(() -> shootingAtHub));
     }
 
     /**

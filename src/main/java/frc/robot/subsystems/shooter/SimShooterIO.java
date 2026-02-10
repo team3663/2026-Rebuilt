@@ -7,27 +7,28 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
+import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.robot.Robot;
 
 public class SimShooterIO implements ShooterIO {
-    private static final Shooter.Constants CONSTANTS = new Shooter.Constants(0, Units.degreesToRadians(90), Units.degreesToRadians(-180), Units.degreesToRadians(180));
+    private static final Shooter.Constants CONSTANTS = new Shooter.Constants(0, Units.degreesToRadians(45.0), Units.rotationsToRadians(-3.0), Units.rotationsToRadians(3.0));
 
     private static final double HOOD_GEAR_RATIO = 1.0;
-    private static final double TURRET_GEAR_RATIO = 1.0;
+    private static final double TURRET_GEAR_RATIO = 50.0;
     private static final double SHOOTER_GEAR_RATIO = 1.0;
-    private static final double STDEV = 0.1;
+    private static final double STDEV = 0.0;
 
     private final DCMotor hoodMotor = DCMotor.getFalcon500Foc(1);
     private final DCMotor turretMotor = DCMotor.getFalcon500Foc(1);
     private final DCMotor shooterMotors = DCMotor.getFalcon500Foc(2);
 
-    private final DCMotorSim hoodSim = new DCMotorSim(LinearSystemId.createDCMotorSystem(hoodMotor, 0.01, HOOD_GEAR_RATIO), hoodMotor, STDEV, STDEV);
+    private final SingleJointedArmSim hoodSim = new SingleJointedArmSim(LinearSystemId.createDCMotorSystem(hoodMotor, 0.01, HOOD_GEAR_RATIO), hoodMotor, HOOD_GEAR_RATIO, 0.5, CONSTANTS.minimumHoodPosition(), CONSTANTS.maximumHoodPosition(), false, 0.0, STDEV, STDEV);
 
     private final ProfiledPIDController hoodController = new ProfiledPIDController(1.0, 0.0, 0.0, new TrapezoidProfile.Constraints(Units.rotationsPerMinuteToRadiansPerSecond(500.0), Units.rotationsPerMinuteToRadiansPerSecond(700.0)));
 
-    private final DCMotorSim turretSim = new DCMotorSim(LinearSystemId.createDCMotorSystem(turretMotor, 0.01, TURRET_GEAR_RATIO), turretMotor, STDEV, STDEV);
+    private final DCMotorSim turretSim = new DCMotorSim(LinearSystemId.createDCMotorSystem(turretMotor, 1.0, TURRET_GEAR_RATIO), turretMotor, STDEV, STDEV);
 
-    private final ProfiledPIDController turretController = new ProfiledPIDController(1.0, 0.0, 0.0, new TrapezoidProfile.Constraints(Units.rotationsPerMinuteToRadiansPerSecond(500.0), Units.rotationsPerMinuteToRadiansPerSecond(700.0)));
+    private final ProfiledPIDController turretController = new ProfiledPIDController(10.0, 0.0, 0.0, new TrapezoidProfile.Constraints(Units.rotationsPerMinuteToRadiansPerSecond(500.0), Units.rotationsPerMinuteToRadiansPerSecond(700.0)));
 
     private final FlywheelSim shooterSim = new FlywheelSim(LinearSystemId.createFlywheelSystem(shooterMotors, 0.1, SHOOTER_GEAR_RATIO), shooterMotors, STDEV);
 
@@ -52,7 +53,7 @@ public class SimShooterIO implements ShooterIO {
     public void updateInputs(ShooterInputs inputs) {
         double hoodVoltage = 0.0;
         if (Double.isFinite(targetHoodPosition)) {
-            hoodVoltage = hoodController.calculate(hoodSim.getAngularPositionRad(), targetHoodPosition);
+            hoodVoltage = hoodController.calculate(hoodSim.getAngleRads(), targetHoodPosition);
         } else if (Double.isFinite(targetHoodVoltage)) {
             hoodVoltage = targetHoodVoltage;
         }
@@ -61,8 +62,8 @@ public class SimShooterIO implements ShooterIO {
         hoodSim.update(Robot.defaultPeriodSecs);
 
         inputs.currentHoodAppliedVoltage = hoodSim.getInput().get(0, 0);
-        inputs.currentHoodPosition = hoodSim.getAngularPositionRad();
-        inputs.currentHoodVelocity = hoodSim.getAngularVelocityRadPerSec();
+        inputs.currentHoodPosition = hoodSim.getAngleRads();
+        inputs.currentHoodVelocity = hoodSim.getVelocityRadPerSec();
 
         double turretVoltage = 0.0;
         if (Double.isFinite(targetTurretPosition)) {

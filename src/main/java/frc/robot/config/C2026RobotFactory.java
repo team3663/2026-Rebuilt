@@ -51,7 +51,7 @@ public class C2026RobotFactory implements RobotFactory {
 
     @Override
     public Hopper createHopper() {
-        return new Hopper(new C2026HopperIO(new TalonFX(10)));
+        return new Hopper(new C2026HopperIO(new TalonFX(10), new TalonFX(20)));
     }
 
     @Override
