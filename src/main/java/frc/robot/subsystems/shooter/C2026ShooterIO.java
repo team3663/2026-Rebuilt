@@ -20,14 +20,15 @@ public class C2026ShooterIO implements ShooterIO {
     private static final double SHOOTER_GEAR_RATIO = 1.0;
     private static final double SHOOTER_WHEEL_RADIUS = Units.inchesToMeters(2.0);
 
-    // CANCoder values/ratios
-    private static final double ENCODERS_GEAR_RATIO = 1.0;
-    private static final double ENCODER_ADDITIONAL_GEAR_RATIO = 5.0;
+    // Gear Ratios
+    // TODO get actual gear ratio for ENCODER_TO_MECHANISM
+    private static final double ENCODER_TO_MECHANISM_RATIO = 1.0;
+    private static final double MOTOR_TO_ENCODER_RATIO = 2.0;
+    private static final double ENCODER_OFFSET = 0.0;
 
     private final TalonFX hoodMotor;
     private final TalonFX turretMotor;
-    private final CANcoder turretCanCoder1;
-    private final CANcoder turretCanCoder2;
+    private final CANcoder turretCanCoder;
     private final TalonFX shooterMotor;
     private final TalonFX shooterMotor2;
 
@@ -37,11 +38,10 @@ public class C2026ShooterIO implements ShooterIO {
     private final NeutralOut stopRequest = new NeutralOut();
 
     public C2026ShooterIO(TalonFX hoodMotor, TalonFX turretMotor, TalonFX shooterMotor, TalonFX shooterMotor2,
-                          CANcoder turretCanCoder1, CANcoder turretCanCoder2) {
+                          CANcoder turretCanCoder) {
         this.hoodMotor = hoodMotor;
         this.turretMotor = turretMotor;
-        this.turretCanCoder1 = turretCanCoder1;
-        this.turretCanCoder2 = turretCanCoder2;
+        this.turretCanCoder = turretCanCoder;
         this.shooterMotor = shooterMotor;
         this.shooterMotor2 = shooterMotor2;
 
@@ -49,13 +49,11 @@ public class C2026ShooterIO implements ShooterIO {
         // CANCoder config
         CANcoderConfiguration canCoderConfig = new CANcoderConfiguration();
         canCoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-        canCoderConfig.MagnetSensor.MagnetOffset = ENCODERS_GEAR_RATIO;
+        canCoderConfig.MagnetSensor.MagnetOffset = ENCODER_OFFSET;
 
-        turretCanCoder1.getConfigurator().apply(canCoderConfig);
+        turretCanCoder.getConfigurator().apply(canCoderConfig);
 
         canCoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-
-        turretCanCoder2.getConfigurator().apply(canCoderConfig);
 
         // Hood motor config
         TalonFXConfiguration hoodConfig = new TalonFXConfiguration();
@@ -82,6 +80,8 @@ public class C2026ShooterIO implements ShooterIO {
         turretConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         turretConfig.CurrentLimits.SupplyCurrentLimit = 60;
         turretConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+        turretConfig.Feedback.SensorToMechanismRatio = ENCODER_TO_MECHANISM_RATIO;
+        turretConfig.Feedback.RotorToSensorRatio = MOTOR_TO_ENCODER_RATIO;
 
         turretConfig.Slot0.kV = 0.0;
         turretConfig.Slot0.kA = 0.0;
@@ -94,10 +94,6 @@ public class C2026ShooterIO implements ShooterIO {
 //        shooterConfig.MotionMagic.MotionMagicCruiseVelocity = 2.0;
 
         turretMotor.getConfigurator().apply(turretConfig);
-
-        turretMotor.setPosition(getTurretAngleFromEncoders(
-                Units.rotationsToRadians(turretCanCoder1.getPosition().getValueAsDouble()),
-                Units.rotationsToRadians(turretCanCoder2.getPosition().getValueAsDouble())));
 
         // Shooter motors config
         TalonFXConfiguration shooterConfig = new TalonFXConfiguration();
@@ -123,24 +119,6 @@ public class C2026ShooterIO implements ShooterIO {
         shooterMotor2.setControl(new Follower(shooterMotor.getDeviceID(), MotorAlignmentValue.Opposed));
     }
 
-    public static double getTurretAngleFromEncoders(double e1, double e2) {
-        double e1Degrees = Units.radiansToDegrees(e1);
-        double e2Degrees = Units.radiansToDegrees(e2);
-
-        double additionalRotations = e2Degrees * ENCODER_ADDITIONAL_GEAR_RATIO / 360.0;
-        int additionalDegreesFloor = ((int) additionalRotations) * 360;
-        double turretAngleDegrees = e1Degrees + additionalDegreesFloor;
-
-        double error = e1Degrees - (e2Degrees * ENCODER_ADDITIONAL_GEAR_RATIO % 360);
-        if (error > 180.0) {
-            turretAngleDegrees -= 360.0;
-        } else if (error < -180.0) {
-            turretAngleDegrees += 360.0;
-        }
-
-        return Units.degreesToRadians(turretAngleDegrees);
-    }
-
     @Override
     public Shooter.Constants getConstants() {
         return constants;
@@ -161,12 +139,9 @@ public class C2026ShooterIO implements ShooterIO {
         inputs.turretMotorTemperature = turretMotor.getDeviceTemp().getValueAsDouble();
         inputs.currentTurretDraw = turretMotor.getSupplyCurrent().getValueAsDouble();
 
-        inputs.currentTurretEncoderPosition1 = turretCanCoder1.getPosition().getValueAsDouble();
-        inputs.currentTurretEncoderPosition2 = turretCanCoder2.getPosition().getValueAsDouble();
+        inputs.currentTurretEncoderPosition = turretCanCoder.getPosition().getValueAsDouble();
 
-        inputs.currentTurretPosition = getTurretAngleFromEncoders(
-                Units.rotationsToRadians(turretCanCoder1.getPosition().getValueAsDouble()),
-                Units.rotationsToRadians(turretCanCoder2.getPosition().getValueAsDouble()));
+        inputs.currentTurretPosition = Units.rotationsToRadians(turretCanCoder.getPosition().getValueAsDouble());
 
         // Shooter Motor 1
         inputs.currentShooterAppliedVoltage1 = shooterMotor.getMotorVoltage().getValueAsDouble();

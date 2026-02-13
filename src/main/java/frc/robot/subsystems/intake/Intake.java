@@ -68,7 +68,7 @@ public class Intake extends SubsystemBase {
     public Command followPivotPositions(DoubleSupplier position) {
         return run(() -> {
             if (pivotZeroed) {
-                targetPivotPosition = getValidPivotPosition(getPivotPosition());
+                targetPivotPosition = getValidPivotPosition(position.getAsDouble());
                 io.setTargetPivotPosition(targetPivotPosition);
             }
         });
@@ -80,7 +80,6 @@ public class Intake extends SubsystemBase {
     public Command zeroPivot() {
         return runEnd(() -> {
             io.setTargetPivotVoltage(-1.5);
-            io.setTargetPivotPosition(constants.minimumPivotAngle);
         }, io::stopPivot)
                 .withDeadline(waitUntil(() -> Math.abs(inputs.currentPivot1Velocity) < 0.01)
                         .beforeStarting(waitSeconds(0.25))

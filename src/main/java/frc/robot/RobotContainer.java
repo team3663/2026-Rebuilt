@@ -22,8 +22,12 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.hopper.Hopper;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.led.Led;
 import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.vision.Vision;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+
+import java.util.Optional;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -39,6 +43,8 @@ public class RobotContainer {
     private final Intake intake;
     private final Shooter shooter;
     private final AutoPaths autoPaths;
+    private final Vision vision;
+    private final Led led;
 
     private final CommandFactory commandFactory;
 
@@ -59,6 +65,9 @@ public class RobotContainer {
         this.hopper = robotFactory.createHopper();
         this.intake = robotFactory.createIntake();
         this.shooter = robotFactory.createShooter();
+        this.vision = robotFactory.createVision();
+        this.led = robotFactory.createLed();
+
         commandFactory = new CommandFactory(drive, feeder, hopper, intake, shooter
 //        , climber
         );
@@ -92,10 +101,25 @@ public class RobotContainer {
         autoChooser.addOption("LeftUnderTrench2ft-AllianceSideNeutralZone-RightClimb", autoPaths.leftStarting_neutralZone_AllianceSide_rightClimb());
         autoChooser.addOption("RightUnderTrench2ft-AllianceSideNeutralZone-LeftClimb", autoPaths.rightStarting_neutralZone_AllianceSide_leftClimb());
 
-        shooter.setDefaultCommand(shooter.goToDefaultState());
-
         // Configure the button bindings
         configureButtonBindings();
+
+        shooter.setDefaultCommand(shooter.goToDefaultState());
+
+        vision.setDefaultCommand(vision.consumeVisionMeasurements(drive::addVisionMeasurements, () -> {
+            Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+
+            if (alliance.isPresent() && DriverStation.isDisabled()) {
+                if (alliance.get() == DriverStation.Alliance.Red) {
+                    return Rotation2d.fromDegrees(0);
+                }
+                else
+                    return Rotation2d.fromDegrees(180);
+            }
+            else {
+                return drive.getRotation();
+            }
+        }));
     }
 
     /**
@@ -120,8 +144,6 @@ public class RobotContainer {
                                 Rotation2d.k180deg :
                                 Rotation2d.kZero)));
 
-        controller.start().onTrue(Commands.parallel(shooter.zeroHood()));
-
         // Intake
         controller.a().onTrue(intake.stop());
         controller.x().whileTrue(intake.intakeAndPivot(6.5, 0.0));
@@ -133,8 +155,6 @@ public class RobotContainer {
         // Shooter Controls
         controller.leftBumper().onTrue(Commands.runOnce(() -> shootingAtHub = !shootingAtHub));
         controller.rightTrigger().whileTrue(commandFactory.aimShooter(() -> shootingAtHub));
-
-//         controller.x().whileTrue(shooter.runShooter(-8.5));
     }
 
     /**
