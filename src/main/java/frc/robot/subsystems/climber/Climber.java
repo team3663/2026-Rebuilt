@@ -1,5 +1,6 @@
 package frc.robot.subsystems.climber;
 
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
@@ -8,31 +9,34 @@ import static edu.wpi.first.wpilibj2.command.Commands.waitSeconds;
 import static edu.wpi.first.wpilibj2.command.Commands.waitUntil;
 
 public class Climber extends SubsystemBase {
-    private static final double HOOKS_POSITION_THRESHOLD = 0.2;
-    private static final double CLIMB_POSITION_THRESHOLD = 0.2;
-    //TODO double check the values for how much robot has to pull itself up by
-    public static final double LEVEL_1_CLIMB_HEIGHT = 20.5;
-    public static final double LEVEL_2_CLIMB_HEIGHT = 19.0;
-    public static final double LEVEL_3_CLIMB_HEIGHT = 19.1;
+    private static final double HOOKS_POSITION_THRESHOLD = Units.inchesToMeters(0.1);
+    private static final double CLIMB_POSITION_THRESHOLD = Units.inchesToMeters(0.1);
+    //TODO when its figured out add the distance the elevator has to travel after the upper hook makes contact to clear the rung
+    public static final double LEVEL_1_CLIMB_HEIGHT = Units.inchesToMeters(22.0);
 
-    //this is the amount that the elevator will pull itself up in order for the lower hooks to latch so it is subject to change
-    public static final double DISTANCE_FROM_ELEVATOR_BASE_TO_LOWER_HOOKS_LATCH_POSITION = 21.0;
+            ;
+    public static final double LEVEL_2_CLIMB_HEIGHT = Units.inchesToMeters(19.0);
+    public static final double LEVEL_3_CLIMB_HEIGHT = Units.inchesToMeters(19.1);
+
+    //TODO when its figured out add the distance the elevator has to travel after the lower hook makes contact to clear the rung
+    public static final double ELEVATOR_BASE_TO_LOWER_HOOKS_POSITION = Units.inchesToMeters(21.0);
+    public static final double HALF_LIFT = Units.inchesToMeters(10);
 
 
     private final ClimberIO io;
     private final ClimberInputsAutoLogged inputs = new ClimberInputsAutoLogged();
     private final Constants constants;
 
-    private double targetDeployVoltage;
+    private double targetHooksVoltage;
     private double targetClimbVoltage;
 
     //TODO will need to include both hooks target positions
-    private double targetDeployPosition;
+    private double targetHooksPosition;
     private double targetClimbPosition;
 
-    private boolean deployZeroed = false;
+    private boolean hooksZeroed = false;
     private boolean climbZeroed = false;
-    public boolean deployed = false;
+    public boolean hooksDeployed = false;
 
     public Climber(ClimberIO io) {
         this.io = io;
@@ -43,12 +47,12 @@ public class Climber extends SubsystemBase {
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs("Climber/inputs", inputs);
-        Logger.recordOutput("Climber/deployVoltage", targetDeployVoltage);
-        Logger.recordOutput("CLimber/deployPosition", targetDeployPosition);
-        Logger.recordOutput("Climber/deployVelocity", deployZeroed);
+        Logger.recordOutput("Climber/targetHooksVoltage", targetHooksVoltage);
+        Logger.recordOutput("CLimber/targetHooksPosition", targetHooksPosition);
+        Logger.recordOutput("Climber/hooksVelocity", hooksZeroed);
 
-        Logger.recordOutput("Climber/climbVoltage", targetClimbVoltage);
-        Logger.recordOutput("CLimber/climbPosition", targetClimbPosition);
+        Logger.recordOutput("Climber/targetClimbVoltage", targetClimbVoltage);
+        Logger.recordOutput("CLimber/targetClimbPosition", targetClimbPosition);
         Logger.recordOutput("Climber/climbVelocity", climbZeroed);
 
     }
@@ -56,7 +60,7 @@ public class Climber extends SubsystemBase {
     /**DEPLOY HOOKS**/
     public Command deployHooksWithVoltage(double voltage) {
         return runEnd(() -> {
-            targetDeployVoltage = voltage;
+            targetHooksVoltage = voltage;
             io.setTargetUpperHooksVoltage(voltage);
             io.setTargetLowerHooksVoltage(voltage);
             },
@@ -65,34 +69,30 @@ public class Climber extends SubsystemBase {
             io.stopLowerHooks();});
     }
 
+    public Command zeroHooks(){
+        return runOnce(() -> {
+            io.setTargetUpperHooksVoltage(-1.0);
+            io.setTargetLowerHooksVoltage(-1.0);
+        }).until(() -> inputs.currentUpperHooksMotorVelocity < Units.rotationsPerMinuteToRadiansPerSecond(0.1) &&
+                inputs.currentLowerHooksMotorVelocity < Units.rotationsPerMinuteToRadiansPerSecond(0.1)
+        ).andThen(() -> io.resetHooksPosition(0.0, 0.0));
+    }
 
-    //TODO if using position establish this method
     public Command deployHooks() {
-        return null;
-    }
-    //TODO figure out if lower/upper hooks have a hard stop on either end
-    public Command zeroDeploy() {
-        return runEnd(() -> {
-            io.setTargetUpperHooksVoltage(-1.5);
-            io.setTargetLowerHooksVoltage(-1.5);
-            targetDeployPosition = 0.0;
-        }, () -> {
-                io.stopUpperHooks();
-                io.stopLowerHooks();})
-                .withDeadline(waitUntil(() -> Math.abs(inputs.currentUpperHooksMotorVelocity) < 0.01)
-                        .beforeStarting(waitSeconds(0.25))
-                        .andThen(() -> {
-                            io.resetHooksPosition(0.0, 0.0);
-                            deployZeroed = true;
-                        }));
+        return runOnce(() -> {
+            io.setTargetUpperHooksVoltage(1.0);
+            io.setTargetLowerHooksVoltage(1.0);
+        }).until(() -> inputs.currentUpperHooksMotorVelocity < Units.rotationsPerMinuteToRadiansPerSecond(0.1) &&
+                inputs.currentLowerHooksMotorVelocity < Units.rotationsPerMinuteToRadiansPerSecond(0.1)
+        ).andThen(() -> hooksDeployed = true);
     }
 
-    public double getTargetDeployVoltage() {
-        return targetDeployVoltage;
+    public double getTargetHooksVoltage() {
+        return targetHooksVoltage;
     }
 
-    public double getTargetDeployPosition() {
-        return targetDeployPosition;
+    public double getTargetHooksPosition() {
+        return targetHooksPosition;
     }
 
     /**CLIMB**/
@@ -115,7 +115,7 @@ public class Climber extends SubsystemBase {
         return runEnd(() -> {
             io.setTargetClimbVoltage(-1.5);
             targetClimbPosition = 0.0;
-        }, io::stopClimb).withDeadline(waitUntil(() -> Math.abs(inputs.currentClimbMotor1Velocity) < 0.01)
+        }, io::stopClimb).withDeadline(waitUntil(() -> Math.abs(inputs.currentClimbMotor1Velocity) < Units.rotationsPerMinuteToRadiansPerSecond(0.01))
                 .beforeStarting(waitSeconds(.25))
                 .andThen(() -> {
                     io.resetClimbPosition(0.0);
@@ -126,30 +126,33 @@ public class Climber extends SubsystemBase {
     public double getTargetClimbPosition() {
         return targetClimbPosition;
     }
+
     public Command deploy(){
         return runOnce(()->{
                     io.goToPosition(LEVEL_1_CLIMB_HEIGHT);
                     io.deployHooks();
                 });
     }
-    public boolean getDeployed(){
-        return elevatorAtPosition(LEVEL_1_CLIMB_HEIGHT) && hooksAtPosition(180.0, 90.0);
+    public boolean isDeployed(){
+        return elevatorAtPosition(LEVEL_1_CLIMB_HEIGHT) && hooksAtPosition(Units.degreesToRadians(90.0), Units.degreesToRadians(90.0));
     }
 
     public Command fullClimb(double targetClimbHeight) {
         return runOnce(() -> {
-            io.goToPosition(-10.0);
+            io.goToPosition(LEVEL_1_CLIMB_HEIGHT);
+            deployHooks();
+            io.goToPosition(-HALF_LIFT);
         }).andThen(() -> {
             if (targetClimbHeight != LEVEL_1_CLIMB_HEIGHT) {
-                io.goToPosition(-DISTANCE_FROM_ELEVATOR_BASE_TO_LOWER_HOOKS_LATCH_POSITION + 10.0);
+                io.goToPosition(-ELEVATOR_BASE_TO_LOWER_HOOKS_POSITION + HALF_LIFT);
                 io.goToPosition(LEVEL_2_CLIMB_HEIGHT);
-                io.goToPosition(LEVEL_2_CLIMB_HEIGHT - 10.0);
+                io.goToPosition(LEVEL_2_CLIMB_HEIGHT - HALF_LIFT);
             }
         }).andThen(() -> {
             if (targetClimbHeight == LEVEL_3_CLIMB_HEIGHT) {
-                io.goToPosition(-DISTANCE_FROM_ELEVATOR_BASE_TO_LOWER_HOOKS_LATCH_POSITION + 10.0);
+                io.goToPosition(-ELEVATOR_BASE_TO_LOWER_HOOKS_POSITION + HALF_LIFT);
                 io.goToPosition(LEVEL_3_CLIMB_HEIGHT);
-                io.goToPosition(-DISTANCE_FROM_ELEVATOR_BASE_TO_LOWER_HOOKS_LATCH_POSITION);
+                io.goToPosition(-ELEVATOR_BASE_TO_LOWER_HOOKS_POSITION);
             }
         });
     }
@@ -158,14 +161,14 @@ public class Climber extends SubsystemBase {
         return runOnce(() -> {
             io.goToPosition(LEVEL_1_CLIMB_HEIGHT);
             deployHooks();
-            io.goToPosition(-10.0);
+            io.goToPosition(-HALF_LIFT);
                 }
         );
     }
 
     public Command releaseClimb(){
         return runOnce(() -> {
-           io.goToPosition(12.0);
+           io.goToPosition(Units.inchesToMeters(24.0));
            io.retractHooks();
            this.zeroClimbMotors();
         });
@@ -173,9 +176,9 @@ public class Climber extends SubsystemBase {
 
     public Command stop() {
         return runOnce(() -> {
-            targetDeployVoltage = 0.0;
+            targetHooksVoltage = 0.0;
             targetClimbVoltage = 0.0;
-            targetDeployPosition = 0.0;
+            targetHooksPosition = 0.0;
             targetClimbPosition = 0.0;
             io.stopUpperHooks();
             io.stopLowerHooks();

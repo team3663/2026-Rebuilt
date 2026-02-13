@@ -1,10 +1,7 @@
 package frc.robot.subsystems.climber;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.NeutralOut;
-import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -18,8 +15,8 @@ public class C2026ClimberIO implements ClimberIO {
     private static final double DEPLOY_GEAR_RATIO = 1.0;
     private static final double CLIMB_GEAR_RATIO = 1.0;
 
-    private static final double LOWER_HOOKS_DEPLOY_ANGLE = 180;
-    private static final double UPPER_HOOKS_DEPLOY_ANGLE = 90;
+    private static final double LOWER_HOOKS_DEPLOY_ANGLE = Units.degreesToRadians(90.0);
+    private static final double UPPER_HOOKS_DEPLOY_ANGLE = Units.degreesToRadians(90.0);
 
     private final TalonFX upperHooksMotor;
     private final TalonFX lowerHooksMotor;
@@ -136,32 +133,30 @@ public class C2026ClimberIO implements ClimberIO {
     /**POSITION**/
     @Override
     public void goToPosition(double position) {
-        climbMotor1.setControl(positionRequest.withPosition(Units.inchesToMeters(position)));
-        climbMotor2.setControl(positionRequest.withPosition(Units.inchesToMeters(position)));
+        climbMotor1.setControl(positionRequest.withPosition(position));
+        climbMotor2.setControl(positionRequest.withPosition(position));
     }
     @Override
     public void setTargetUpperHooksPosition(double degrees) {
-        upperHooksMotor.setControl(positionRequest.withPosition(Units.degreesToRadians(degrees)));
+        upperHooksMotor.setControl(positionRequest.withPosition(degrees));
     }
     @Override
     public void setTargetLowerHooksPosition(double degrees) {
-        lowerHooksMotor.setControl(positionRequest.withPosition(Units.degreesToRadians(degrees)));
+        lowerHooksMotor.setControl(positionRequest.withPosition(degrees));
     }
-
-    //TODO if lower hooks have a horizontal slide-in then this needs to change
     @Override
     public void deployHooks(){
-        lowerHooksMotor.setControl(positionRequest.withPosition(Units.degreesToRadians(LOWER_HOOKS_DEPLOY_ANGLE)));
-        upperHooksMotor.setControl(positionRequest.withPosition(Units.degreesToRadians(UPPER_HOOKS_DEPLOY_ANGLE)));
+        lowerHooksMotor.setControl(positionRequest.withPosition(LOWER_HOOKS_DEPLOY_ANGLE));
+        upperHooksMotor.setControl(positionRequest.withPosition(UPPER_HOOKS_DEPLOY_ANGLE));
     }
     @Override
     public void resetHooksPosition(double upperHooksPosition, double lowerHooksPosition) {
-        upperHooksMotor.setPosition(Units.degreesToRotations(upperHooksPosition));
-        lowerHooksMotor.setPosition(Units.degreesToRotations(lowerHooksPosition));
+        upperHooksMotor.setPosition(upperHooksPosition);
+        lowerHooksMotor.setPosition(lowerHooksPosition);
     }
     @Override
     public void resetClimbPosition(double position) {
-        climbMotor1.setPosition(Units.degreesToRotations(position));
+        climbMotor1.setPosition(position);
     }
 
 

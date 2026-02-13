@@ -38,7 +38,7 @@ public class RobotContainer {
     private final Hopper hopper;
     private final Intake intake;
     private final Shooter shooter;
-//    private final Climber climber;
+    private final Climber climber;
 
     // Controller
     private final CommandXboxController controller = new CommandXboxController(0);
@@ -55,6 +55,7 @@ public class RobotContainer {
         this.hopper = robotFactory.createHopper();
         this.intake = robotFactory.createIntake();
         this.shooter = robotFactory.createShooter();
+        this.climber = robotFactory.createClimber();
 
         // Set up auto routines
         autoChooser = new LoggedDashboardChooser<>("Auto Choices", new SendableChooser<>());
@@ -105,6 +106,7 @@ public class RobotContainer {
         //Hopper Controls
         controller.b().whileTrue(hopper.withVoltage(3));
         controller.y().onTrue(hopper.stop());
+        controller.leftTrigger().onTrue(climber.fullClimb(Climber.LEVEL_3_CLIMB_HEIGHT));
     }
 
     /**
