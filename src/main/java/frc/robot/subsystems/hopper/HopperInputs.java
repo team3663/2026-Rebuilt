@@ -9,4 +9,10 @@ public class HopperInputs {
 
     public double motorTemperature;
     public double motorSupplyCurrent;
+
+    public double corneringMotorCurentVelocity;
+    public double corneringMotorCurrentAppliedVoltage;
+
+    public double corneringMotorTemperature;
+    public double corneringMotorSupplyCurrent;
 }

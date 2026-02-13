@@ -9,6 +9,8 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.Unit;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -131,15 +133,15 @@ public class RobotContainer {
 
         // Intake
         controller.a().onTrue(intake.stop());
-        controller.x().whileTrue(intake.intakeAndPivot(6.5, 0.0));
+        controller.y().onTrue(intake.zeroPivot());
+        controller.x().whileTrue(intake.intakeAndPivot(4.0, Units.degreesToRadians(0.0)));
 
         //Hopper Controls
-        controller.b().whileTrue(hopper.withVoltage(3));
-        controller.y().onTrue(hopper.stop());
+        controller.b().whileTrue(hopper.withVoltage(6.0, 6.0));
 
         // Shooter Controls
-        controller.leftBumper().onTrue(Commands.runOnce(() -> shootingAtHub = !shootingAtHub));
-        controller.rightTrigger().whileTrue(commandFactory.aimShooter(() -> shootingAtHub));
+//        controller.leftBumper().onTrue(Commands.runOnce(() -> shootingAtHub = !shootingAtHub));
+//        controller.rightTrigger().whileTrue(commandFactory.aimShooter(() -> shootingAtHub));
     }
 
     /**

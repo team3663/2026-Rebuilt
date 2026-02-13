@@ -1,24 +1,22 @@
 package frc.robot.subsystems.hopper;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 public class C2026HopperIO implements HopperIO {
     private final TalonFX motor;
-    private final TalonFX motor2;
+    private final TalonFX corneringMotor;
 
     private final NeutralOut stopRequest = new NeutralOut();
     private final VoltageOut voltageRequest = new VoltageOut(0.0);
 
-    public C2026HopperIO(TalonFX motor, TalonFX motor2) {
+    public C2026HopperIO(TalonFX motor, TalonFX corneringMotor) {
         this.motor = motor;
-        this.motor2 = motor2;
+        this.corneringMotor = corneringMotor;
 
         TalonFXConfiguration config = new TalonFXConfiguration();
 
@@ -28,9 +26,7 @@ public class C2026HopperIO implements HopperIO {
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
         motor.getConfigurator().apply(config);
-        motor2.getConfigurator().apply(config);
-
-        motor2.setControl(new Follower(motor.getDeviceID(), MotorAlignmentValue.Aligned));
+        corneringMotor.getConfigurator().apply(config);
     }
 
     @Override
@@ -40,15 +36,23 @@ public class C2026HopperIO implements HopperIO {
 
         inputs.motorTemperature = motor.getDeviceTemp().getValueAsDouble();
         inputs.motorSupplyCurrent = motor.getSupplyCurrent().getValueAsDouble();
+
+        inputs.corneringMotorCurentVelocity = corneringMotor.getVelocity().getValueAsDouble();
+        inputs.corneringMotorCurrentAppliedVoltage = corneringMotor.getSupplyVoltage().getValueAsDouble();
+
+        inputs.corneringMotorTemperature = corneringMotor.getDeviceTemp().getValueAsDouble();
+        inputs.corneringMotorSupplyCurrent = corneringMotor.getSupplyCurrent().getValueAsDouble();
     }
 
     @Override
-    public void setTargetVoltage(double voltage) {
+    public void setTargetVoltage(double voltage, double corneringVoltage) {
         motor.setControl(voltageRequest.withOutput(voltage));
+        corneringMotor.setControl(voltageRequest.withOutput(corneringVoltage));
     }
 
     @Override
     public void stop() {
         motor.setControl(stopRequest);
+        corneringMotor.setControl(stopRequest);
     }
 }
