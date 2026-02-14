@@ -51,9 +51,4 @@ public class C2025RobotFactory implements RobotFactory {
                 new LimelightIO("limelight", frontLeftTransform, false)
         );
     }
-
-    @Override
-    public Led createLed() {
-        return new Led(new LedCandleIo(new CANdle(1)));
-    }
 }

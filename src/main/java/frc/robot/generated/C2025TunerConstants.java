@@ -24,7 +24,7 @@ public class C2025TunerConstants {
     // When using closed-loop control, the drive motor uses the control
     // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
     private static final Slot0Configs driveGains = new Slot0Configs()
-        .withKP(0.1).withKI(0).withKD(0)
+        .withKP(1).withKI(0).withKD(0)
         .withKS(0).withKV(0.124);
 
     // The closed-loop output type to use for the steer motors;
@@ -74,9 +74,9 @@ public class C2025TunerConstants {
     // This may need to be tuned to your individual robot
     private static final double kCoupleRatio = 3.125;
 
-    private static final double kDriveGearRatio = 5.902777777777778;
+    private static final double kDriveGearRatio = (50.0 / 16.0) * (16.0 / 28.0) * (45.0 / 15.0);
     private static final double kSteerGearRatio = 18.75;
-    private static final Distance kWheelRadius = Inches.of(2);
+    private static final Distance kWheelRadius = Inches.of(1.93);
 
     private static final boolean kInvertLeftSide = false;
     private static final boolean kInvertRightSide = true;
@@ -127,8 +127,8 @@ public class C2025TunerConstants {
     private static final boolean kFrontLeftSteerMotorInverted = true;
     private static final boolean kFrontLeftEncoderInverted = false;
 
-    private static final Distance kFrontLeftXPos = Inches.of(11);
-    private static final Distance kFrontLeftYPos = Inches.of(11);
+    private static final Distance kFrontLeftXPos = Inches.of(10.875);
+    private static final Distance kFrontLeftYPos = Inches.of(10.875);
 
     // Front Right
     private static final int kFrontRightDriveMotorId = 3;
@@ -138,8 +138,8 @@ public class C2025TunerConstants {
     private static final boolean kFrontRightSteerMotorInverted = true;
     private static final boolean kFrontRightEncoderInverted = false;
 
-    private static final Distance kFrontRightXPos = Inches.of(11);
-    private static final Distance kFrontRightYPos = Inches.of(-11);
+    private static final Distance kFrontRightXPos = Inches.of(10.875);
+    private static final Distance kFrontRightYPos = Inches.of(-10.875);
 
     // Back Left
     private static final int kBackLeftDriveMotorId = 5;
@@ -149,8 +149,8 @@ public class C2025TunerConstants {
     private static final boolean kBackLeftSteerMotorInverted = true;
     private static final boolean kBackLeftEncoderInverted = false;
 
-    private static final Distance kBackLeftXPos = Inches.of(-11);
-    private static final Distance kBackLeftYPos = Inches.of(11);
+    private static final Distance kBackLeftXPos = Inches.of(-10.875);
+    private static final Distance kBackLeftYPos = Inches.of(10.875);
 
     // Back Right
     private static final int kBackRightDriveMotorId = 7;
@@ -160,8 +160,8 @@ public class C2025TunerConstants {
     private static final boolean kBackRightSteerMotorInverted = true;
     private static final boolean kBackRightEncoderInverted = false;
 
-    private static final Distance kBackRightXPos = Inches.of(-11);
-    private static final Distance kBackRightYPos = Inches.of(-11);
+    private static final Distance kBackRightXPos = Inches.of(-10.875);
+    private static final Distance kBackRightYPos = Inches.of(-10.875);
 
 
     public static final SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> FrontLeft =

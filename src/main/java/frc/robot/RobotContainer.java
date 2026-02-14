@@ -44,7 +44,6 @@ public class RobotContainer {
     private final Shooter shooter;
     private final AutoPaths autoPaths;
     private final Vision vision;
-    private final Led led;
 
     private final CommandFactory commandFactory;
 
@@ -66,7 +65,6 @@ public class RobotContainer {
         this.intake = robotFactory.createIntake();
         this.shooter = robotFactory.createShooter();
         this.vision = robotFactory.createVision();
-        this.led = robotFactory.createLed();
 
         commandFactory = new CommandFactory(drive, feeder, hopper, intake, shooter
 //        , climber
@@ -88,6 +86,7 @@ public class RobotContainer {
                 "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
         autoChooser.addOption(
                 "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+        autoChooser.addOption("Test Auto", autoPaths.testAuto());
         autoChooser.addOption("LeftInFrontOfBump5ft-Depot-LeftClimb", autoPaths.leftSide_depot_leftClimb());
         autoChooser.addOption("RightAllianceZone2ft-Outpost-RightClimb", autoPaths.rightSide_outpost_rightClimb());
         autoChooser.addOption("LeftUnderTrench2ft-NeutralZone", autoPaths.leftStarting_neutralZone_middleLine());

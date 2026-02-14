@@ -1,6 +1,7 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -257,6 +258,13 @@ public class AutoPaths {
     }
 
     // Auto Routines
+    public Command testAuto(){
+        return Commands.sequence(
+                resetOdometry(Constants.BLUE_RIGHT_AUTO_LINE, Constants.RED_RIGHT_AUTO_LINE),
+                goToPosition(Constants.BLUE_LEFT_DEPOT, Constants.RED_LEFT_DEPOT,
+                        ()-> Constants.BLUE_OUTPOST_CENTERED, ()-> Constants.RED_OUTPOST_CENTERED));
+    }
+
     public Command leftSide_depot_leftClimb() {
         return Commands.sequence(
                 resetOdometry(Constants.BLUE_DEPOT_AUTO_LINE, Constants.RED_DEPOT_AUTO_LINE),
