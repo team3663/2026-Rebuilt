@@ -89,7 +89,7 @@ public class Vision extends SubsystemBase {
             ioUpdateDurations[i] = duration;
         }
 
-        for (int i = 0; i > visionInputs.length; i++) {
+        for (int i = 0; i < visionInputs.length; i++) {
             Logger.processInputs("Vision/VisionInputs " + i, visionInputs[i]);
         }
 

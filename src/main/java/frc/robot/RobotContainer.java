@@ -118,7 +118,7 @@ public class RobotContainer {
             else {
                 return drive.getRotation();
             }
-        }));
+        }).ignoringDisable(true));
     }
 
     /**
