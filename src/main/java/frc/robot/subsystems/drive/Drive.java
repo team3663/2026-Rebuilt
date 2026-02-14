@@ -414,9 +414,7 @@ public class Drive extends SubsystemBase {
                                     maxVelocity.get());
                             var velocity = new Translation2d(-linearVelocity, error.getAngle());
                             var angularVel = rotationController.calculate(
-                                    current.getRotation().getRadians(),
-                                    MathUtil.interpolate(previousPose.getRotation().getRadians(),
-                                            targetPose.get().getRotation().getRadians(), 1.0));
+                                    current.getRotation().getRadians(), target.getRotation().getRadians());
 
                             return ChassisSpeeds.fromFieldRelativeSpeeds(
                                     velocity.getX(),

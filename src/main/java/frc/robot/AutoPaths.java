@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
@@ -69,10 +70,11 @@ public class AutoPaths {
      * @param targetPose               the target position of the robot
      * @param intermediatePoseSupplier a supplier that is possibly {@code null} of intermediate positions to travel to
      * @see #goToPosition(Pose2d, Pose2d)
-     * @see #goToPosition(Pose2d)
+     * @see #goToPosition(Pose2d, double)
      */
-    private Command goToPosition(Supplier<Pose2d> targetPose, Supplier<Pose2d> intermediatePoseSupplier, BooleanSupplier slowAccel) {
+    private Command goToPosition(Supplier<Pose2d> targetPose, Supplier<Pose2d> intermediatePoseSupplier, BooleanSupplier slowAccel, double angleDistanceThreshold) {
         Pose2d[] intermediateHolder = new Pose2d[]{null};
+        Pose2d[] startingPose = new Pose2d[]{null};
 
         return drive.goToPosition(() -> {
                             Pose2d target;
@@ -80,14 +82,21 @@ public class AutoPaths {
                                 target = intermediateHolder[0];
                             else
                                 target = targetPose.get();
+
+                            var distanceStartToTarget = startingPose[0].getTranslation().getDistance(target.getTranslation());
+                            var distanceCurrentToTarget = drive.getPose().getTranslation().getDistance(target.getTranslation());
+                            var t = MathUtil.inverseInterpolate(angleDistanceThreshold, distanceStartToTarget, distanceCurrentToTarget);
+
                             goToPositionTarget = target;
-                            return target;
+                            return new Pose2d(goToPositionTarget.getTranslation(),
+                                    target.getRotation().interpolate(startingPose[0].getRotation(), t));
                         },
                         () -> slowAccel.getAsBoolean(),
                         () -> drive.getMaxLinearSpeedMetersPerSec())
                 .beforeStarting(() -> {
                     if (intermediatePoseSupplier != null) intermediateHolder[0] = intermediatePoseSupplier.get();
                     else Commands.none();
+                    startingPose[0] = drive.getPose();
                 });
     }
 
@@ -99,10 +108,10 @@ public class AutoPaths {
      *
      * @param targetPose the target position of the robot
      * @see #goToPosition(Pose2d, Pose2d)
-     * @see #goToPosition(Supplier, Supplier, BooleanSupplier)
+     * @see #goToPosition(Supplier, Supplier, BooleanSupplier, double)
      */
-    private Command goToPosition(Pose2d targetPose) {
-        return goToPosition(() -> targetPose, () -> null, () -> false);
+    private Command goToPosition(Pose2d targetPose, double angleDistanceThreshold) {
+        return goToPosition(() -> targetPose, () -> null, () -> false, angleDistanceThreshold);
     }
 
     /**
@@ -113,13 +122,17 @@ public class AutoPaths {
      *
      * @param blueTargetPose target position of the robot if on blue alliance
      * @param redTargetPose  target position of the robot if on red alliance
-     * @see #goToPosition(Pose2d)
+     * @see #goToPosition(Pose2d, double)
      */
     private Command goToPosition(Pose2d blueTargetPose, Pose2d redTargetPose) {
-        return goToPosition(alliancePose(blueTargetPose, redTargetPose));
+        return goToPosition(alliancePose(blueTargetPose, redTargetPose), 0.0);
     }
 
-    private Command goToPosition(Pose2d blueTargetPose, Pose2d redTargetPose, Supplier<Pose2d> blueAllianceIntermediateSupplier, Supplier<Pose2d> redAllianceIntermediateSupplier) {
+    private Command goToPosition(Pose2d blueTarget, Pose2d redTargetPose, double angleDistanceThreshold){
+        return goToPosition(alliancePose(blueTarget, redTargetPose), angleDistanceThreshold);
+    }
+
+    private Command goToPosition(Pose2d blueTargetPose, Pose2d redTargetPose, Supplier<Pose2d> blueAllianceIntermediateSupplier, Supplier<Pose2d> redAllianceIntermediateSupplier, double angleDistanceThreshold) {
         Pose2d[] intermediatePoseHolder = new Pose2d[]{null};
 
         return goToPosition(
@@ -131,12 +144,17 @@ public class AutoPaths {
                         else return null;
                     } else return null;
                 },
-                () -> false)
+                () -> false,
+                angleDistanceThreshold)
                 .beforeStarting(() -> {
                     if (blueAllianceIntermediateSupplier != null)
                         intermediatePoseHolder[0] = alliancePose(blueAllianceIntermediateSupplier.get(), redAllianceIntermediateSupplier.get());
                     else Commands.none();
                 });
+    }
+
+    private Command goToPosition(Pose2d blueTargetPose, Pose2d redTargetPose, Supplier<Pose2d> blueIntermediatePose, Supplier<Pose2d> redIntermediatePose) {
+        return goToPosition(blueTargetPose, redTargetPose, blueIntermediatePose, redIntermediatePose, 0.0);
     }
 
     /**
@@ -258,13 +276,6 @@ public class AutoPaths {
     }
 
     // Auto Routines
-    public Command testAuto(){
-        return Commands.sequence(
-                resetOdometry(new Pose2d(0.0,0.0, Rotation2d.kZero), new Pose2d(0.0,0.0, Rotation2d.kZero)),
-                goToPosition(()-> new Pose2d(drive.getPose().getX(),drive.getPose().getY(), Rotation2d.fromDegrees(180)),
-                        ()-> new Pose2d(drive.getPose().getX(),drive.getPose().getY(), Rotation2d.fromDegrees(180)), ()-> true));
-    }
-
     public Command leftSide_depot_leftClimb() {
         return Commands.sequence(
                 resetOdometry(Constants.BLUE_DEPOT_AUTO_LINE, Constants.RED_DEPOT_AUTO_LINE),
