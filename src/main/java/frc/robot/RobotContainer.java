@@ -107,17 +107,7 @@ public class RobotContainer {
 
         vision.setDefaultCommand(vision.consumeVisionMeasurements(drive::addVisionMeasurements, () -> {
             Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
-
-            if (alliance.isPresent() && DriverStation.isDisabled()) {
-                if (alliance.get() == DriverStation.Alliance.Red) {
-                    return Rotation2d.fromDegrees(0);
-                }
-                else
-                    return Rotation2d.fromDegrees(180);
-            }
-            else {
-                return drive.getRotation();
-            }
+            return drive.getRotation();
         }).ignoringDisable(true));
     }
 

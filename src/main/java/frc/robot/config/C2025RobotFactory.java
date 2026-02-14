@@ -48,8 +48,13 @@ public class C2025RobotFactory implements RobotFactory {
                 Units.inchesToMeters(27.0 / 2.0 - 5.3), Units.inchesToMeters(8.8125),
                 frontLeftRotation);
 
+        Rotation3d backRotation = new Rotation3d(0.0, Units.degreesToRadians(20.0), Units.degreesToRadians(200.0));
+        Transform3d backTransform = new Transform3d(Units.inchesToMeters(27.0 / 2.0 - 4.625), Units.inchesToMeters(27.0 / 2.0 - 5.125),
+                Units.inchesToMeters(8.375), backRotation);
+
         return new Vision (AprilTagFieldLayout.loadField(Constants.IS_ANDYMARK ? AprilTagFields.k2026RebuiltAndymark : AprilTagFields.k2026RebuiltWelded),
-                new LimelightIO("limelight", frontLeftTransform, false)
+                new LimelightIO("limelight", frontLeftTransform, false),
+                new LimelightIO("limelight-back", backTransform, false)
         );
     }
 }

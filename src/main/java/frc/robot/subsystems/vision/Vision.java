@@ -63,15 +63,15 @@ public class Vision extends SubsystemBase {
             leftInputs = new VisionInputs();
         }
         if (visionInputs.length > 1) {
-            rightInputs = visionInputs[1];
+            backInputs = visionInputs[1];
         } else {
-            rightInputs = new VisionInputs();
+            backInputs = new VisionInputs();
         }
 
         if (visionInputs.length > 2) {
-            backInputs = visionInputs[2];
+            rightInputs = visionInputs[2];
         } else {
-            backInputs = new VisionInputs();
+            rightInputs = new VisionInputs();
         }
 
         // Register the command we use to detect when the robot is enabled/disabled.
