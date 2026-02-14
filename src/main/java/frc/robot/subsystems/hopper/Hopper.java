@@ -18,6 +18,7 @@ public class Hopper extends SubsystemBase {
         io.updateInputs(inputs);
         Logger.processInputs("Hopper/Inputs", inputs);
         Logger.recordOutput("Hopper/TargetVoltage", targetVoltage);
+        Logger.recordOutput("Hopper/CorneringMechanismTargetVoltage", corneringTargetVoltage);
     }
 
     public double getTargetVoltage() {

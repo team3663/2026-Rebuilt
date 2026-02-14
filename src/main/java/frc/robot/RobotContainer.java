@@ -132,7 +132,7 @@ public class RobotContainer {
                                 Rotation2d.kZero)));
 
         // Intake
-        controller.a().onTrue(intake.stop());
+        controller.a().onTrue(intake.stop().alongWith(hopper.stop()));
         controller.y().onTrue(intake.zeroPivot());
         controller.x().whileTrue(intake.intakeAndPivot(4.0, Units.degreesToRadians(0.0)));
 
