@@ -37,6 +37,7 @@ import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.subsystems.vision.VisionMeasurement;
 import frc.robot.util.ControllerHelper;
+import jdk.jshell.execution.Util;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -81,6 +82,7 @@ public class Drive extends SubsystemBase {
 
     @AutoLogOutput(key = "Drive/TargetPose")
     private Pose2d targetPose = null;
+    private Pose2d previousPose = null;
 
     public Drive(
             GyroIO gyroIO,
@@ -412,7 +414,9 @@ public class Drive extends SubsystemBase {
                                     maxVelocity.get());
                             var velocity = new Translation2d(-linearVelocity, error.getAngle());
                             var angularVel = rotationController.calculate(
-                                    current.getRotation().getRadians(), target.getRotation().getRadians());
+                                    current.getRotation().getRadians(),
+                                    MathUtil.interpolate(previousPose.getRotation().getRadians(),
+                                            targetPose.get().getRotation().getRadians(), 1.0));
 
                             return ChassisSpeeds.fromFieldRelativeSpeeds(
                                     velocity.getX(),
@@ -421,7 +425,8 @@ public class Drive extends SubsystemBase {
                                     current.getRotation()
                             );
                         }
-                ));
+                ))
+                .andThen(()-> previousPose = targetPose.get());
     }
 
     public Command goToPosition(Supplier<Pose2d> targetPose, BooleanSupplier slowAccel) {
@@ -429,7 +434,7 @@ public class Drive extends SubsystemBase {
     }
 
     public Command resetOdometry(Supplier<Pose2d> poseSupplier) {
-        return Commands.runOnce(() -> poseEstimator.resetPose(poseSupplier.get()));
+        return Commands.runOnce(() -> poseEstimator.resetPose(poseSupplier.get())).andThen(()-> previousPose = poseSupplier.get());
     }
 
     /**

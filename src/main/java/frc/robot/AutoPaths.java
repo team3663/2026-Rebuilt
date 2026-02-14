@@ -260,9 +260,9 @@ public class AutoPaths {
     // Auto Routines
     public Command testAuto(){
         return Commands.sequence(
-                resetOdometry(Constants.BLUE_RIGHT_AUTO_LINE, Constants.RED_RIGHT_AUTO_LINE),
-                goToPosition(Constants.BLUE_LEFT_DEPOT, Constants.RED_LEFT_DEPOT,
-                        ()-> Constants.BLUE_OUTPOST_CENTERED, ()-> Constants.RED_OUTPOST_CENTERED));
+                resetOdometry(new Pose2d(0.0,0.0, Rotation2d.kZero), new Pose2d(0.0,0.0, Rotation2d.kZero)),
+                goToPosition(()-> new Pose2d(drive.getPose().getX(),drive.getPose().getY(), Rotation2d.fromDegrees(180)),
+                        ()-> new Pose2d(drive.getPose().getX(),drive.getPose().getY(), Rotation2d.fromDegrees(180)), ()-> true));
     }
 
     public Command leftSide_depot_leftClimb() {
