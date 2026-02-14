@@ -9,6 +9,7 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -128,14 +129,17 @@ public class RobotContainer {
                         DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == DriverStation.Alliance.Red ?
                                 Rotation2d.k180deg :
                                 Rotation2d.kZero)));
-
+        controller.start().onTrue(intake.zeroPivot());
         // Intake
-        controller.a().onTrue(intake.stop());
-        controller.x().whileTrue(intake.intakeAndPivot(6.5, 0.0));
+        controller.x().whileTrue(intake.intakeAndPivot(6.5, intake.getConstants().maximumPivotAngle()));
+
+        controller.a().whileTrue(intake.intakeAndPivot(0.0, intake.getConstants().minimumPivotAngle() + Units.degreesToRadians(5.0)));
+        controller.y().whileTrue(intake.intakeAndPivot(6.5, intake.getConstants().maximumPivotAngle() - Units.degreesToRadians(20.0)));
+        controller.b().whileTrue(intake.intakeAndPivot(6.5, intake.getConstants().maximumPivotAngle() - Units.degreesToRadians(40.0)));
 
         //Hopper Controls
-        controller.b().whileTrue(hopper.withVoltage(3));
-        controller.y().onTrue(hopper.stop());
+        controller.povUp().whileTrue(hopper.withVoltage(4));
+        controller.rightBumper().whileTrue(feeder.withVoltage(5.0));
 
         // Shooter Controls
         controller.leftBumper().onTrue(Commands.runOnce(() -> shootingAtHub = !shootingAtHub));
