@@ -5,10 +5,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.MotorAlignmentValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.ctre.phoenix6.signals.*;
 import edu.wpi.first.math.util.Units;
 
 public class C2026ShooterIO implements ShooterIO {
@@ -22,9 +19,10 @@ public class C2026ShooterIO implements ShooterIO {
 
     // Gear Ratios
     // TODO get actual gear ratio for ENCODER_TO_MECHANISM
-    private static final double ENCODER_TO_MECHANISM_RATIO = 1.0;
-    private static final double MOTOR_TO_ENCODER_RATIO = 2.0;
-    private static final double ENCODER_OFFSET = 0.0;
+    private static final double MOTOR_TO_MECHANISM_RATIO = (80.0 / 10.0);
+    private static final double MOTOR_TO_ENCODER_RATIO = (60.0 / 18.0) * (48.0 / 16.0);
+    private static final double ENCODER_TO_MECHANISM_RATIO = MOTOR_TO_MECHANISM_RATIO / MOTOR_TO_ENCODER_RATIO;
+    private static final double ENCODER_OFFSET = -0.3779;
 
     private final TalonFX hoodMotor;
     private final TalonFX turretMotor;
@@ -53,8 +51,6 @@ public class C2026ShooterIO implements ShooterIO {
 
         turretCanCoder.getConfigurator().apply(canCoderConfig);
 
-        canCoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-
         // Hood motor config
         TalonFXConfiguration hoodConfig = new TalonFXConfiguration();
         hoodConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -65,7 +61,7 @@ public class C2026ShooterIO implements ShooterIO {
 
         hoodConfig.Slot0.kV = 0.0;
         hoodConfig.Slot0.kA = 0.0;
-        hoodConfig.Slot0.kP = 1.0;
+        hoodConfig.Slot0.kP = 0.0;
         hoodConfig.Slot0.kI = 0.0;
         hoodConfig.Slot0.kD = 0.0;
 
@@ -80,12 +76,16 @@ public class C2026ShooterIO implements ShooterIO {
         turretConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         turretConfig.CurrentLimits.SupplyCurrentLimit = 60;
         turretConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+        turretConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+        turretConfig.Feedback.FeedbackRemoteSensorID = turretCanCoder.getDeviceID();
         turretConfig.Feedback.SensorToMechanismRatio = ENCODER_TO_MECHANISM_RATIO;
         turretConfig.Feedback.RotorToSensorRatio = MOTOR_TO_ENCODER_RATIO;
+        turretConfig.MotorOutput.PeakForwardDutyCycle = 0.1;
+        turretConfig.MotorOutput.PeakReverseDutyCycle = -0.1;
 
         turretConfig.Slot0.kV = 0.0;
         turretConfig.Slot0.kA = 0.0;
-        turretConfig.Slot0.kP = 1.0;
+        turretConfig.Slot0.kP = 0.0;
         turretConfig.Slot0.kI = 0.0;
         turretConfig.Slot0.kD = 0.0;
 
@@ -105,7 +105,7 @@ public class C2026ShooterIO implements ShooterIO {
 
         shooterConfig.Slot0.kV = 0.0;
         shooterConfig.Slot0.kA = 0.0;
-        shooterConfig.Slot0.kP = 1.0;
+        shooterConfig.Slot0.kP = 0.0;
         shooterConfig.Slot0.kI = 0.0;
         shooterConfig.Slot0.kD = 0.0;
 
@@ -134,14 +134,13 @@ public class C2026ShooterIO implements ShooterIO {
         inputs.currentHoodDraw = hoodMotor.getSupplyCurrent().getValueAsDouble();
 
         // Turret
+        inputs.currentTurretPosition = Units.rotationsToRadians(turretMotor.getPosition().getValueAsDouble());
         inputs.currentTurretAppliedVoltage = turretMotor.getMotorVoltage().getValueAsDouble();
         inputs.currentTurretVelocity = Units.rotationsToRadians(turretMotor.getVelocity().getValueAsDouble());
         inputs.turretMotorTemperature = turretMotor.getDeviceTemp().getValueAsDouble();
         inputs.currentTurretDraw = turretMotor.getSupplyCurrent().getValueAsDouble();
 
         inputs.currentTurretEncoderPosition = turretCanCoder.getPosition().getValueAsDouble();
-
-        inputs.currentTurretPosition = Units.rotationsToRadians(turretCanCoder.getPosition().getValueAsDouble());
 
         // Shooter Motor 1
         inputs.currentShooterAppliedVoltage1 = shooterMotor.getMotorVoltage().getValueAsDouble();
@@ -156,25 +155,25 @@ public class C2026ShooterIO implements ShooterIO {
         inputs.currentShooterDraw2 = shooterMotor2.getSupplyCurrent().getValueAsDouble();
     }
 
-    @Override
-    public void stopHood() {
-        hoodMotor.setControl(stopRequest);
-    }
-
-    @Override
-    public void resetHoodPosition(double position) {
-        hoodMotor.setPosition(Units.radiansToRotations(position));
-    }
-
-    @Override
-    public void setHoodTargetPosition(double position) {
-        hoodMotor.setControl(positionRequest.withPosition(Units.radiansToRotations(position)));
-    }
-
-    @Override
-    public void setHoodTargetVoltage(double voltage) {
-        hoodMotor.setControl(voltageRequest.withOutput(voltage));
-    }
+//    @Override
+//    public void stopHood() {
+//        hoodMotor.setControl(stopRequest);
+//    }
+//
+//    @Override
+//    public void resetHoodPosition(double position) {
+//        hoodMotor.setPosition(Units.radiansToRotations(position));
+//    }
+//
+//    @Override
+//    public void setHoodTargetPosition(double position) {
+//        hoodMotor.setControl(positionRequest.withPosition(Units.radiansToRotations(position)));
+//    }
+//
+//    @Override
+//    public void setHoodTargetVoltage(double voltage) {
+//        hoodMotor.setControl(voltageRequest.withOutput(voltage));
+//    }
 
     @Override
     public void stopTurret() {
@@ -191,18 +190,18 @@ public class C2026ShooterIO implements ShooterIO {
         turretMotor.setControl(voltageRequest.withOutput(voltage));
     }
 
-    @Override
-    public void stopShooter() {
-        shooterMotor.setControl(stopRequest);
-    }
-
-    @Override
-    public void setShooterTargetVelocity(double velocity) {
-        shooterMotor.setControl(velocityRequest.withVelocity(velocity));
-    }
-
-    @Override
-    public void setShooterTargetVoltage(double voltage) {
-        shooterMotor.setControl(voltageRequest.withOutput(voltage));
-    }
+//    @Override
+//    public void stopShooter() {
+//        shooterMotor.setControl(stopRequest);
+//    }
+//
+//    @Override
+//    public void setShooterTargetVelocity(double velocity) {
+//        shooterMotor.setControl(velocityRequest.withVelocity(velocity));
+//    }
+//
+//    @Override
+//    public void setShooterTargetVoltage(double voltage) {
+//        shooterMotor.setControl(voltageRequest.withOutput(voltage));
+//    }
 }

@@ -140,6 +140,8 @@ public class RobotContainer {
         //Hopper Controls
         controller.povUp().whileTrue(hopper.withVoltage(4));
         controller.rightBumper().whileTrue(feeder.withVoltage(5.0));
+        controller.povDown().onTrue(
+                shooter.goTo(0.0, Units.degreesToRadians(180.0), Units.rotationsPerMinuteToRadiansPerSecond(1000.0)));
 
         // Shooter Controls
         controller.leftBumper().onTrue(Commands.runOnce(() -> shootingAtHub = !shootingAtHub));

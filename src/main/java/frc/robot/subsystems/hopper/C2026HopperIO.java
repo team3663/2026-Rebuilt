@@ -30,7 +30,7 @@ public class C2026HopperIO implements HopperIO {
         motor.getConfigurator().apply(config);
         motor2.getConfigurator().apply(config);
 
-        motor2.setControl(new Follower(motor.getDeviceID(), MotorAlignmentValue.Aligned));
+        motor2.setControl(new Follower(motor.getDeviceID(), MotorAlignmentValue.Opposed));
     }
 
     @Override
