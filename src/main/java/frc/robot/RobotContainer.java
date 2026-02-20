@@ -10,6 +10,8 @@ package frc.robot;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.Unit;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -136,16 +138,20 @@ public class RobotContainer {
         controller.a().whileTrue(intake.intakeAndPivot(0.0, intake.getConstants().minimumPivotAngle() + Units.degreesToRadians(5.0)));
         controller.y().whileTrue(intake.intakeAndPivot(6.5, intake.getConstants().maximumPivotAngle() - Units.degreesToRadians(20.0)));
         controller.b().whileTrue(intake.intakeAndPivot(6.5, intake.getConstants().maximumPivotAngle() - Units.degreesToRadians(40.0)));
+        controller.a().onTrue(intake.stop().alongWith(hopper.stop()));
+        controller.y().onTrue(intake.zeroPivot());
+        controller.x().whileTrue(intake.intakeAndPivot(4.0, Units.degreesToRadians(0.0)));
 
         //Hopper Controls
         controller.povUp().whileTrue(hopper.withVoltage(4));
         controller.rightBumper().whileTrue(feeder.withVoltage(5.0));
         controller.povDown().onTrue(
                 shooter.goTo(0.0, Units.degreesToRadians(180.0), Units.rotationsPerMinuteToRadiansPerSecond(1000.0)));
+        controller.b().whileTrue(hopper.withVoltage(6.0, 6.0));
 
         // Shooter Controls
-        controller.leftBumper().onTrue(Commands.runOnce(() -> shootingAtHub = !shootingAtHub));
-        controller.rightTrigger().whileTrue(commandFactory.aimShooter(() -> shootingAtHub));
+//        controller.leftBumper().onTrue(Commands.runOnce(() -> shootingAtHub = !shootingAtHub));
+//        controller.rightTrigger().whileTrue(commandFactory.aimShooter(() -> shootingAtHub));
     }
 
     /**
