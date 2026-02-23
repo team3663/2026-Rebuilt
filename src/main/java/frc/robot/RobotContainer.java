@@ -98,6 +98,13 @@ public class RobotContainer {
         autoChooser.addOption("RightAllianceZone2ft-Outpost-Depot-LeftClimb", autoPaths.rightStarting_outpost_depot_leftClimb());
         autoChooser.addOption("LeftUnderTrench2ft-AllianceSideNeutralZone-RightClimb", autoPaths.leftStarting_neutralZone_AllianceSide_rightClimb());
         autoChooser.addOption("RightUnderTrench2ft-AllianceSideNeutralZone-LeftClimb", autoPaths.rightStarting_neutralZone_AllianceSide_leftClimb());
+        autoChooser.addOption("RightUnderTrench2ft-PickupInNeutralZone-PickupInNeutralZone-Outpost", autoPaths.rightStarting_pickupNeutral_pickupNeutral_Outpost());
+        autoChooser.addOption("LeftUnderTrench2ftNoShooting-NeutralZone", autoPaths.leftStarting_neutralZone_middleLine());
+        autoChooser.addOption("RightUnderTrench2ftNoShooting-NeutralZone", autoPaths.rightStarting_neutralZone_middleLine());
+        autoChooser.addOption("RightUnderTrench2ftNoShooting-NeutralZone-LeftClimb", autoPaths.rightStarting_neutralZone_middleLine_leftClimb());
+        autoChooser.addOption("LeftUnderTrench2ftNoShooting-NeutralZone-RightClimb", autoPaths.leftStarting_neutralZone_middleLine_rightClimb());
+        autoChooser.addOption("LeftUnderTrench2ftNoShooting-NeutralZone-UnderTrench-NeutralZone", autoPaths.leftStarting_neutralZone_middleLine_x2());
+        autoChooser.addOption("RightUnderTrench2ftNoShooting-NeutralZone-UnderTrench-NeutralZone", autoPaths.rightStarting_neutralZone_middleLine_x2());
 
         // Configure the button bindings
         configureButtonBindings();
