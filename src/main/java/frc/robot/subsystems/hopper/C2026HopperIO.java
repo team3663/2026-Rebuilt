@@ -10,15 +10,17 @@ import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 public class C2026HopperIO implements HopperIO {
-    private final TalonFX motor;
-    private final TalonFX motor2;
+    private final TalonFX hopperMotor;
+    private final TalonFX corneringMotor;
+    private final TalonFX indexingMotor;
 
     private final NeutralOut stopRequest = new NeutralOut();
     private final VoltageOut voltageRequest = new VoltageOut(0.0);
 
-    public C2026HopperIO(TalonFX motor, TalonFX motor2) {
-        this.motor = motor;
-        this.motor2 = motor2;
+    public C2026HopperIO(TalonFX hopperMotor, TalonFX corneringMotor, TalonFX indexingMotor) {
+        this.hopperMotor = hopperMotor;
+        this.corneringMotor = corneringMotor;
+        this.indexingMotor = indexingMotor;
 
         TalonFXConfiguration config = new TalonFXConfiguration();
 
@@ -27,28 +29,30 @@ public class C2026HopperIO implements HopperIO {
         config.CurrentLimits.SupplyCurrentLimit = 20;
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-        motor.getConfigurator().apply(config);
-        motor2.getConfigurator().apply(config);
+        hopperMotor.getConfigurator().apply(config);
+        corneringMotor.getConfigurator().apply(config);
+        indexingMotor.getConfigurator().apply(config);
 
-        motor2.setControl(new Follower(motor.getDeviceID(), MotorAlignmentValue.Aligned));
+        corneringMotor.setControl(new Follower(hopperMotor.getDeviceID(), MotorAlignmentValue.Aligned));
+        indexingMotor.setControl(new Follower(hopperMotor.getDeviceID(), MotorAlignmentValue.Aligned));
     }
 
     @Override
     public void updateInputs(HopperInputs inputs) {
-        inputs.curentVelocity = motor.getVelocity().getValueAsDouble();
-        inputs.currentAppliedVoltage = motor.getSupplyVoltage().getValueAsDouble();
+        inputs.curentVelocity = hopperMotor.getVelocity().getValueAsDouble();
+        inputs.currentAppliedVoltage = hopperMotor.getSupplyVoltage().getValueAsDouble();
 
-        inputs.motorTemperature = motor.getDeviceTemp().getValueAsDouble();
-        inputs.motorSupplyCurrent = motor.getSupplyCurrent().getValueAsDouble();
+        inputs.motorTemperature = hopperMotor.getDeviceTemp().getValueAsDouble();
+        inputs.motorSupplyCurrent = hopperMotor.getSupplyCurrent().getValueAsDouble();
     }
 
     @Override
     public void setTargetVoltage(double voltage) {
-        motor.setControl(voltageRequest.withOutput(voltage));
+        hopperMotor.setControl(voltageRequest.withOutput(voltage));
     }
 
     @Override
     public void stop() {
-        motor.setControl(stopRequest);
+        hopperMotor.setControl(stopRequest);
     }
 }
