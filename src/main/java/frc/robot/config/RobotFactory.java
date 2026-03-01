@@ -55,7 +55,6 @@ public interface RobotFactory {
         });
     }
     default Climber createClimber(){
-        return new Climber(new ClimberIO() {
-        });
+        return new Climber(new ClimberIO() {});
     }
 }

@@ -72,7 +72,7 @@ public class RobotContainer {
         autoChooser.addOption(
                 "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
-        shooter.setDefaultCommand(shooter.goToWithShooter(shooter.getConstants().minimumHoodPosition(), 0.0));
+//        shooter.setDefaultCommand(shooter.goToWithShooter(shooter.getConstants().minimumHoodPosition(), 0.0));
 
         // Configure the button bindings
         configureButtonBindings();
@@ -106,7 +106,6 @@ public class RobotContainer {
         //Hopper Controls
         controller.b().whileTrue(hopper.withVoltage(3));
         controller.y().onTrue(hopper.stop());
-        controller.leftTrigger().onTrue(climber.fullClimb(Climber.LEVEL_3_CLIMB_HEIGHT));
     }
 
     /**
