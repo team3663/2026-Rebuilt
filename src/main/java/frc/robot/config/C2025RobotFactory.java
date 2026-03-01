@@ -1,6 +1,6 @@
 package frc.robot.config;
 
-import com.ctre.phoenix6.configs.*;
+import com.ctre.phoenix6.hardware.CANdle;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -11,6 +11,8 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.drive.PhoenixOdometryThread;
+import frc.robot.subsystems.led.Led;
+import frc.robot.subsystems.led.LedCandleIo;
 import frc.robot.subsystems.vision.LimelightIO;
 import frc.robot.subsystems.vision.Vision;
 
@@ -38,6 +40,7 @@ public class C2025RobotFactory implements RobotFactory {
         return drive;
     }
 
+    @Override
     public Vision createVision() {
         Rotation3d frontLeftRotation = new Rotation3d(0.0, Units.degreesToRadians(20), Units.degreesToRadians(0.0477));
         Transform3d frontLeftTransform = new Transform3d(Units.inchesToMeters(27.0 / 2 - 5.0),
@@ -47,5 +50,10 @@ public class C2025RobotFactory implements RobotFactory {
         return new Vision (AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded),
                 new LimelightIO("limelight", frontLeftTransform, false)
         );
+    }
+
+    @Override
+    public Led createLed() {
+        return new Led(new LedCandleIo(new CANdle(1)));
     }
 }

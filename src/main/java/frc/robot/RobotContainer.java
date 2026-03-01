@@ -23,6 +23,7 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.hopper.Hopper;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.led.Led;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.vision.Vision;
 import org.littletonrobotics.junction.Logger;
@@ -46,6 +47,7 @@ public class RobotContainer {
     private final Intake intake;
     private final Shooter shooter;
     private final Vision vision;
+    private final Led led;
 
     private final CommandFactory commandFactory;
 
@@ -69,6 +71,7 @@ public class RobotContainer {
         this.intake = robotFactory.createIntake();
         this.shooter = robotFactory.createShooter();
         this.vision = robotFactory.createVision();
+        this.led = robotFactory.createLed();
 
         commandFactory = new CommandFactory(drive, feeder, hopper, intake, shooter
 //        , climber
@@ -88,6 +91,9 @@ public class RobotContainer {
                 "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
         autoChooser.addOption(
                 "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+        // Configure the button bindings
+        configureButtonBindings();
 
         shooter.setDefaultCommand(shooter.goToDefaultState());
 
