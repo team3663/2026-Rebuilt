@@ -4,6 +4,11 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.CANdle;
 import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.util.Units;
 import frc.robot.generated.C2026TunerConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -19,6 +24,8 @@ import frc.robot.subsystems.led.Led;
 import frc.robot.subsystems.led.LedCandleIo;
 import frc.robot.subsystems.shooter.C2026ShooterIO;
 import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.vision.LimelightIO;
+import frc.robot.subsystems.vision.Vision;
 
 public class C2026RobotFactory implements RobotFactory {
 //    @Override
@@ -71,8 +78,8 @@ public class C2026RobotFactory implements RobotFactory {
         return new Shooter(new C2026ShooterIO(
                 new TalonFX(16),
                 new TalonFX(17),
-                new TalonFX(18),
                 new TalonFX(19),
+                new TalonFX(18),
                 new CANcoder(7)
         ));
     }
@@ -81,4 +88,14 @@ public class C2026RobotFactory implements RobotFactory {
     public Led createLed() {
         return new Led(new LedCandleIo(new CANdle(1)));
     }
+
+//    @Override
+//    public Vision createVision() {
+//        Rotation3d backRotation = new Rotation3d(0.0, Units.degreesToRadians(20), Units.degreesToRadians(200));
+////        Transform3d backTransform = new Transform3d(x, y, z, backRotation);
+//
+//        return new Vision (AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded),
+//                new LimelightIO("limelight", backTransform, false)
+//        );
+//    }
 }

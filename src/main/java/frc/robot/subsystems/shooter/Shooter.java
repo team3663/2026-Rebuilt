@@ -59,7 +59,7 @@ public class Shooter extends SubsystemBase {
     }
 
     public boolean atTargetPositions() {
-        return this.atHoodTargetPosition() && this.atTurretTargetPosition();
+        return this.atHoodTargetPosition()&& this.atTurretTargetPosition();
     }
 
     public boolean atTargets() {
@@ -77,8 +77,11 @@ public class Shooter extends SubsystemBase {
     public Command goToDefaultState() {
         return follow(() -> this.getConstants().minimumHoodPosition(), () -> 0.0, () -> DEFAULT_SHOOTER_VELOCITY);
     }
+    public Command shooterWithVoltage(double voltage) {
+        return runEnd(() ->{io.setShooterTargetVoltage(voltage);}, io::stopShooter);
+    }
 
-    public Command goTo(double hoodPosition, double turretPosition, double shooterVelocity) {
+    public Command goTo(double hoodPosition , double turretPosition, double shooterVelocity) {
         return runEnd(() -> {
             // Hood
             if (hoodZeroed) {
@@ -86,7 +89,7 @@ public class Shooter extends SubsystemBase {
                 io.setHoodTargetPosition(targetHoodPosition);
             }
 
-            // Turret
+           // Turret
             targetTurretPosition = getNearestTargetTurretAngle(turretPosition);
             io.setTurretTargetPosition(targetTurretPosition);
 

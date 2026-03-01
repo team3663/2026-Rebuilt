@@ -11,18 +11,17 @@ import edu.wpi.first.math.util.Units;
 public class C2026ShooterIO implements ShooterIO {
     // TODO: get actual values for these constants
     private static final Shooter.Constants constants = new Shooter.Constants(
-            0, Units.degreesToRadians(90), Units.degreesToRadians(-180), Units.degreesToRadians(180));
+            0, Units.degreesToRadians(90), Units.degreesToRadians(-185), Units.degreesToRadians(185));
     private static final double HOOD_GEAR_RATIO = 1.0;
     private static final double TURRET_GEAR_RATIO = 1.0;
-    private static final double SHOOTER_GEAR_RATIO = 1.0;
-    private static final double SHOOTER_WHEEL_RADIUS = Units.inchesToMeters(2.0);
-
+    private static final double SHOOTER_GEAR_RATIO = (18.0/15.0);
+    private static final double SHOOTER_WHEEL_RADIUS = Units.inchesToMeters(1.5);
     // Gear Ratios
     // TODO get actual gear ratio for ENCODER_TO_MECHANISM
-    private static final double MOTOR_TO_MECHANISM_RATIO = (80.0 / 10.0);
-    private static final double MOTOR_TO_ENCODER_RATIO = (60.0 / 18.0) * (48.0 / 16.0);
+        private static final double MOTOR_TO_MECHANISM_RATIO = (42.0 / 18.0) * (80.0 / 16.0);
+    private static final double MOTOR_TO_ENCODER_RATIO = (42.0 / 18.0)  * (64.0 / 16.0) * (60.0 / 24.0);
     private static final double ENCODER_TO_MECHANISM_RATIO = MOTOR_TO_MECHANISM_RATIO / MOTOR_TO_ENCODER_RATIO;
-    private static final double ENCODER_OFFSET = -0.3779;
+    private static final double ENCODER_OFFSET = -0.384277;
 
     private final TalonFX hoodMotor;
     private final TalonFX turretMotor;
@@ -83,29 +82,28 @@ public class C2026ShooterIO implements ShooterIO {
         turretConfig.MotorOutput.PeakForwardDutyCycle = 0.1;
         turretConfig.MotorOutput.PeakReverseDutyCycle = -0.1;
 
-        turretConfig.Slot0.kV = 0.0;
+        turretConfig.Slot0.kV = 12.0/((7368.0 / 60.0) /MOTOR_TO_MECHANISM_RATIO);
         turretConfig.Slot0.kA = 0.0;
-        turretConfig.Slot0.kP = 0.0;
+        turretConfig.Slot0.kP = 0.1;
         turretConfig.Slot0.kI = 0.0;
         turretConfig.Slot0.kD = 0.0;
 
-//        shooterConfig.MotionMagic.MotionMagicJerk = 15.0;
-//        shooterConfig.MotionMagic.MotionMagicAcceleration = 5.0;
-//        shooterConfig.MotionMagic.MotionMagicCruiseVelocity = 2.0;
+ //        turretConfig.MotionMagic.MotionMagicAcceleration = 5.0;
+//        turretConfig.MotionMagic.MotionMagicCruiseVelocity = 2.0;
 
         turretMotor.getConfigurator().apply(turretConfig);
 
         // Shooter motors config
         TalonFXConfiguration shooterConfig = new TalonFXConfiguration();
         shooterConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-        shooterConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        shooterConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         shooterConfig.Feedback.RotorToSensorRatio = SHOOTER_GEAR_RATIO;
         shooterConfig.CurrentLimits.SupplyCurrentLimit = 60;
         shooterConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-        shooterConfig.Slot0.kV = 0.0;
+        shooterConfig.Slot0.kV = 12.0 /Units.rotationsPerMinuteToRadiansPerSecond(7368)/SHOOTER_WHEEL_RADIUS * (3 * Math.PI);;
         shooterConfig.Slot0.kA = 0.0;
-        shooterConfig.Slot0.kP = 0.0;
+        shooterConfig.Slot0.kP = 0.1;
         shooterConfig.Slot0.kI = 0.0;
         shooterConfig.Slot0.kD = 0.0;
 
@@ -115,7 +113,6 @@ public class C2026ShooterIO implements ShooterIO {
 
         shooterMotor.getConfigurator().apply(shooterConfig);
         shooterMotor2.getConfigurator().apply(shooterConfig);
-
         shooterMotor2.setControl(new Follower(shooterMotor.getDeviceID(), MotorAlignmentValue.Opposed));
     }
 
@@ -200,8 +197,8 @@ public class C2026ShooterIO implements ShooterIO {
 //        shooterMotor.setControl(velocityRequest.withVelocity(velocity));
 //    }
 //
-//    @Override
-//    public void setShooterTargetVoltage(double voltage) {
-//        shooterMotor.setControl(voltageRequest.withOutput(voltage));
-//    }
+    @Override
+    public void setShooterTargetVoltage(double voltage) {
+        shooterMotor.setControl(voltageRequest.withOutput(voltage));
+    }
 }
