@@ -22,6 +22,7 @@ public class C2026FeederIO implements FeederIO {
     private final static double PROXIMITY_THRESHOLD = 0.0;
     private final static double PROXIMITY_HYSTERESIS = 0.0;
     private final static double MIN_SIGNAL_STRENGTH = 0.0;
+    private final static double GEAR_RATIO = 2.0;
     //motor and CANrange created
     private final TalonFX motor; //ID 14;
     private final CANrange canrange;
@@ -37,6 +38,7 @@ public class C2026FeederIO implements FeederIO {
         TalonFXConfiguration motor1Config = new TalonFXConfiguration();
         motor1Config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         motor1Config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        motor1Config.Feedback.SensorToMechanismRatio = GEAR_RATIO;
         //not sure if the PID values are needed or not
 //        motor1Config.Slot0.kP = 0.0;
 //        motor1Config.Slot0.kI = 0.0;
