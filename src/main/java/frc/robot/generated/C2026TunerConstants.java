@@ -85,7 +85,7 @@ public class C2026TunerConstants {
     // This may need to be tuned to your individual robot
     private static final double kCoupleRatio = 0;
 
-    private static final double kDriveGearRatio = (54.0 / 14.0) * (25.0/32.0) * (30.0 / 15.0);
+    private static final double kDriveGearRatio = (54.0 / 16.0) * (25.0/32.0) * (30.0 / 15.0);
     private static final double kSteerGearRatio = 26.0;
     private static final Distance kWheelRadius = Inches.of(2);
 
