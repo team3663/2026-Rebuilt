@@ -51,8 +51,6 @@ public class C2026IntakeIO implements IntakeIO {
 
         pivotMotor1Config.Feedback.SensorToMechanismRatio = PIVOT_GEAR_RATIO;
         pivotMotor.getConfigurator().apply(pivotMotor1Config);
-
-        // Setting one of the pivot motors to follow the other motor
     }
 
     @Override
