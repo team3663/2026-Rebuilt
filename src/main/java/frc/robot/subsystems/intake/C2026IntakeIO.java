@@ -18,7 +18,7 @@ public class C2026IntakeIO implements IntakeIO {
     );
 
     private final TalonFX intakeMotor;
-    private final TalonFX pivotMotor1;
+    private final TalonFX pivotMotor;
 
     private final double PIVOT_GEAR_RATIO = 30.1587;
 
@@ -27,9 +27,9 @@ public class C2026IntakeIO implements IntakeIO {
     private final VoltageOut voltageRequest = new VoltageOut(0.0);
     private final MotionMagicVoltage positionRequest = new MotionMagicVoltage(0.0);
 
-    public C2026IntakeIO(TalonFX intakeMotor, TalonFX pivotMotor1) {
+    public C2026IntakeIO(TalonFX intakeMotor, TalonFX pivotMotor) {
         this.intakeMotor = intakeMotor;
-        this.pivotMotor1 = pivotMotor1;
+        this.pivotMotor = pivotMotor;
 
         // Intake Motor Configurations
         TalonFXConfiguration intakeConfig = new TalonFXConfiguration();
@@ -50,19 +50,17 @@ public class C2026IntakeIO implements IntakeIO {
         pivotMotor1Config.MotorOutput.PeakReverseDutyCycle = -0.2;
 
         pivotMotor1Config.Feedback.SensorToMechanismRatio = PIVOT_GEAR_RATIO;
-        pivotMotor1.getConfigurator().apply(pivotMotor1Config);
-
-        // Setting one of the pivot motors to follow the other motor
+        pivotMotor.getConfigurator().apply(pivotMotor1Config);
     }
 
     @Override
     public void updateInputs(IntakeInputs inputs) {
         // Pivot Motors
-        inputs.currentPivot1Velocity = Units.rotationsToRadians(pivotMotor1.getVelocity().getValueAsDouble());
-        inputs.currentPivot1AppliedVoltage = pivotMotor1.getMotorVoltage().getValueAsDouble();
-        inputs.pivot1MotorTemperature = pivotMotor1.getDeviceTemp().getValueAsDouble();
-        inputs.pivot1CurrentDraw = pivotMotor1.getSupplyCurrent().getValueAsDouble();
-        inputs.currentPivot1Position = Units.rotationsToRadians(pivotMotor1.getPosition().getValueAsDouble());
+        inputs.currentPivot1Velocity = Units.rotationsToRadians(pivotMotor.getVelocity().getValueAsDouble());
+        inputs.currentPivot1AppliedVoltage = pivotMotor.getMotorVoltage().getValueAsDouble();
+        inputs.pivot1MotorTemperature = pivotMotor.getDeviceTemp().getValueAsDouble();
+        inputs.pivot1CurrentDraw = pivotMotor.getSupplyCurrent().getValueAsDouble();
+        inputs.currentPivot1Position = Units.rotationsToRadians(pivotMotor.getPosition().getValueAsDouble());
 
         // Intake Motor
         inputs.currentIntakeVelocity = Units.rotationsToRadians(intakeMotor.getVelocity().getValueAsDouble());
@@ -80,22 +78,22 @@ public class C2026IntakeIO implements IntakeIO {
     // Pivot
     @Override
     public void stopPivot() {
-        pivotMotor1.setControl(stopRequest);
+        pivotMotor.setControl(stopRequest);
     }
 
     @Override
     public void resetPivotPosition(double position) {
-        pivotMotor1.setPosition(Units.radiansToRotations(position));
+        pivotMotor.setPosition(Units.radiansToRotations(position));
     }
 
     @Override
     public void setTargetPivotPosition(double position) {
-        pivotMotor1.setControl(positionRequest.withPosition(Units.radiansToRotations(position)));
+        pivotMotor.setControl(positionRequest.withPosition(Units.radiansToRotations(position)));
     }
 
     @Override
     public void setTargetPivotVoltage(double voltage) {
-        pivotMotor1.setControl(voltageRequest.withOutput(voltage));
+        pivotMotor.setControl(voltageRequest.withOutput(voltage));
     }
 
     // Intake
