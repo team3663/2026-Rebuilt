@@ -10,6 +10,8 @@ import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 public class C2026HopperIO implements HopperIO {
+    private static final double CORNERING_GEAR_RATIO = 12.0 / 18.0;
+
     private final TalonFX hopperMotor;
     private final TalonFX corneringMotor;
     private final TalonFX indexingMotor;
@@ -29,8 +31,15 @@ public class C2026HopperIO implements HopperIO {
         config.CurrentLimits.SupplyCurrentLimit = 20;
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
+        TalonFXConfiguration corneringConfig = new TalonFXConfiguration();
+        corneringConfig.Feedback.SensorToMechanismRatio = CORNERING_GEAR_RATIO;
+        corneringConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        corneringConfig.CurrentLimits.SupplyCurrentLimit = 20;
+        corneringConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+        corneringConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
         hopperMotor.getConfigurator().apply(config);
-        corneringMotor.getConfigurator().apply(config);
+        corneringMotor.getConfigurator().apply(corneringConfig);
         indexingMotor.getConfigurator().apply(config);
 
         corneringMotor.setControl(new Follower(hopperMotor.getDeviceID(), MotorAlignmentValue.Aligned));

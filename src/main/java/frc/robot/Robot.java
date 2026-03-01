@@ -115,6 +115,7 @@ public class Robot extends LoggedRobot {
      */
     @Override
     public void robotPeriodic() {
+        System.out.println("Running Command Scheduler");
         // Optionally switch the thread to high priority to improve loop
         // timing (see the template project documentation for details)
         // Threads.setCurrentThreadPriority(true, 99);

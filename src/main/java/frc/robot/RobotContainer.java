@@ -95,7 +95,7 @@ public class RobotContainer {
         // Configure the button bindings
         configureButtonBindings();
 
-        shooter.setDefaultCommand(shooter.goToDefaultState());
+//        shooter.setDefaultCommand(shooter.goToDefaultState());
 
         vision.setDefaultCommand(vision.consumeVisionMeasurements(drive::addVisionMeasurements, () -> {
             Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
@@ -143,17 +143,21 @@ public class RobotContainer {
                                 Rotation2d.k180deg :
                                 Rotation2d.kZero)));
 
+        controller.a().whileTrue(hopper.withVoltage(3.0));
+        controller.b().whileTrue(feeder.withVoltage(2.0));
+        controller.y().whileTrue(shooter.shooterVoltage(3.0));
+
         // Intake
-        controller.a().onTrue(intake.stop());
-        controller.x().whileTrue(intake.intakeAndPivot(6.5, 0.0));
-
-        //Hopper Controls
-        controller.b().whileTrue(hopper.withVoltage(3));
-        controller.y().onTrue(hopper.stop());
-
-        // Shooter Controls
-        controller.leftBumper().onTrue(Commands.runOnce(() -> shootingAtHub = !shootingAtHub));
-        controller.rightTrigger().whileTrue(commandFactory.aimShooter(() -> shootingAtHub));
+//        controller.a().onTrue(intake.stop());
+//        controller.x().whileTrue(intake.intakeAndPivot(6.5, 0.0));
+//
+//        //Hopper Controls
+//        controller.b().whileTrue(hopper.withVoltage(3));
+//        controller.y().onTrue(hopper.stop());
+//
+//        // Shooter Controls
+//        controller.leftBumper().onTrue(Commands.runOnce(() -> shootingAtHub = !shootingAtHub));
+//        controller.rightTrigger().whileTrue(commandFactory.aimShooter(() -> shootingAtHub));
     }
 
     private void configureTestBindings() {

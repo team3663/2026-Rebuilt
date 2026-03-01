@@ -15,7 +15,7 @@ public class C2026ShooterIO implements ShooterIO {
     // TODO: get actual values for these constants
     private static final Shooter.Constants constants = new Shooter.Constants(
             0, Units.degreesToRadians(90), Units.degreesToRadians(-180), Units.degreesToRadians(180));
-    private static final double HOOD_GEAR_RATIO = 1.0;
+    private static final double HOOD_GEAR_RATIO = 14.0 / 340.0;
     private static final double TURRET_GEAR_RATIO = 1.0;
     private static final double SHOOTER_GEAR_RATIO = 1.0;
     private static final double SHOOTER_WHEEL_RADIUS = Units.inchesToMeters(2.0);
@@ -24,7 +24,7 @@ public class C2026ShooterIO implements ShooterIO {
     // TODO get actual gear ratio for ENCODER_TO_MECHANISM
     private static final double ENCODER_TO_MECHANISM_RATIO = 1.0;
     private static final double MOTOR_TO_ENCODER_RATIO = 2.0;
-    private static final double ENCODER_OFFSET = 0.0;
+    private static final double ENCODER_OFFSET = 0.114990234375;
 
     private final TalonFX hoodMotor;
     private final TalonFX turretMotor;
