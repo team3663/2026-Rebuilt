@@ -65,7 +65,7 @@ public class C2026ShooterIO implements ShooterIO {
 
         hoodConfig.Slot0.kV = 0.0;
         hoodConfig.Slot0.kA = 0.0;
-        hoodConfig.Slot0.kP = 1.0;
+        hoodConfig.Slot0.kP = 0.0;
         hoodConfig.Slot0.kI = 0.0;
         hoodConfig.Slot0.kD = 0.0;
 
@@ -85,7 +85,7 @@ public class C2026ShooterIO implements ShooterIO {
 
         turretConfig.Slot0.kV = 0.0;
         turretConfig.Slot0.kA = 0.0;
-        turretConfig.Slot0.kP = 1.0;
+        turretConfig.Slot0.kP = 0.0;
         turretConfig.Slot0.kI = 0.0;
         turretConfig.Slot0.kD = 0.0;
 

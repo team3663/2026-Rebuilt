@@ -43,7 +43,8 @@ public class C2026IntakeIO implements IntakeIO {
         pivotMotor1Config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
         pivotMotor1Config.MotionMagic.MotionMagicAcceleration = 10.0;
-        pivotMotor1Config.MotionMagic.MotionMagicCruiseVelocity = 3.0;
+        // TODO CHANGE MOTION MAGIC CRUISE VELOCITY BACK TO 3.0 AFTER TESTING
+        pivotMotor1Config.MotionMagic.MotionMagicCruiseVelocity = 0.5;
         pivotMotor1Config.Slot0.kP = 100.0;
         pivotMotor1Config.Slot0.kV = 3.619;
         pivotMotor1Config.MotorOutput.PeakForwardDutyCycle = 0.2;

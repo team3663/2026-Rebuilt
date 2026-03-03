@@ -41,9 +41,6 @@ public class C2026HopperIO implements HopperIO {
         hopperMotor.getConfigurator().apply(config);
         corneringMotor.getConfigurator().apply(corneringConfig);
         indexingMotor.getConfigurator().apply(config);
-
-        corneringMotor.setControl(new Follower(hopperMotor.getDeviceID(), MotorAlignmentValue.Aligned));
-        indexingMotor.setControl(new Follower(hopperMotor.getDeviceID(), MotorAlignmentValue.Aligned));
     }
 
     @Override
@@ -58,10 +55,14 @@ public class C2026HopperIO implements HopperIO {
     @Override
     public void setTargetVoltage(double voltage) {
         hopperMotor.setControl(voltageRequest.withOutput(voltage));
+        corneringMotor.setControl(voltageRequest.withOutput(voltage * (1.5)));
+        indexingMotor.setControl(voltageRequest.withOutput(voltage * (-1.5)));
     }
 
     @Override
     public void stop() {
         hopperMotor.setControl(stopRequest);
+        corneringMotor.setControl(stopRequest);
+        indexingMotor.setControl(stopRequest);
     }
 }
