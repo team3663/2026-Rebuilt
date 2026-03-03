@@ -3,6 +3,9 @@ package frc.robot.config;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import frc.robot.generated.TestBotTunerConstants;
+import frc.robot.subsystems.climber.Climber;
+import frc.robot.subsystems.climber.ClimberIO;
+import frc.robot.subsystems.climber.ClimberInputs;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.ModuleIO;
@@ -65,6 +68,10 @@ public interface RobotFactory {
 
     default Led createLed() {
         return new Led(new LedIo() {
+        });
+    }
+    default Climber createClimber() {
+        return new Climber(new ClimberIO() {
         });
     }
 }

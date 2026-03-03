@@ -5,6 +5,9 @@ import com.ctre.phoenix6.hardware.CANdle;
 import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
 import frc.robot.generated.C2026TunerConstants;
+import frc.robot.subsystems.climber.C2026ClimberIO;
+import frc.robot.subsystems.climber.Climber;
+import frc.robot.subsystems.climber.ClimberIO;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
@@ -81,4 +84,7 @@ public class C2026RobotFactory implements RobotFactory {
     public Led createLed() {
         return new Led(new LedCandleIo(new CANdle(1)));
     }
+
+    @Override
+    public Climber createClimber(){return new Climber(new C2026ClimberIO(new TalonFX(200)));}
 }

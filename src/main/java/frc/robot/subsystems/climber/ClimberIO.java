@@ -20,3 +20,4 @@ public interface ClimberIO {
 
     default void setTargetPosition(double position) {
     }
+}

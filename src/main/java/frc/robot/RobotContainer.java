@@ -9,6 +9,7 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -18,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.config.RobotFactory;
+import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.hopper.Hopper;
@@ -44,6 +46,7 @@ public class RobotContainer {
     private final Shooter shooter;
     private final Vision vision;
     private final Led led;
+    private final Climber climber;
 
     private final CommandFactory commandFactory;
 
@@ -66,6 +69,7 @@ public class RobotContainer {
         this.shooter = robotFactory.createShooter();
         this.vision = robotFactory.createVision();
         this.led = robotFactory.createLed();
+        this.climber = robotFactory.createClimber();
 
         commandFactory = new CommandFactory(drive, feeder, hopper, intake, shooter
 //        , climber
@@ -137,9 +141,13 @@ public class RobotContainer {
         controller.b().whileTrue(hopper.withVoltage(3));
         controller.y().onTrue(hopper.stop());
 
+        controller.leftBumper().whileTrue(climber.goToWithVoltage(1.0));
+        controller.rightBumper().onTrue(climber.goToWithPosition(Units.inchesToMeters(9.0)));
+        controller.povDown().whileTrue(climber.zeroClimber());
+
         // Shooter Controls
-        controller.leftBumper().onTrue(Commands.runOnce(() -> shootingAtHub = !shootingAtHub));
-        controller.rightTrigger().whileTrue(commandFactory.aimShooter(() -> shootingAtHub));
+//        controller.leftBumper().onTrue(Commands.runOnce(() -> shootingAtHub = !shootingAtHub));
+//        controller.rightTrigger().whileTrue(commandFactory.aimShooter(() -> shootingAtHub));
     }
 
     /**

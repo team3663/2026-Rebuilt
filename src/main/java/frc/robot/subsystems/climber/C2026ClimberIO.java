@@ -16,8 +16,6 @@ import edu.wpi.first.math.util.Units;
 public class C2026ClimberIO implements ClimberIO {
 
 
-
-
     public TalonFX climbMotor = new TalonFX(20);
     private final VoltageOut voltageRequest = new VoltageOut(0.0);
     private final NeutralOut stopRequest = new NeutralOut();
@@ -42,7 +40,7 @@ public class C2026ClimberIO implements ClimberIO {
 
 
     @Override
-    public void updateInputs(ClimberInputs inputs){
+    public void updateInputs(ClimberInputs inputs) {
         inputs.currentClimbPosition = climbMotor.getPosition().getValueAsDouble();
         inputs.currentClimbVoltage = climbMotor.getMotorVoltage().getValueAsDouble();
         inputs.currentMotorDraw = climbMotor.getSupplyCurrent().getValueAsDouble();
@@ -52,11 +50,13 @@ public class C2026ClimberIO implements ClimberIO {
 
 
     @Override
-    public void stop(){
+    public void stop() {
         setTargetVoltage(0.0);
     }
 
 
     @Override
-    public void setTargetVoltage(double voltage){
+    public void setTargetVoltage(double voltage) {
         climbMotor.setControl(voltageRequest.withOutput(voltage));
+    }
+}
