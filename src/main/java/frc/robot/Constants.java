@@ -9,10 +9,12 @@ package frc.robot;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
-
 
 /**
  * This class defines the runtime mode used by AdvantageKit. The mode is always "real" when running
@@ -20,12 +22,21 @@ import edu.wpi.first.wpilibj.RobotBase;
  * (log replay from a file).
  */
 public final class Constants {
-    // TODO get the 2026 one:
-    public static final boolean IS_ANDYMARK = false;
-    public static final AprilTagFieldLayout FIELD = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
-
     public static final Mode simMode = Mode.SIM;
     public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
+
+    public static final boolean IS_ANDYMARK = false;
+    public static final AprilTagFieldLayout FIELD = AprilTagFieldLayout.loadField(IS_ANDYMARK ? AprilTagFields.k2026RebuiltAndymark : AprilTagFields.k2026RebuiltWelded);
+
+    // Climb Positions
+    public static final Pose2d BLUE_LEFT_RUNG_CLIMB = FIELD.getTagPose(31).get().toPose2d().plus(
+            new Transform2d(Units.inchesToMeters(43.510 + 13.0 + 2.0), Units.inchesToMeters(32.25 + (1.5 / 2.0)), Rotation2d.fromDegrees(0)));
+    public static final Pose2d BLUE_RIGHT_RUNG_CLIMB = FIELD.getTagPose(31).get().toPose2d().plus(
+            new Transform2d(Units.inchesToMeters(43.510 + 13.0 + 2.0), -Units.inchesToMeters(32.25 + (1.5 / 2.0)), Rotation2d.fromDegrees(0)));
+    public static final Pose2d RED_LEFT_RUNG_CLIMB = FIELD.getTagPose(15).get().toPose2d().plus(
+            new Transform2d(Units.inchesToMeters(43.510 + 13.0 + 2.0), Units.inchesToMeters(32.25 + (1.5 / 2.0)), Rotation2d.fromDegrees(0.0)));
+    public static final Pose2d RED_RIGHT_RUNG_CLIMB = FIELD.getTagPose(15).get().toPose2d().plus(
+            new Transform2d(Units.inchesToMeters(43.510 + 13.0 + 2.0), -Units.inchesToMeters(32.25 + (1.5 / 2.0)), Rotation2d.fromDegrees(0.0)));
 
     public enum Mode {
         /**
