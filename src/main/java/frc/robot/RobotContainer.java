@@ -144,8 +144,10 @@ public class RobotContainer {
                                 Rotation2d.kZero)));
 
         controller.a().whileTrue(hopper.withVoltage(3.0));
-        controller.b().whileTrue(feeder.withVoltage(2.0));
-        controller.y().whileTrue(shooter.shooterVoltage(3.0));
+        controller.b().whileTrue(feeder.withVoltage(3.0));
+        controller.y().whileTrue(shooter.shooterVoltage(2.5));
+        controller.x().whileTrue(intake.intakeAndPivot(4.0, Units.degreesToRadians(150.0)));
+        controller.rightTrigger().onTrue(intake.zeroPivot());
 
         // Intake
 //        controller.a().onTrue(intake.stop());

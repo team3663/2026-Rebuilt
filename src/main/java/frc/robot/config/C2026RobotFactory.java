@@ -79,8 +79,8 @@ public class C2026RobotFactory implements RobotFactory {
         ));
     }
 
-    @Override
-    public Led createLed() {
-        return new Led(new LedCandleIo(new CANdle(1)));
-    }
+//    @Override
+//    public Led createLed() {
+//        return new Led(new LedCandleIo(new CANdle(1)));
+//    }
 }
