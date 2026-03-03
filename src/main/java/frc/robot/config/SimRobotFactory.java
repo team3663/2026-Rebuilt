@@ -2,7 +2,6 @@ package frc.robot.config;
 
 import frc.robot.generated.C2026TunerConstants;
 import frc.robot.subsystems.climber.Climber;
-import frc.robot.subsystems.climber.ClimberIO;
 import frc.robot.subsystems.climber.SimClimberIO;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;

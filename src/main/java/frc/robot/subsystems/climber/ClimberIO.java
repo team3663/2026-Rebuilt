@@ -1,9 +1,5 @@
 package frc.robot.subsystems.climber;
 
-
-import frc.robot.subsystems.climber.ClimberInputs;
-
-
 public interface ClimberIO {
     default void updateInputs(ClimberInputs inputs) {
     }

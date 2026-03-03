@@ -1,22 +1,19 @@
 package frc.robot.subsystems.climber;
 
 
-import com.ctre.phoenix6.configs.CANrangeConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.*;
-import com.ctre.phoenix6.hardware.CANrange;
+import com.ctre.phoenix6.controls.NeutralOut;
+import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.signals.UpdateModeValue;
-import edu.wpi.first.math.util.Units;
 
 
 public class C2026ClimberIO implements ClimberIO {
 
 
-    public TalonFX climbMotor = new TalonFX(20);
+    public TalonFX climbMotor;
     private final VoltageOut voltageRequest = new VoltageOut(0.0);
     private final NeutralOut stopRequest = new NeutralOut();
     private final PositionVoltage positionRequest = new PositionVoltage(0.0);
@@ -51,12 +48,17 @@ public class C2026ClimberIO implements ClimberIO {
 
     @Override
     public void stop() {
-        setTargetVoltage(0.0);
+        climbMotor.setControl(stopRequest);
     }
 
 
     @Override
     public void setTargetVoltage(double voltage) {
         climbMotor.setControl(voltageRequest.withOutput(voltage));
+    }
+
+    @Override
+    public void setTargetPosition(double position) {
+        climbMotor.setControl(positionRequest.withPosition(position));
     }
 }

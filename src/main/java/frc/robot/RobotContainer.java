@@ -9,7 +9,6 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -72,9 +71,7 @@ public class RobotContainer {
         this.vision = robotFactory.createVision();
         this.led = robotFactory.createLed();
 
-        commandFactory = new CommandFactory(drive, feeder, hopper, intake, shooter
-//        , climber
-        );
+        commandFactory = new CommandFactory(drive, feeder, hopper, intake, shooter, climber);
 
         // Set up auto routines
         autoChooser = new LoggedDashboardChooser<>("Auto Choices", new SendableChooser<>());
@@ -135,7 +132,10 @@ public class RobotContainer {
                                 Rotation2d.kZero)));
 
         // Zero all subsystems
-        controller.start().onTrue(Commands.parallel(shooter.zeroHood(), intake.zeroPivot(), climber.zeroClimbMotors(), climber.zeroHooks()));
+        controller.start().onTrue(Commands.parallel(shooter.zeroHood(), intake.zeroPivot()
+                , climber.zeroClimber()
+//                , climber.zeroClimbMotors(), climber.zeroHooks()
+        ));
 
         // Aiming and setting the target of the Shooter
         controller.rightTrigger().whileTrue(commandFactory.aimShooter(() -> !controller.y().getAsBoolean()));
@@ -149,9 +149,13 @@ public class RobotContainer {
         controller.leftTrigger().and(() -> intakeOut).whileTrue(intake.deployAndIntake().alongWith(hopper.withVoltage(3.0)));
 
         // Climbing
-        controller.a().whileTrue(commandFactory.alignToTower());
-        controller.b().onTrue(intake.stow().andThen(climber.deploy()));
-        controller.x().and(() -> climber.isDeployed()).onTrue(climber.fullClimb());
+        // Main Climber
+//        controller.a().whileTrue(commandFactory.alignToTower());
+//        controller.b().onTrue(intake.stow().andThen(climber.deploy()));
+//        controller.x().and(() -> climber.isDeployed()).onTrue(climber.fullClimb());
+        // Wilsonville Climber
+        controller.a().onTrue(climber.deploy());
+        controller.b().onTrue(climber.climb());
     }
 
     /**

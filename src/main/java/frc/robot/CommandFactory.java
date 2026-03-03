@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.hopper.Hopper;
@@ -23,15 +24,17 @@ public class CommandFactory {
     private final Hopper hopper;
     private final Intake intake;
     private final Shooter shooter;
+    private final Climber climber;
 
     private final FireControlSystem fireControlSystem = new FireControlSystem();
 
-    public CommandFactory(Drive drive, Feeder feeder, Hopper hopper, Intake intake, Shooter shooter) {
+    public CommandFactory(Drive drive, Feeder feeder, Hopper hopper, Intake intake, Shooter shooter, Climber climber) {
         this.drive = drive;
         this.feeder = feeder;
         this.hopper = hopper;
         this.intake = intake;
         this.shooter = shooter;
+        this.climber = climber;
     }
 
     public Command aimShooter(BooleanSupplier aimAtHub) {

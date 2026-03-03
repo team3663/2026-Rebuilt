@@ -1,11 +1,9 @@
 package frc.robot.subsystems.led;
 
 import com.ctre.phoenix6.configs.CANdleConfiguration;
-import com.ctre.phoenix6.controls.ColorFlowAnimation;
 import com.ctre.phoenix6.controls.ControlRequest;
 import com.ctre.phoenix6.controls.SolidColor;
 import com.ctre.phoenix6.hardware.CANdle;
-import com.ctre.phoenix6.hardware.core.CoreCANdle;
 import com.ctre.phoenix6.signals.RGBWColor;
 import edu.wpi.first.wpilibj.util.Color;
 
