@@ -15,7 +15,6 @@ public class SimFeederIO implements FeederIO {
             LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60(1),
                     0.001, 1.0),
             DCMotor.getKrakenX60(1).withReduction(1.0));
-//    private final CANrangeSimState CANrangeSim = new CANrangeSimState();
     public final ProfiledPIDController controller = new ProfiledPIDController(
             1.0, 0.0, 0.0, new TrapezoidProfile.Constraints(
             Units.rotationsPerMinuteToRadiansPerSecond(500),
