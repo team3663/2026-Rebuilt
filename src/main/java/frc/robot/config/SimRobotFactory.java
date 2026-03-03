@@ -1,6 +1,9 @@
 package frc.robot.config;
 
 import frc.robot.generated.C2026TunerConstants;
+import frc.robot.subsystems.climber.Climber;
+import frc.robot.subsystems.climber.ClimberIO;
+import frc.robot.subsystems.climber.SimClimberIO;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
@@ -48,5 +51,9 @@ public class SimRobotFactory implements RobotFactory {
     @Override
     public Shooter createShooter() {
         return new Shooter(new SimShooterIO());
+    }
+    @Override
+    public Climber createClimber(){
+        return new Climber(new SimClimberIO());
     }
 }

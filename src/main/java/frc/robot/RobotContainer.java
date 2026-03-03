@@ -9,6 +9,7 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -18,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.config.RobotFactory;
+import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.hopper.Hopper;
@@ -42,6 +44,7 @@ public class RobotContainer {
     private final Hopper hopper;
     private final Intake intake;
     private final Shooter shooter;
+    private final Climber climber;
     private final Vision vision;
     private final Led led;
 
@@ -65,6 +68,7 @@ public class RobotContainer {
         this.hopper = robotFactory.createHopper();
         this.intake = robotFactory.createIntake();
         this.shooter = robotFactory.createShooter();
+        this.climber = robotFactory.createClimber();
         this.vision = robotFactory.createVision();
         this.led = robotFactory.createLed();
 
