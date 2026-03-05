@@ -14,7 +14,7 @@ import edu.wpi.first.math.util.Units;
 public class C2026ShooterIO implements ShooterIO {
     // TODO: get actual values for these constants
     private static final Shooter.Constants constants = new Shooter.Constants(
-            0, Units.degreesToRadians(90), Units.degreesToRadians(-180), Units.degreesToRadians(180));
+            0, Units.degreesToRadians(18.0), Units.degreesToRadians(-180), Units.degreesToRadians(180));
     private static final double HOOD_GEAR_RATIO = 14.0 / 340.0;
     private static final double TURRET_GEAR_RATIO = 1.0;
     private static final double SHOOTER_GEAR_RATIO = 1.0;
@@ -63,9 +63,14 @@ public class C2026ShooterIO implements ShooterIO {
         hoodConfig.CurrentLimits.SupplyCurrentLimit = 60;
         hoodConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-        hoodConfig.Slot0.kV = 0.0;
+        hoodConfig.MotionMagic.MotionMagicCruiseVelocity = 0.5;
+        hoodConfig.MotionMagic.MotionMagicAcceleration = 0.5;
+        hoodConfig.MotorOutput.PeakForwardDutyCycle = 0.2;
+        hoodConfig.MotorOutput.PeakReverseDutyCycle = -0.2;
+
+        hoodConfig.Slot0.kV = 12 / ((7368.0 * 2.0 * Math.PI) * HOOD_GEAR_RATIO);
         hoodConfig.Slot0.kA = 0.0;
-        hoodConfig.Slot0.kP = 0.0;
+        hoodConfig.Slot0.kP = 0.01;
         hoodConfig.Slot0.kI = 0.0;
         hoodConfig.Slot0.kD = 0.0;
 
@@ -91,7 +96,7 @@ public class C2026ShooterIO implements ShooterIO {
 
 //        shooterConfig.MotionMagic.MotionMagicJerk = 15.0;
 //        shooterConfig.MotionMagic.MotionMagicAcceleration = 5.0;
-//        shooterConfig.MotionMagic.MotionMagicCruiseVelocity = 2.0;
+        turretConfig.MotionMagic.MotionMagicCruiseVelocity = 0.0;
 
         turretMotor.getConfigurator().apply(turretConfig);
 
