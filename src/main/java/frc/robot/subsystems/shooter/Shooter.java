@@ -150,7 +150,7 @@ public class Shooter extends SubsystemBase {
 
     public Command zeroHood() {
         return runEnd(() -> {
-            io.setHoodTargetVoltage(-1.5);
+            io.setHoodTargetVoltage(-0.5);
             targetHoodPosition = constants.minimumHoodPosition;
         }, io::stopHood)
                 .withDeadline(waitUntil(() -> Math.abs(inputs.currentHoodVelocity) < 0.01)

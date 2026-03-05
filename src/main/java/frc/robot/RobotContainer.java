@@ -50,6 +50,7 @@ public class RobotContainer {
 
     // Controller
     private final CommandXboxController controller = new CommandXboxController(0);
+    private final CommandXboxController operatorController = new CommandXboxController(1);
 
     // Dashboard inputs
     private final LoggedDashboardChooser<Command> autoChooser;
@@ -130,13 +131,17 @@ public class RobotContainer {
                                 Rotation2d.k180deg :
                                 Rotation2d.kZero)));
 
-        controller.a().whileTrue(hopper.withVoltage(3.0));
-        controller.b().whileTrue(feeder.withVoltage(4.0));
-        controller.y().whileTrue(shooter.shooterVoltage(2.5));
-        controller.x().whileTrue(intake.intakeAndPivot(4.0, Units.degreesToRadians(150.0)));
-        controller.leftTrigger().whileTrue(intake.intakeAndPivot(4.0, Units.degreesToRadians(90.0)));
-        controller.rightTrigger().onTrue(intake.zeroPivot());
+//        operatorController.a().whileTrue(hopper.withVoltage(4.0));
+//        operatorController.b().whileTrue(feeder.withVoltage(5.0));
+//        operatorController.y().whileTrue(shooter.shooterVoltage(5.0));
+//        operatorController.x().whileTrue(intake.intakeAndPivot(4.0, Units.degreesToRadians(150.0)));
+//        operatorController.leftTrigger().whileTrue(intake.intakeAndPivot(4.0, Units.degreesToRadians(90.0)));
+//        operatorController.povUp().whileTrue(intake.intakeAndPivot(4.0, Units.degreesToRadians(45.0)));
+//        operatorController.rightTrigger().onTrue(intake.zeroPivot());
 
+
+        operatorController.rightTrigger().whileTrue(shooter.zeroHood());
+        operatorController.x().whileTrue(shooter.goTo(Units.degreesToRadians(10.0), 0.0, 0.0));
         // Intake
 //        controller.a().onTrue(intake.stop());
 //        controller.x().whileTrue(intake.intakeAndPivot(6.5, 0.0));
