@@ -181,12 +181,12 @@ public class Shooter extends SubsystemBase {
     }
 
     private double getNearestTargetTurretAngle(double target) {
-        if (constants.maximumTurretPosition - constants.minimumTurretPosition <= 2 * Math.PI) {
-            return getValidTurretPosition(getSmallestEquivalentAngle(target));
-        }
-        double current = getValidTurretPosition(inputs.currentTurretPosition);
-
         target = getSmallestEquivalentAngle(target);
+
+        if (constants.maximumTurretPosition - constants.minimumTurretPosition <= 2 * Math.PI)
+            return getValidTurretPosition(target);
+
+        double current = getValidTurretPosition(inputs.currentTurretPosition);
         double reducedCurrent = getSmallestEquivalentAngle(current);
         double fullTarget = target + (current - reducedCurrent);
 
