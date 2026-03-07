@@ -69,42 +69,45 @@ public class RobotContainer {
         commandFactory = new CommandFactory(drive, feeder, hopper, intake, shooter
 //        , climber
         );
-        this.autoPaths = new AutoPaths(drive, feeder, hopper, intake, shooter, commandFactory);
+        this.autoPaths = new AutoPaths(drive, intake, shooter, commandFactory);
 
 
         // Set up auto routines
         autoChooser = new LoggedDashboardChooser<>("Auto Choices", new SendableChooser<>());
 
         // Set up SysId routines
-        autoChooser.addOption(
-                "Drive SysId (Quasistatic Forward)",
-                drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-        autoChooser.addOption(
-                "Drive SysId (Quasistatic Reverse)",
-                drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-        autoChooser.addOption(
-                "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-        autoChooser.addOption(
-                "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-        autoChooser.addOption("LeftInFrontOfBump5ft-Depot-LeftClimb", autoPaths.leftSide_depot_leftClimb());
-        autoChooser.addOption("RightAllianceZone2ft-Outpost-RightClimb", autoPaths.rightSide_outpost_rightClimb());
-        autoChooser.addOption("LeftUnderTrench2ft-NeutralZone", autoPaths.leftStarting_neutralZone_middleLine());
-        autoChooser.addOption("RightUnderTrench2ft-NeutralZone", autoPaths.rightStarting_neutralZone_middleLine());
-        autoChooser.addOption("RightUnderTrench2ft-NeutralZone-LeftClimb", autoPaths.rightStarting_neutralZone_middleLine_leftClimb());
-        autoChooser.addOption("LeftUnderTrench2ft-NeutralZone-RightClimb", autoPaths.leftStarting_neutralZone_middleLine_rightClimb());
-        autoChooser.addOption("LeftUnderTrench2ft-NeutralZone-UnderTrench-NeutralZone", autoPaths.leftStarting_neutralZone_middleLine_x2());
-        autoChooser.addOption("RightUnderTrench2ft-NeutralZone-UnderTrench-NeutralZone", autoPaths.rightStarting_neutralZone_middleLine_x2());
-        autoChooser.addOption("LeftInFrontOfBump5ft-Depot-Outpost-RightClimb", autoPaths.leftStarting_depot_outpost_rightClimb());
-        autoChooser.addOption("RightAllianceZone2ft-Outpost-Depot-LeftClimb", autoPaths.rightStarting_outpost_depot_leftClimb());
-        autoChooser.addOption("LeftUnderTrench2ft-AllianceSideNeutralZone-RightClimb", autoPaths.leftStarting_neutralZone_AllianceSide_rightClimb());
-        autoChooser.addOption("RightUnderTrench2ft-AllianceSideNeutralZone-LeftClimb", autoPaths.rightStarting_neutralZone_AllianceSide_leftClimb());
-        autoChooser.addOption("RightUnderTrench2ft-PickupInNeutralZone-PickupInNeutralZone-Outpost", autoPaths.rightStarting_pickupNeutral_pickupNeutral_Outpost());
-        autoChooser.addOption("LeftUnderTrench2ftNoShooting-NeutralZone", autoPaths.leftStarting_neutralZone_middleLine());
-        autoChooser.addOption("RightUnderTrench2ftNoShooting-NeutralZone", autoPaths.rightStarting_neutralZone_middleLine());
-        autoChooser.addOption("RightUnderTrench2ftNoShooting-NeutralZone-LeftClimb", autoPaths.rightStarting_neutralZone_middleLine_leftClimb());
-        autoChooser.addOption("LeftUnderTrench2ftNoShooting-NeutralZone-RightClimb", autoPaths.leftStarting_neutralZone_middleLine_rightClimb());
-        autoChooser.addOption("LeftUnderTrench2ftNoShooting-NeutralZone-UnderTrench-NeutralZone", autoPaths.leftStarting_neutralZone_middleLine_x2());
-        autoChooser.addOption("RightUnderTrench2ftNoShooting-NeutralZone-UnderTrench-NeutralZone", autoPaths.rightStarting_neutralZone_middleLine_x2());
+//        autoChooser.addOption(
+//                "Drive SysId (Quasistatic Forward)",
+//                drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+//        autoChooser.addOption(
+//                "Drive SysId (Quasistatic Reverse)",
+//                drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+//        autoChooser.addOption(
+//                "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+//        autoChooser.addOption(
+//                "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+        // Auto Routines
+        autoChooser.addOption("RightUnderTrench2ft-NeutralZone-Outpost", autoPaths.rightStarting_neuralZone_outpost());
+//        autoChooser.addOption("LeftInFrontOfBump5ft-Depot-LeftClimb", autoPaths.leftSide_depot_leftClimb());
+//        autoChooser.addOption("RightAllianceZone2ft-Outpost-RightClimb", autoPaths.rightSide_outpost_rightClimb());
+//        autoChooser.addOption("LeftUnderTrench2ft-NeutralZone", autoPaths.leftStarting_neutralZone_middleLine());
+//        autoChooser.addOption("RightUnderTrench2ft-NeutralZone", autoPaths.rightStarting_neutralZone_middleLine());
+//        autoChooser.addOption("RightUnderTrench2ft-NeutralZone-LeftClimb", autoPaths.rightStarting_neutralZone_middleLine_leftClimb());
+//        autoChooser.addOption("LeftUnderTrench2ft-NeutralZone-RightClimb", autoPaths.leftStarting_neutralZone_middleLine_rightClimb());
+//        autoChooser.addOption("LeftUnderTrench2ft-NeutralZone-UnderTrench-NeutralZone", autoPaths.leftStarting_neutralZone_middleLine_x2());
+//        autoChooser.addOption("RightUnderTrench2ft-NeutralZone-UnderTrench-NeutralZone", autoPaths.rightStarting_neutralZone_middleLine_x2());
+//        autoChooser.addOption("LeftInFrontOfBump5ft-Depot-Outpost-RightClimb", autoPaths.leftStarting_depot_outpost_rightClimb());
+//        autoChooser.addOption("RightAllianceZone2ft-Outpost-Depot-LeftClimb", autoPaths.rightStarting_outpost_depot_leftClimb());
+//        autoChooser.addOption("LeftUnderTrench2ft-AllianceSideNeutralZone-RightClimb", autoPaths.leftStarting_neutralZone_AllianceSide_rightClimb());
+//        autoChooser.addOption("RightUnderTrench2ft-AllianceSideNeutralZone-LeftClimb", autoPaths.rightStarting_neutralZone_AllianceSide_leftClimb());
+//        autoChooser.addOption("RightUnderTrench2ft-PickupInNeutralZone-PickupInNeutralZone-Outpost", autoPaths.rightStarting_pickupNeutral_pickupNeutral_Outpost());
+//        autoChooser.addOption("LeftUnderTrench2ftNoShooting-NeutralZone", autoPaths.leftStarting_neutralZone_middleLine());
+//        autoChooser.addOption("RightUnderTrench2ftNoShooting-NeutralZone", autoPaths.rightStarting_neutralZone_middleLine());
+//        autoChooser.addOption("RightUnderTrench2ftNoShooting-NeutralZone-LeftClimb", autoPaths.rightStarting_neutralZone_middleLine_leftClimb());
+//        autoChooser.addOption("LeftUnderTrench2ftNoShooting-NeutralZone-RightClimb", autoPaths.leftStarting_neutralZone_middleLine_rightClimb());
+//        autoChooser.addOption("LeftUnderTrench2ftNoShooting-NeutralZone-UnderTrench-NeutralZone", autoPaths.leftStarting_neutralZone_middleLine_x2());
+//        autoChooser.addOption("RightUnderTrench2ftNoShooting-NeutralZone-UnderTrench-NeutralZone", autoPaths.rightStarting_neutralZone_middleLine_x2());
 
         // Configure the button bindings
         configureButtonBindings();
