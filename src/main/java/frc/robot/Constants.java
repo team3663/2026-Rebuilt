@@ -59,5 +59,8 @@ public final class Constants {
 
         // The Translation the turret is from the center of the robot
         public static final Translation2d TURRET_OFF_CENTER = new Translation2d(Units.inchesToMeters(-10.5), Units.inchesToMeters(-10.5));
+
+        // The velocity of the Shooter while not shooting
+        public static final double DEFAULT_VELOCITY = Units.rotationsPerMinuteToRadiansPerSecond(3500.0);
     }
 }

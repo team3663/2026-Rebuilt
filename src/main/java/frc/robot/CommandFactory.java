@@ -47,9 +47,7 @@ public class CommandFactory {
         return shooter.follow(() -> {
                     Pose2d robotPose = drive.getPose();
 
-                    var alliance = DriverStation.getAlliance();
-                    boolean redAlliance = alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red;
-                    Translation2d targetPosition = getShooterTarget(robotPose, redAlliance, aimAtHub);
+                    Translation2d targetPosition = getShooterTarget(robotPose, isRedAlliance(), aimAtHub);
 
                     firingSolution = fireControlSystem.calculate(
                             drive.getPose(), drive.getFieldOrientedVelocity(),
@@ -58,6 +56,13 @@ public class CommandFactory {
                     return firingSolution;
                 })
                 .finallyDo(() -> firingSolution = null);
+    }
+
+    public Command shooterDefault() {
+        return shooter.follow(() -> 0.0, () -> {
+            Translation2d target = isRedAlliance() ? Constants.Shooter.RED_HUB : Constants.Shooter.BLUE_HUB;
+            return target.minus(drive.getPose().getTranslation()).getAngle().getRadians();
+        }, () -> Constants.Shooter.DEFAULT_VELOCITY);
     }
 
     private Translation2d getShooterTarget(Pose2d robot, boolean redAlliance, boolean aimAtHub) {
@@ -72,6 +77,11 @@ public class CommandFactory {
         }
         Logger.recordOutput("CommandFactory/ShooterTarget", new Pose2d(target, Rotation2d.kZero));
         return target;
+    }
+
+    private boolean isRedAlliance() {
+        var alliance = DriverStation.getAlliance();
+        return alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red;
     }
 
     /**

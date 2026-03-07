@@ -94,7 +94,7 @@ public class RobotContainer {
         // Configure the button bindings
         configureButtonBindings();
 
-//        shooter.setDefaultCommand(shooter.goToDefaultState());
+        shooter.setDefaultCommand(commandFactory.shooterDefault());
 
         vision.setDefaultCommand(vision.consumeVisionMeasurements(drive::addVisionMeasurements, () -> {
             Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
