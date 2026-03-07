@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.math.interpolation.InverseInterpolator;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import frc.robot.Constants;
 import org.littletonrobotics.junction.Logger;
 
 import static edu.wpi.first.math.util.Units.degreesToRadians;
@@ -51,7 +52,11 @@ public class FireControlSystem {
         DISTANCE_LOOKUP_TABLE_PASS.put(6.0, new LookupEntry(degreesToRadians(9.25), rotationsPerMinuteToRadiansPerSecond(4250.0)));
     }
 
-    public FiringSolution calculate(Pose2d turretPose, Rotation2d robotRot, ChassisSpeeds fieldOrientedVelocity, Translation2d goalPosition, boolean aimAtHub) {
+    public FiringSolution calculate(Pose2d robotPose, ChassisSpeeds fieldOrientedVelocity,
+                                    Rotation2d turretRotation,
+                                    Translation2d goalPosition, boolean aimAtHub) {
+        Pose2d turretPose = getTurretPose(robotPose, turretRotation);
+
         Translation2d delta = goalPosition.minus(turretPose.getTranslation())
                 .minus(new Translation2d(
                         SPEED_FACTOR * fieldOrientedVelocity.vxMetersPerSecond,
@@ -71,8 +76,16 @@ public class FireControlSystem {
         Logger.recordOutput("CommandFactory/TargetTurretPose", new Pose2d(turretPose.getTranslation(), rotation));
 
         // Add a slight offset when we are shooting at an angle
-        return new FiringSolution(rotation.getRadians() - robotRot.getRadians(),
+        return new FiringSolution(rotation.getRadians() - robotPose.getRotation().getRadians(),
                 entry.hoodAngle, entry.shooterVelocity);
+    }
+
+    public Pose2d getTurretPose(Pose2d robotPose, Rotation2d turretRotation) {
+        Rotation2d turretAngle = robotPose.getRotation().plus(turretRotation);
+        Translation2d turretTranslation = robotPose.getTranslation().plus(Constants.Shooter.TURRET_OFF_CENTER);
+        Pose2d turretPose = new Pose2d(turretTranslation, turretAngle);
+        Logger.recordOutput("CommandFactory/TurretPose", turretPose);
+        return turretPose;
     }
 
     private record LookupEntry(double hoodAngle, double shooterVelocity) {

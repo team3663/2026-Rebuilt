@@ -12,9 +12,11 @@ import static edu.wpi.first.wpilibj2.command.Commands.waitUntil;
 
 public class Intake extends SubsystemBase {
     public static final double POSITION_THRESHOLD = Units.degreesToRadians(2.0);
-    public static final double DEPLOY_ANGLE = Units.degreesToRadians(0.0);
+    public static final double DEPLOY_ANGLE = Units.degreesToRadians(160.0);
     public static final double STOW_ANGLE = Units.degreesToRadians(0.0);
+    public static final double FEED_ANGLE = Units.degreesToRadians(40.0);
     public static final double INTAKE_VOLTAGE = 0.0;
+    public static final double FEED_VOLTAGE = 0.0;
 
     private final IntakeIO io;
     private final Constants constants;
@@ -115,6 +117,10 @@ public class Intake extends SubsystemBase {
 
     public Command deploy() {
         return intakeAndPivot(0.0, DEPLOY_ANGLE);
+    }
+
+    public Command feed() {
+        return intakeAndPivot(FEED_VOLTAGE, FEED_ANGLE);
     }
 
     public Command stop() {

@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.config.RobotFactory;
 import frc.robot.subsystems.drive.Drive;
@@ -53,14 +54,11 @@ public class RobotContainer {
 
     // Controller
     private final CommandXboxController controller = new CommandXboxController(0);
-    private final CommandXboxController operatorController = new CommandXboxController(1);
 
     private final CommandXboxController testController;
 
     // Dashboard inputs
     private final LoggedDashboardChooser<Command> autoChooser;
-
-    private boolean shootingAtHub = true;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -136,36 +134,45 @@ public class RobotContainer {
                 () -> -controller.getRightX()
         ));
 
+        Trigger resetFieldOrientedTrigger = controller.back();
+        Trigger zeroTrigger = controller.start();
+
+        Trigger intakeTrigger = controller.leftTrigger();
+        Trigger stowIntakeTrigger = controller.leftBumper();
+
+        Trigger shootIntoHubTrigger = controller.rightBumper();
+        Trigger shootIntoZoneTrigger = controller.rightTrigger();
+        Trigger shootTrigger = shootIntoHubTrigger.or(shootIntoZoneTrigger);
+        Trigger shooterReadyToFire = shootTrigger.and(commandFactory::isAimingAtTarget);
+
         // Reset gyro to 0° when B button is pressed
-        controller.back().onTrue(drive.resetOdometry(() ->
+        resetFieldOrientedTrigger.onTrue(drive.resetOdometry(() ->
                 new Pose2d(
                         drive.getPose().getTranslation(),
                         DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == DriverStation.Alliance.Red ?
                                 Rotation2d.k180deg :
                                 Rotation2d.kZero)));
 
-//        operatorController.a().whileTrue(hopper.withVoltage(4.0));
-//        operatorController.b().whileTrue(feeder.withVoltage(5.0));
-//        operatorController.y().whileTrue(shooter.shooterVoltage(5.0));
-//        operatorController.x().whileTrue(intake.intakeAndPivot(4.0, Units.degreesToRadians(150.0)));
-//        operatorController.leftTrigger().whileTrue(intake.intakeAndPivot(4.0, Units.degreesToRadians(90.0)));
-//        operatorController.povUp().whileTrue(intake.intakeAndPivot(4.0, Units.degreesToRadians(45.0)));
-//        operatorController.rightTrigger().onTrue(intake.zeroPivot());
+        zeroTrigger.onTrue(
+                Commands.parallel(
+                        intake.zeroPivot(),
+                        shooter.zeroHood()
+                )
+        );
 
+        // general bindings for the intake
+        intakeTrigger.whileTrue(intake.deployAndIntake());
+        stowIntakeTrigger.whileTrue(intake.stow());
 
-        operatorController.rightTrigger().whileTrue(shooter.zeroHood());
-        operatorController.x().whileTrue(shooter.goTo(Units.degreesToRadians(10.0), 0.0, 0.0));
-        // Intake
-//        controller.a().onTrue(intake.stop());
-//        controller.x().whileTrue(intake.intakeAndPivot(6.5, 0.0));
-//
-//        //Hopper Controls
-//        controller.b().whileTrue(hopper.withVoltage(3));
-//        controller.y().onTrue(hopper.stop());
-//
-//        // Shooter Controls
-//        controller.leftBumper().onTrue(Commands.runOnce(() -> shootingAtHub = !shootingAtHub));
-//        controller.rightTrigger().whileTrue(commandFactory.aimShooter(() -> shootingAtHub));
+        // general bindings for the shooter
+        shootIntoHubTrigger.whileTrue(commandFactory.aim(true));
+        shootIntoZoneTrigger.whileTrue(commandFactory.aim(false));
+
+        // feed when we are aiming at the target while shooting
+        shooterReadyToFire.whileTrue(commandFactory.feedIntoShooter());
+
+        // while shooting and not intaking fuel, use the intake to aid in feeding
+        shootTrigger.and(intakeTrigger.negate()).whileTrue(intake.feed());
     }
 
     private void configureTestBindings() {

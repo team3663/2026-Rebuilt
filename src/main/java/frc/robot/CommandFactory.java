@@ -11,10 +11,10 @@ import frc.robot.subsystems.hopper.Hopper;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.util.FireControlSystem;
+import frc.robot.util.FiringSolution;
 import org.littletonrobotics.junction.Logger;
 
-import java.util.function.BooleanSupplier;
-import java.util.function.Supplier;
+import static edu.wpi.first.wpilibj2.command.Commands.parallel;
 
 public class CommandFactory {
     private final Drive drive;
@@ -25,6 +25,8 @@ public class CommandFactory {
 
     private final FireControlSystem fireControlSystem = new FireControlSystem();
 
+    private FiringSolution firingSolution = null;
+
     public CommandFactory(Drive drive, Feeder feeder, Hopper hopper, Intake intake, Shooter shooter) {
         this.drive = drive;
         this.feeder = feeder;
@@ -33,17 +35,32 @@ public class CommandFactory {
         this.shooter = shooter;
     }
 
-    public Command aimShooter(BooleanSupplier aimAtHub) {
-        Supplier<Translation2d> target = () -> {
-            var alliance = DriverStation.getAlliance();
-            boolean redAlliance = alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red;
-            return getShooterTarget(drive.getPose(), redAlliance, aimAtHub.getAsBoolean());
-        };
+    public boolean isAimingAtTarget() {
+        if (firingSolution == null) {
+            return false;
+        }
 
-        return shooter.follow(() -> fireControlSystem.calculate(getTurretPose(), drive.getRotation(), drive.getFieldOrientedVelocity(), target.get(), aimAtHub.getAsBoolean()));
+        return this.shooter.isAt(firingSolution.hoodAngle(), firingSolution.turretAngle(), firingSolution.shooterVelocity());
     }
 
-    public Translation2d getShooterTarget(Pose2d robot, boolean redAlliance, boolean aimAtHub) {
+    public Command aim(boolean aimAtHub) {
+        return shooter.follow(() -> {
+                    Pose2d robotPose = drive.getPose();
+
+                    var alliance = DriverStation.getAlliance();
+                    boolean redAlliance = alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red;
+                    Translation2d targetPosition = getShooterTarget(robotPose, redAlliance, aimAtHub);
+
+                    firingSolution = fireControlSystem.calculate(
+                            drive.getPose(), drive.getFieldOrientedVelocity(),
+                            Rotation2d.fromRadians(shooter.getTurretPosition()),
+                            targetPosition, aimAtHub);
+                    return firingSolution;
+                })
+                .finallyDo(() -> firingSolution = null);
+    }
+
+    private Translation2d getShooterTarget(Pose2d robot, boolean redAlliance, boolean aimAtHub) {
         Translation2d target;
         if (aimAtHub)
             target = redAlliance ? Constants.Shooter.RED_HUB : Constants.Shooter.BLUE_HUB;
@@ -57,11 +74,15 @@ public class CommandFactory {
         return target;
     }
 
-    public Pose2d getTurretPose() {
-        Rotation2d turretAngle = new Rotation2d(drive.getRotation().getRadians() + shooter.getTurretPosition());
-        Translation2d turretTranslation = drive.getPose().getTranslation().plus(Constants.Shooter.TURRET_OFF_CENTER);
-        Pose2d turretPose = new Pose2d(turretTranslation, turretAngle);
-        Logger.recordOutput("CommandFactory/TurretPose", turretPose);
-        return turretPose;
+    /**
+     * Feed fuel into the shooter from the hopper
+     * <p>
+     * Requires: Feeder, Hopper
+     */
+    public Command feedIntoShooter() {
+        return parallel(
+                hopper.withVoltage(4.0),
+                feeder.withVoltage(4.0)
+        );
     }
 }
