@@ -60,6 +60,15 @@ public class CommandFactory {
                 .finallyDo(() -> firingSolution = null);
     }
 
+    public Command shooterDefault() {
+        return shooter.follow(() -> 0.0, () -> {
+            var alliance = DriverStation.getAlliance();
+            boolean redAlliance = alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red;
+            Translation2d target = redAlliance ? Constants.Shooter.RED_HUB : Constants.Shooter.BLUE_HUB;
+            return target.minus(drive.getPose().getTranslation()).getAngle().getRadians();
+        }, () -> Constants.Shooter.DEFAULT_VELOCITY);
+    }
+
     private Translation2d getShooterTarget(Pose2d robot, boolean redAlliance, boolean aimAtHub) {
         Translation2d target;
         if (aimAtHub)

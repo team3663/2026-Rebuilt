@@ -18,8 +18,6 @@ public class Shooter extends SubsystemBase {
     private final static double TURRET_POSITION_THRESHOLD = Units.degreesToRadians(1);
     private final static double SHOOTER_VELOCITY_THRESHOLD = Units.rotationsPerMinuteToRadiansPerSecond(1);
 
-    private final static double DEFAULT_SHOOTER_VELOCITY = Units.rotationsPerMinuteToRadiansPerSecond(3500.0);
-
     private final ShooterIO io;
     private final ShooterInputsAutoLogged inputs = new ShooterInputsAutoLogged();
     private final Constants constants;
@@ -73,10 +71,6 @@ public class Shooter extends SubsystemBase {
 
     public boolean isAt(double hoodPosition, double turretPosition, double shooterVelocity) {
         return this.hoodAtPosition(hoodPosition) && this.turretAtPosition(turretPosition) && this.shooterAtVelocity(shooterVelocity);
-    }
-
-    public Command goToDefaultState() {
-        return follow(() -> this.getConstants().minimumHoodPosition(), () -> 0.0, () -> DEFAULT_SHOOTER_VELOCITY);
     }
 
     public Command goTo(double hoodPosition, double turretPosition, double shooterVelocity) {
