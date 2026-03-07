@@ -10,7 +10,6 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
 
 public class C2026ShooterIO implements ShooterIO {
-    // TODO: get actual values for these constants
     private static final Shooter.Constants constants = new Shooter.Constants(
             0.0,
             Units.degreesToRadians(18.0),

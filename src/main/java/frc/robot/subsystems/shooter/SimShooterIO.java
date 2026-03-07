@@ -11,8 +11,8 @@ import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.robot.Robot;
 
 public class SimShooterIO implements ShooterIO {
-    private static final Shooter.Constants CONSTANTS = new Shooter.Constants(0, Units.degreesToRadians(45.0), Units.rotationsToRadians(-3.0), Units.rotationsToRadians(3.0));
-
+    private static final Shooter.Constants CONSTANTS = new Shooter.Constants(
+            0, Units.degreesToRadians(18.0), Units.degreesToRadians(-185.0), Units.degreesToRadians(165.0));
     private static final double HOOD_GEAR_RATIO = 1.0;
     private static final double TURRET_GEAR_RATIO = 50.0;
     private static final double SHOOTER_GEAR_RATIO = 1.0;
