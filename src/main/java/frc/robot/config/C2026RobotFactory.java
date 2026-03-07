@@ -86,5 +86,5 @@ public class C2026RobotFactory implements RobotFactory {
     }
 
     @Override
-    public Climber createClimber(){return new Climber(new C2026ClimberIO(new TalonFX(200)));}
+    public Climber createClimber(){return new Climber(new C2026ClimberIO(new TalonFX(20)));}
 }

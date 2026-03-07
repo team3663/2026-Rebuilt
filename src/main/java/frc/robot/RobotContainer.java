@@ -141,13 +141,15 @@ public class RobotContainer {
         controller.b().whileTrue(hopper.withVoltage(3));
         controller.y().onTrue(hopper.stop());
 
-        controller.leftBumper().whileTrue(climber.goToWithVoltage(1.0));
-        controller.rightBumper().onTrue(climber.goToWithPosition(Units.inchesToMeters(9.0)));
-        controller.povDown().whileTrue(climber.zeroClimber());
+
+        controller.start().whileTrue(climber.zeroClimber());
+        controller.y().onTrue(climber.deploy());
+        controller.a().onTrue(climber.retract());
+        controller.b().onTrue(climber.climb());
 
         // Shooter Controls
-//        controller.leftBumper().onTrue(Commands.runOnce(() -> shootingAtHub = !shootingAtHub));
-//        controller.rightTrigger().whileTrue(commandFactory.aimShooter(() -> shootingAtHub));
+        controller.leftBumper().onTrue(Commands.runOnce(() -> shootingAtHub = !shootingAtHub));
+        controller.rightTrigger().whileTrue(commandFactory.aimShooter(() -> shootingAtHub));
     }
 
     /**

@@ -11,15 +11,18 @@ import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.UpdateModeValue;
 import edu.wpi.first.math.util.Units;
+import frc.robot.subsystems.shooter.Shooter;
 
 
 public class C2026ClimberIO implements ClimberIO {
 
-
-    public TalonFX climbMotor = new TalonFX(20);
+    private static final Climber.Constants constants = new Climber.Constants(
+            Units.inchesToMeters(9.0), 0.0, Units.inchesToMeters(5.0));
+    private static final double CLIMBER_GEAR_RATIO = 33.333336;
+    private final TalonFX climbMotor;
     private final VoltageOut voltageRequest = new VoltageOut(0.0);
     private final NeutralOut stopRequest = new NeutralOut();
-    private final PositionVoltage positionRequest = new PositionVoltage(0.0);
+    private final MotionMagicVoltage positionRequest = new MotionMagicVoltage(0.0);
 
 
     public C2026ClimberIO(TalonFX climbMotor) {
@@ -27,12 +30,15 @@ public class C2026ClimberIO implements ClimberIO {
 
 
         TalonFXConfiguration climbMotorConfig = new TalonFXConfiguration();
+        climbMotorConfig.Feedback.SensorToMechanismRatio = CLIMBER_GEAR_RATIO;
         climbMotorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         climbMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        climbMotorConfig.MotionMagic.MotionMagicAcceleration = 1.0;
+        climbMotorConfig.MotionMagic.MotionMagicCruiseVelocity = 1.0;
         //not sure if the PID values are needed or not
-//        climbMotorConfig.Slot0.kP = 0.0;
-//        climbMotorConfig.Slot0.kI = 0.0;
-//        climbMotorConfig.Slot0.kD = 0.0;
+        climbMotorConfig.Slot0.kP = 0.0;
+        climbMotorConfig.Slot0.kI = 0.0;
+        climbMotorConfig.Slot0.kD = 0.0;
 
 
         climbMotor.getConfigurator().apply(climbMotorConfig);
@@ -59,4 +65,7 @@ public class C2026ClimberIO implements ClimberIO {
     public void setTargetVoltage(double voltage) {
         climbMotor.setControl(voltageRequest.withOutput(voltage));
     }
+
+    @Override
+    public void setTargetPosition(double position) {climbMotor.setControl(positionRequest.withPosition(position));}
 }

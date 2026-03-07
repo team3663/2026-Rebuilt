@@ -8,14 +8,12 @@ import org.littletonrobotics.junction.Logger;
 
 
 public class Climber extends SubsystemBase {
-    private final double MAX_CLIMB_HEIGHT = Units.inchesToMeters(9.0);
-    private final double MIN_CLIMB_HEIGHT = 0.0;
-    private final double CLIMB_HEIGHT = Units.inchesToMeters(4.0);
     private final double VELOCITY_THRESHOLD = Units.rotationsPerMinuteToRadiansPerSecond(0.1);
     private final double POSITION_THRESHOLD = Units.inchesToMeters(0.1);
 
     private final ClimberIO io;
     private final ClimberInputsAutoLogged inputs = new ClimberInputsAutoLogged();
+    private Constants constants;
 
 
     private boolean Zeroed = false;
@@ -24,8 +22,13 @@ public class Climber extends SubsystemBase {
     private double targetVelocity;
 
 
+    public Climber(ClimberIO io) {
+        this.io = io;
+        this.constants = io.getConstants();
+    }
+
     @Override
-    public void periodic(){
+    public void periodic() {
         io.updateInputs(inputs);
         Logger.recordOutput("Climber/HoodZeroed", Zeroed);
         Logger.recordOutput("Climber/TargetPosition", targetPosition);
@@ -33,44 +36,59 @@ public class Climber extends SubsystemBase {
         Logger.recordOutput("Climber/TargetVoltage", targetVoltage);
         Logger.processInputs("Climber/Inputs", inputs);
     }
-    public Climber(ClimberIO io){
-        this.io = io;
-    }
-    public Command goToWithPosition(double position){
-        return run(()->
-                io.setTargetPosition(position)).until(() -> atTargetPosition());
-    }
 
-
-    public Command goToWithVoltage(double voltage){
-        return runEnd(()->
-                io.setTargetVoltage(voltage), ()-> io.stop());}
-
-    public Command deploy(){
-        return run(()->
-                io.setTargetPosition(MAX_CLIMB_HEIGHT)).until(() -> atTargetPosition());
-    }
-    public Command climb(){
-        return run(()->
-                io.setTargetPosition(CLIMB_HEIGHT)).until(() -> atTargetPosition());
+    public Command goTo(double position) {
+        return runEnd(() -> {
+            if (Zeroed) {
+                io.setTargetPosition(position);
+            }
+        }, io::stop).until(() -> atTargetPosition());
     }
 
 
-    public Command zeroClimber(){
-        return runEnd(()->
-                        io.setTargetVoltage(-1.0), ()-> {
+    public Command withVoltage(double voltage) {
+        return runEnd(() ->
+                io.setTargetVoltage(voltage), () -> io.stop());
+    }
+
+    public Command deploy() {
+        return run(() ->
+                goTo(constants.MAX_CLIMB_HEIGHT));
+    }
+
+    public Command climb() {
+        return run(() ->
+                goTo(constants.CLIMB_HEIGHT));
+    }
+    public Command retract(){
+        return run(()-> {
+            goTo(constants.MIN_CLIMB_HEIGHT);
+        });
+    }
+
+
+    public Command zeroClimber() {
+        return runEnd(() ->
+                        io.setTargetVoltage(-1.0), () -> {
                     io.stop();
                     Zeroed = true;
                 }
-        ).until(()-> inputs.currentClimbVelocity <= VELOCITY_THRESHOLD);
+        ).until(() -> inputs.currentClimbVelocity <= VELOCITY_THRESHOLD);
     }
-    public Command stop(){
-        return runOnce(() -> io.stop());}
-    public boolean atTargetPosition(){
+
+    public Command stop() {
+        return runOnce(() -> io.stop());
+    }
+
+    public boolean atTargetPosition() {
         return Math.abs(targetPosition - inputs.currentClimbPosition) <= POSITION_THRESHOLD;
     }
-    public boolean atTargetVoltage(){
-        return targetVoltage == inputs.currentClimbVoltage;
+
+    public record Constants(
+            double MAX_CLIMB_HEIGHT,
+            double MIN_CLIMB_HEIGHT,
+            double CLIMB_HEIGHT
+    ) {
     }
 
 
