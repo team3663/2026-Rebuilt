@@ -202,20 +202,20 @@ public class AutoPaths {
      * <p>
      * This command requires {@link Shooter}
      *
-     * @see #shooting(boolean)
+     * @see #shooting(boolean, double)
      * @see #zeroAndShootInPlace() a zeroing alternative
      */
-    private Command shooting(boolean shouldZeroHood) {
+    private Command shooting(boolean shouldZeroHood, double timeout) {
         return commandFactory.aimShooter(() -> true)
-                .beforeStarting(shouldZeroHood ? shooter.zeroHood() : Commands.none());
+                .beforeStarting(shouldZeroHood ? shooter.zeroHood() : Commands.none()).withTimeout(timeout);
     }
 
     private Command shootingInPlace(boolean shouldZeroHood) {
-        return shooting(shouldZeroHood).withTimeout(2.0);
+        return shooting(shouldZeroHood, 2.0);
     }
 
     private Command shootingInPlace() {
-        return shooting(false).withTimeout(2.0);
+        return shooting(false, 1.0);
     }
 
     /**
@@ -228,12 +228,13 @@ public class AutoPaths {
     }
 
     private Command zeroAndShoot() {
-        return shooting(true).alongWith(intake.zeroPivot());
+        return shooting(true, 2.0).alongWith(intake.zeroPivot());
     }
 
     private Command goToPositionAndShoot(Pose2d blueTargetPose, Pose2d redTargetPose, Supplier<Pose2d> blueIntermediatePose, Supplier<Pose2d> redIntermediatePose, boolean shouldZero) {
         return goToPosition(blueTargetPose, redTargetPose, blueIntermediatePose, redIntermediatePose)
-                .alongWith(shooting(shouldZero))
+                // TODO Figure out how to do the timeout here
+                .alongWith(shooting(shouldZero, 10.0))
                 .alongWith(shouldZero ? intake.zeroPivot() : Commands.none())
                 .until(() -> drive.atPosition(alliancePose(blueTargetPose, redTargetPose).getTranslation()));
     }
@@ -255,7 +256,7 @@ public class AutoPaths {
                                    Supplier<Pose2d> blueIntermediatePose, Supplier<Pose2d> redIntermediatePose,
                                    boolean shouldZero) {
         return intaking(blueTargetPose, redTargetPose, blueIntermediatePose, redIntermediatePose)
-                .alongWith(shooting(shouldZero))
+                .alongWith(shooting(shouldZero, 10.0))
                 .beforeStarting(shouldZero ? intake.zeroPivot() : Commands.none())
                 .until(() -> drive.atPosition(alliancePose(blueTargetPose, redTargetPose).getTranslation()));
     }
@@ -297,11 +298,27 @@ public class AutoPaths {
     }
 
     // Auto Routines
-    public Command rightStarting_neuralZone_outpost() {
+    public Command rightStarting_neutralZone_neutralZone() {
+        return Commands.sequence(
+                resetOdometry(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE),
+                intakingAndZeroing(Constants.BLUE_RIGHT_CENTER_LINE, Constants.RED_RIGHT_CENTER_LINE,
+                        () -> Constants.BLUE_RIGHT_CENTER_LINE_INTERMEDIATE, () -> Constants.RED_RIGHT_CENTER_LINE_INTERMEDIATE),
+                goToPosition(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE,
+                        () -> Constants.BLUE_RIGHT_CENTER_LINE_TO_TRENCH, () -> Constants.RED_RIGHT_CENTER_LINE_TO_TRENCH),
+//                shootingInPlace(),
+                intakingAndZeroing(Constants.BLUE_RIGHT_ALLIANCE_SIDE, Constants.RED_RIGHT_ALLIANCE_SIDE,
+                        () -> Constants.BLUE_RIGHT_CENTER_LINE_INTERMEDIATE, () -> Constants.RED_RIGHT_CENTER_LINE_INTERMEDIATE),
+                goToPosition(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE,
+                        () -> Constants.BLUE_RIGHT_ALLIANCE_SIDE_TO_TRENCH, () -> Constants.RED_RIGHT_ALLIANCE_SIDE_TO_TRENCH),
+                shootingInPlace()
+        );
+    }
+
+    public Command rightStarting_neutralZone_outpost() {
         return Commands.sequence(
                 resetOdometry(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE),
                 intakingAndZeroing(Constants.BLUE_MIDDLE_CENTER_LINE, Constants.RED_MIDDLE_CENTER_LINE,
-                        () -> Constants.BLUE_RIGHT_CENTER_LINE, () -> Constants.RED_RIGHT_CENTER_LINE),
+                        () -> Constants.BLUE_RIGHT_CENTER_LINE_INTERMEDIATE, () -> Constants.RED_RIGHT_CENTER_LINE_INTERMEDIATE),
                 goToPosition(Constants.BLUE_OUTPOST_CENTERED, Constants.RED_OUTPOST_CENTERED,
                         () -> Constants.BLUE_RIGHT_CENTER_LINE_TO_TRENCH, () -> Constants.RED_RIGHT_CENTER_LINE_TO_TRENCH, 1.0),
                 shootingInPlace()
@@ -333,7 +350,7 @@ public class AutoPaths {
                 resetOdometry(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE,
                         Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE),
                 intakeAndPass(Constants.BLUE_MIDDLE_CENTER_LINE, Constants.RED_MIDDLE_CENTER_LINE,
-                        () -> Constants.BLUE_LEFT_CENTER_LINE, () -> Constants.RED_LEFT_CENTER_LINE, true),
+                        () -> Constants.BLUE_LEFT_CENTER_LINE_INTERMEDIATE, () -> Constants.RED_LEFT_CENTER_LINE_INTERMEDIATE, true),
                 intaking(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE,
                         () -> Constants.BLUE_RIGHT_CENTER_LINE_TO_TRENCH, () -> Constants.RED_RIGHT_CENTER_LINE_TO_TRENCH),
                 shootingInPlace());
@@ -343,7 +360,7 @@ public class AutoPaths {
         return Commands.sequence(
                 resetOdometry(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE),
                 intakeAndPass(Constants.BLUE_MIDDLE_CENTER_LINE, Constants.RED_MIDDLE_CENTER_LINE,
-                        () -> Constants.BLUE_RIGHT_CENTER_LINE, () -> Constants.RED_RIGHT_CENTER_LINE, true),
+                        () -> Constants.BLUE_RIGHT_CENTER_LINE_INTERMEDIATE, () -> Constants.RED_RIGHT_CENTER_LINE_INTERMEDIATE, true),
                 intaking(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE,
                         () -> Constants.BLUE_LEFT_CENTER_LINE_TO_TRENCH, () -> Constants.RED_LEFT_CENTER_LINE_TO_TRENCH),
                 shootingInPlace());
@@ -354,7 +371,7 @@ public class AutoPaths {
                 resetOdometry(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE,
                         Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE),
                 intakeAndPass(Constants.BLUE_MIDDLE_CENTER_LINE, Constants.RED_MIDDLE_CENTER_LINE,
-                        () -> Constants.BLUE_LEFT_CENTER_LINE, () -> Constants.RED_LEFT_CENTER_LINE, true),
+                        () -> Constants.BLUE_LEFT_CENTER_LINE_INTERMEDIATE, () -> Constants.RED_LEFT_CENTER_LINE_INTERMEDIATE, true),
                 intaking(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE,
                         () -> Constants.BLUE_RIGHT_CENTER_LINE_TO_TRENCH, () -> Constants.RED_RIGHT_CENTER_LINE_TO_TRENCH),
                 shootingInPlace(),
@@ -366,7 +383,7 @@ public class AutoPaths {
         return Commands.sequence(
                 resetOdometry(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE),
                 intakeAndPass(Constants.BLUE_MIDDLE_CENTER_LINE, Constants.RED_MIDDLE_CENTER_LINE,
-                        () -> Constants.BLUE_RIGHT_CENTER_LINE, () -> Constants.RED_RIGHT_CENTER_LINE, true),
+                        () -> Constants.BLUE_RIGHT_CENTER_LINE_INTERMEDIATE, () -> Constants.RED_RIGHT_CENTER_LINE_INTERMEDIATE, true),
                 intaking(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE,
                         () -> Constants.BLUE_LEFT_CENTER_LINE_TO_TRENCH, () -> Constants.RED_LEFT_CENTER_LINE_TO_TRENCH),
                 shootingInPlace(),
@@ -405,7 +422,7 @@ public class AutoPaths {
                 resetOdometry(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE,
                         Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE),
                 intakeAndPass(Constants.BLUE_MIDDLE_CENTER_LINE, Constants.RED_MIDDLE_CENTER_LINE,
-                        () -> Constants.BLUE_LEFT_CENTER_LINE, () -> Constants.RED_LEFT_CENTER_LINE, true),
+                        () -> Constants.BLUE_LEFT_CENTER_LINE_INTERMEDIATE, () -> Constants.RED_LEFT_CENTER_LINE_INTERMEDIATE, true),
                 intaking(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE,
                         () -> Constants.BLUE_RIGHT_CENTER_LINE_TO_TRENCH, () -> Constants.RED_RIGHT_CENTER_LINE_TO_TRENCH),
                 shootingInPlace(),
@@ -421,7 +438,7 @@ public class AutoPaths {
         return Commands.sequence(
                 resetOdometry(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE),
                 intakeAndPass(Constants.BLUE_MIDDLE_CENTER_LINE, Constants.RED_MIDDLE_CENTER_LINE,
-                        () -> Constants.BLUE_RIGHT_CENTER_LINE, () -> Constants.RED_RIGHT_CENTER_LINE, true),
+                        () -> Constants.BLUE_RIGHT_CENTER_LINE_INTERMEDIATE, () -> Constants.RED_RIGHT_CENTER_LINE_INTERMEDIATE, true),
                 intaking(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE,
                         () -> Constants.BLUE_LEFT_CENTER_LINE_TO_TRENCH, () -> Constants.RED_LEFT_CENTER_LINE_TO_TRENCH),
                 shootingInPlace(),
@@ -439,7 +456,7 @@ public class AutoPaths {
                         Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE),
                 zeroAndShootInPlace(),
                 intakeAndPass(Constants.BLUE_MIDDLE_CENTER_LINE, Constants.RED_MIDDLE_CENTER_LINE,
-                        () -> Constants.BLUE_LEFT_CENTER_LINE, () -> Constants.RED_LEFT_CENTER_LINE),
+                        () -> Constants.BLUE_LEFT_CENTER_LINE_INTERMEDIATE, () -> Constants.RED_LEFT_CENTER_LINE_INTERMEDIATE),
                 intaking(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE,
                         () -> Constants.BLUE_RIGHT_CENTER_LINE_TO_TRENCH, () -> Constants.RED_RIGHT_CENTER_LINE_TO_TRENCH),
                 shootingInPlace());
@@ -450,7 +467,7 @@ public class AutoPaths {
                 resetOdometry(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE),
                 zeroAndShootInPlace(),
                 intakeAndPass(Constants.BLUE_MIDDLE_CENTER_LINE, Constants.RED_MIDDLE_CENTER_LINE,
-                        () -> Constants.BLUE_RIGHT_CENTER_LINE, () -> Constants.RED_RIGHT_CENTER_LINE),
+                        () -> Constants.BLUE_RIGHT_CENTER_LINE_INTERMEDIATE, () -> Constants.RED_RIGHT_CENTER_LINE_INTERMEDIATE),
                 intaking(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE,
                         () -> Constants.BLUE_LEFT_CENTER_LINE_TO_TRENCH, () -> Constants.RED_LEFT_CENTER_LINE_TO_TRENCH),
                 shootingInPlace());
@@ -462,7 +479,7 @@ public class AutoPaths {
                         Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE),
                 zeroAndShootInPlace(),
                 intakeAndPass(Constants.BLUE_MIDDLE_CENTER_LINE, Constants.RED_MIDDLE_CENTER_LINE,
-                        () -> Constants.BLUE_LEFT_CENTER_LINE, () -> Constants.RED_LEFT_CENTER_LINE),
+                        () -> Constants.BLUE_LEFT_CENTER_LINE_INTERMEDIATE, () -> Constants.RED_LEFT_CENTER_LINE_INTERMEDIATE),
                 intaking(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE,
                         () -> Constants.BLUE_RIGHT_CENTER_LINE_TO_TRENCH, () -> Constants.RED_RIGHT_CENTER_LINE_TO_TRENCH),
                 shootingInPlace(),
@@ -475,7 +492,7 @@ public class AutoPaths {
                 resetOdometry(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE),
                 zeroAndShootInPlace(),
                 intakeAndPass(Constants.BLUE_MIDDLE_CENTER_LINE, Constants.RED_MIDDLE_CENTER_LINE,
-                        () -> Constants.BLUE_RIGHT_CENTER_LINE, () -> Constants.RED_RIGHT_CENTER_LINE),
+                        () -> Constants.BLUE_RIGHT_CENTER_LINE_INTERMEDIATE, () -> Constants.RED_RIGHT_CENTER_LINE_INTERMEDIATE),
                 intaking(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE,
                         () -> Constants.BLUE_LEFT_CENTER_LINE_TO_TRENCH, () -> Constants.RED_LEFT_CENTER_LINE_TO_TRENCH),
                 shootingInPlace(),
@@ -517,7 +534,7 @@ public class AutoPaths {
                         Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE),
                 zeroAndShootInPlace(),
                 intakeAndPass(Constants.BLUE_MIDDLE_CENTER_LINE, Constants.RED_MIDDLE_CENTER_LINE,
-                        () -> Constants.BLUE_LEFT_CENTER_LINE, () -> Constants.RED_LEFT_CENTER_LINE),
+                        () -> Constants.BLUE_LEFT_CENTER_LINE_INTERMEDIATE, () -> Constants.RED_LEFT_CENTER_LINE_INTERMEDIATE),
                 intaking(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE,
                         () -> Constants.BLUE_RIGHT_CENTER_LINE_TO_TRENCH, () -> Constants.RED_RIGHT_CENTER_LINE_TO_TRENCH),
                 shootingInPlace(),
@@ -534,7 +551,7 @@ public class AutoPaths {
                 resetOdometry(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE),
                 zeroAndShootInPlace(),
                 intakeAndPass(Constants.BLUE_MIDDLE_CENTER_LINE, Constants.RED_MIDDLE_CENTER_LINE,
-                        () -> Constants.BLUE_RIGHT_CENTER_LINE, () -> Constants.RED_RIGHT_CENTER_LINE),
+                        () -> Constants.BLUE_RIGHT_CENTER_LINE_INTERMEDIATE, () -> Constants.RED_RIGHT_CENTER_LINE_INTERMEDIATE),
                 intaking(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE,
                         () -> Constants.BLUE_LEFT_CENTER_LINE_TO_TRENCH, () -> Constants.RED_LEFT_CENTER_LINE_TO_TRENCH),
                 shootingInPlace(),
@@ -573,7 +590,7 @@ public class AutoPaths {
         return Commands.sequence(
                 resetOdometry(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE),
                 zeroAndShootInPlace(),
-                intaking(Constants.BLUE_RIGHT_CENTER_LINE, Constants.RED_RIGHT_CENTER_LINE),
+                intaking(Constants.BLUE_RIGHT_CENTER_LINE_INTERMEDIATE, Constants.RED_RIGHT_CENTER_LINE_INTERMEDIATE),
                 goToPosition(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE),
                 shootingInPlace(),
                 intaking(Constants.BLUE_RIGHT_ALLIANCE_SIDE, Constants.RED_RIGHT_ALLIANCE_SIDE),
