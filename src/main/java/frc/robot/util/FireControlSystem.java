@@ -57,16 +57,14 @@ public class FireControlSystem {
                                     Translation2d goalPosition, boolean aimAtHub) {
         Pose2d turretPose = getTurretPose(robotPose, turretRotation);
 
-        Translation2d delta = goalPosition.minus(turretPose.getTranslation())
-                .minus(new Translation2d(
-                        SPEED_FACTOR * fieldOrientedVelocity.vxMetersPerSecond,
-                        SPEED_FACTOR * fieldOrientedVelocity.vyMetersPerSecond
-                ));
+        Translation2d target = goalPosition.minus(leadingOffset(fieldOrientedVelocity));
+
+        Translation2d delta = target.minus(turretPose.getTranslation());
 
         double distance = delta.getNorm();
 
         LookupEntry entry;
-        if  (aimAtHub)
+        if (aimAtHub)
             entry = DISTANCE_LOOKUP_TABLE_HUB.get(distance);
         else
             entry = DISTANCE_LOOKUP_TABLE_PASS.get(distance);
@@ -78,6 +76,15 @@ public class FireControlSystem {
         // Add a slight offset when we are shooting at an angle
         return new FiringSolution(rotation.getRadians() - robotPose.getRotation().getRadians(),
                 entry.hoodAngle, entry.shooterVelocity);
+    }
+
+    public Translation2d leadingOffset(ChassisSpeeds fieldOrientedVelocity) {
+        return new Translation2d(
+                SPEED_FACTOR * (fieldOrientedVelocity.vxMetersPerSecond + fieldOrientedVelocity.omegaRadiansPerSecond * Constants.Shooter.TURRET_OFF_CENTER.getNorm() *
+                        Math.cos(Math.atan2(Constants.Shooter.TURRET_OFF_CENTER.getY(), Constants.Shooter.TURRET_OFF_CENTER.getX()) - Math.PI / 2)),
+                SPEED_FACTOR * (fieldOrientedVelocity.vyMetersPerSecond + fieldOrientedVelocity.omegaRadiansPerSecond * Constants.Shooter.TURRET_OFF_CENTER.getNorm() *
+                        Math.sin(Math.atan2(Constants.Shooter.TURRET_OFF_CENTER.getY(), Constants.Shooter.TURRET_OFF_CENTER.getX()) - Math.PI / 2))
+        );
     }
 
     public Pose2d getTurretPose(Pose2d robotPose, Rotation2d turretRotation) {
