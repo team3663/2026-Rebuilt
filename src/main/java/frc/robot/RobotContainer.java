@@ -11,7 +11,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.Unit;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -32,8 +31,6 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.FireControlSystem;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-
-import java.util.Optional;
 
 import static frc.robot.Constants.ENABLE_TEST_FEATURES;
 
@@ -185,8 +182,8 @@ public class RobotContainer {
         final double TUNING_HOOD_ANGLE_CHANGE = Units.degreesToRadians(0.5);
         final double TUNING_SHOOTER_VELOCITY_CHANGE = Units.rotationsPerMinuteToRadiansPerSecond(50.0);
 
-        final double[] tuningHoodAngle = new double[] {shooter.getConstants().minimumHoodPosition()};
-        final double[] tuningShooterVelocity = new double[] {0.0};
+        final double[] tuningHoodAngle = new double[]{shooter.getConstants().minimumHoodPosition()};
+        final double[] tuningShooterVelocity = new double[]{0.0};
 
         testController.rightBumper().whileTrue(Commands.parallel(
                 commandFactory.calibrateShooter(() -> tuningHoodAngle[0], () -> tuningShooterVelocity[0]),

@@ -1,7 +1,10 @@
 package frc.robot.util;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.*;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.math.interpolation.InverseInterpolator;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -34,10 +37,6 @@ public class FireControlSystem {
         DISTANCE_LOOKUP_TABLE_HUB.put(4.0, new LookupEntry(degreesToRadians(8.0), rotationsPerMinuteToRadiansPerSecond(2200.0)));
 
 
-
-
-
-
         // Passing
         DISTANCE_LOOKUP_TABLE_PASS.put(1.0, new LookupEntry(degreesToRadians(50.0), rotationsPerMinuteToRadiansPerSecond(2500.0)));
         DISTANCE_LOOKUP_TABLE_PASS.put(2.0, new LookupEntry(degreesToRadians(40.0), rotationsPerMinuteToRadiansPerSecond(3000.0)));
@@ -55,9 +54,9 @@ public class FireControlSystem {
                                     Rotation2d turretRotation,
                                     Translation2d goalPosition, boolean aimAtHub) {
         Translation2d leadTarget = goalPosition.minus(new Translation2d(
-                        SPEED_FACTOR * fieldOrientedVelocity.vxMetersPerSecond,
-                        SPEED_FACTOR * fieldOrientedVelocity.vyMetersPerSecond
-                ));
+                SPEED_FACTOR * fieldOrientedVelocity.vxMetersPerSecond,
+                SPEED_FACTOR * fieldOrientedVelocity.vyMetersPerSecond
+        ));
         Logger.recordOutput("CommandFactory/LeadGoalPose", new Pose2d(leadTarget, Rotation2d.kZero));
 
         Pose2d turretPose = getTurretPose(robotPose, turretRotation);
@@ -67,7 +66,7 @@ public class FireControlSystem {
         double distance = delta.getNorm();
 
         LookupEntry entry;
-        if  (aimAtHub)
+        if (aimAtHub)
             entry = DISTANCE_LOOKUP_TABLE_HUB.get(distance);
         else
             entry = DISTANCE_LOOKUP_TABLE_PASS.get(distance);

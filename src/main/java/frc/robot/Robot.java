@@ -8,7 +8,6 @@
 package frc.robot;
 
 import edu.wpi.first.units.Units;
-import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -120,9 +119,9 @@ public class Robot extends LoggedRobot {
     public void robotPeriodic() {
         // Optionally switch the thread to high priority to improve loop
         // timing (see the template project documentation for details)
-         Threads.setCurrentThreadPriority(true, 99);
+        Threads.setCurrentThreadPriority(true, 99);
 
-         long startMillis = System.currentTimeMillis();
+        long startMillis = System.currentTimeMillis();
 
         // Runs the Scheduler. This is responsible for polling buttons, adding
         // newly-scheduled commands, running already-scheduled commands, removing
@@ -134,9 +133,9 @@ public class Robot extends LoggedRobot {
         long endMillis = System.currentTimeMillis();
 
         // Return to non-RT thread priority (do not modify the first argument)
-         Threads.setCurrentThreadPriority(false, 10);
+        Threads.setCurrentThreadPriority(false, 10);
 
-         Logger.recordOutput("Robot/CommandSchedulerTime", Units.Milliseconds.of(endMillis - startMillis));
+        Logger.recordOutput("Robot/CommandSchedulerTime", Units.Milliseconds.of(endMillis - startMillis));
     }
 
     /**
