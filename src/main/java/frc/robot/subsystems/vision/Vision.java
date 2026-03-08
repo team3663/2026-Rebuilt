@@ -38,8 +38,8 @@ public class Vision extends SubsystemBase {
     private final double[] processingDurations;
 
     static {
-        MEASUREMENT_STD_DEV_DISTANCE_MAP.put(0.1, VecBuilder.fill(0.05, 0.05, 0.05));
-        MEASUREMENT_STD_DEV_DISTANCE_MAP.put(8.0, VecBuilder.fill(3.0, 3.0, 3.0));
+        MEASUREMENT_STD_DEV_DISTANCE_MAP.put(0.1, VecBuilder.fill(0.05, 0.05, 0.0));
+        MEASUREMENT_STD_DEV_DISTANCE_MAP.put(8.0, VecBuilder.fill(3.0, 3.0, 0.0));
     }
 
     public Vision(AprilTagFieldLayout fieldLayout, VisionIO... ios) {
