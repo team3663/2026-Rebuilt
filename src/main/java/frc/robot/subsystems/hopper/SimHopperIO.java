@@ -27,8 +27,8 @@ public class SimHopperIO implements HopperIO {
     }
 
     @Override
-    public void setTargetVoltage(double voltage) {
-        sim.setInputVoltage(voltage);
+    public void setTargetVoltage(double corneringTargetVoltage, double hopperTargetVoltage) {
+        sim.setInputVoltage(corneringTargetVoltage);
     }
 
     @Override

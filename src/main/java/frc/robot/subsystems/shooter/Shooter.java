@@ -2,6 +2,7 @@ package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.FiringSolution;
 import org.littletonrobotics.junction.Logger;
@@ -16,8 +17,6 @@ public class Shooter extends SubsystemBase {
     private final static double HOOD_POSITION_THRESHOLD = Units.degreesToRadians(1);
     private final static double TURRET_POSITION_THRESHOLD = Units.degreesToRadians(1);
     private final static double SHOOTER_VELOCITY_THRESHOLD = Units.rotationsPerMinuteToRadiansPerSecond(1);
-
-    private final static double DEFAULT_SHOOTER_VELOCITY = Units.rotationsPerMinuteToRadiansPerSecond(3500.0);
 
     private final ShooterIO io;
     private final ShooterInputsAutoLogged inputs = new ShooterInputsAutoLogged();
@@ -72,10 +71,6 @@ public class Shooter extends SubsystemBase {
 
     public boolean isAt(double hoodPosition, double turretPosition, double shooterVelocity) {
         return this.hoodAtPosition(hoodPosition) && this.turretAtPosition(turretPosition) && this.shooterAtVelocity(shooterVelocity);
-    }
-
-    public Command goToDefaultState() {
-        return follow(() -> this.getConstants().minimumHoodPosition(), () -> 0.0, () -> DEFAULT_SHOOTER_VELOCITY);
     }
 
     public Command goTo(double hoodPosition, double turretPosition, double shooterVelocity) {
@@ -149,7 +144,7 @@ public class Shooter extends SubsystemBase {
 
     public Command zeroHood() {
         return runEnd(() -> {
-            io.setHoodTargetVoltage(-1.5);
+            io.setHoodTargetVoltage(-0.5);
             targetHoodPosition = constants.minimumHoodPosition;
         }, io::stopHood)
                 .withDeadline(waitUntil(() -> Math.abs(inputs.currentHoodVelocity) < 0.01)
@@ -186,9 +181,12 @@ public class Shooter extends SubsystemBase {
     }
 
     private double getNearestTargetTurretAngle(double target) {
-        double current = getValidTurretPosition(inputs.currentTurretPosition);
-
         target = getSmallestEquivalentAngle(target);
+
+        if (constants.maximumTurretPosition - constants.minimumTurretPosition <= 2 * Math.PI)
+            return getValidTurretPosition(target);
+
+        double current = getValidTurretPosition(inputs.currentTurretPosition);
         double reducedCurrent = getSmallestEquivalentAngle(current);
         double fullTarget = target + (current - reducedCurrent);
 
@@ -230,6 +228,12 @@ public class Shooter extends SubsystemBase {
 
     public double getTargetShooterVelocity() {
         return targetShooterVelocity;
+    }
+
+    public Command shooterVoltage(double voltage) {
+        return Commands.runEnd(
+                () -> io.setShooterTargetVoltage(voltage), io::stopShooter
+        );
     }
 
     public record Constants(

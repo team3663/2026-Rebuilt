@@ -9,6 +9,7 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -17,6 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.config.RobotFactory;
 import frc.robot.subsystems.drive.Drive;
@@ -26,10 +28,9 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.led.Led;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.vision.Vision;
+import frc.robot.util.FireControlSystem;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-
-import java.util.Optional;
 
 import static frc.robot.Constants.ENABLE_TEST_FEATURES;
 
@@ -58,8 +59,6 @@ public class RobotContainer {
 
     // Dashboard inputs
     private final LoggedDashboardChooser<Command> autoChooser;
-
-    private boolean shootingAtHub = true;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -95,22 +94,11 @@ public class RobotContainer {
         // Configure the button bindings
         configureButtonBindings();
 
-        shooter.setDefaultCommand(shooter.goToDefaultState());
+        shooter.setDefaultCommand(commandFactory.shooterDefault());
 
-        vision.setDefaultCommand(vision.consumeVisionMeasurements(drive::addVisionMeasurements, () -> {
-            Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
-
-            if (alliance.isPresent() && DriverStation.isDisabled()) {
-                if (alliance.get() == DriverStation.Alliance.Red) {
-                    return Rotation2d.fromDegrees(0);
-                }
-                else
-                    return Rotation2d.fromDegrees(180);
-            }
-            else {
-                return drive.getRotation();
-            }
-        }));
+        vision.setDefaultCommand(
+                vision.consumeVisionMeasurements(drive::addVisionMeasurements, drive::getRotation)
+                        .ignoringDisable(true));
 
         // Configure the button bindings
         configureButtonBindings();
@@ -135,25 +123,53 @@ public class RobotContainer {
                 () -> -controller.getRightX()
         ));
 
+        controller.a().whileTrue(
+                shooter.goTo(0.0, 0.0, Units.rotationsPerMinuteToRadiansPerSecond(2000.0)));
+        controller.b().whileTrue(shooter.goTo(0.0, 0.0, 0.0));
+        controller.x().whileTrue(shooter.goTo(0.0, Units.degreesToRadians(90.0), 0.0));
+        controller.y().whileTrue(shooter.goTo(0.0, Units.degreesToRadians(-90.0), 0.0));
+
+        Trigger resetFieldOrientedTrigger = controller.back();
+        Trigger zeroTrigger = controller.start();
+
+        Trigger intakeTrigger = controller.leftTrigger();
+        Trigger stowIntakeTrigger = controller.leftBumper();
+
+        Trigger shootIntoHubTrigger = controller.rightBumper();
+        Trigger shootIntoZoneTrigger = controller.rightTrigger();
+        Trigger shootTrigger = shootIntoHubTrigger.or(shootIntoZoneTrigger);
+        Trigger shooterReadyToFire = shootTrigger.and(commandFactory::isAimingAtTarget)
+                .or(controller.rightTrigger());
+
         // Reset gyro to 0° when B button is pressed
-        controller.back().onTrue(drive.resetOdometry(() ->
+        resetFieldOrientedTrigger.onTrue(drive.resetOdometry(() ->
                 new Pose2d(
                         drive.getPose().getTranslation(),
                         DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == DriverStation.Alliance.Red ?
                                 Rotation2d.k180deg :
                                 Rotation2d.kZero)));
 
-        // Intake
-        controller.a().onTrue(intake.stop());
-        controller.x().whileTrue(intake.intakeAndPivot(6.5, 0.0));
+        zeroTrigger.onTrue(
+                Commands.parallel(
+                        intake.zeroPivot(),
+                        shooter.zeroHood()
+                )
+        );
 
-        //Hopper Controls
-        controller.b().whileTrue(hopper.withVoltage(3));
-        controller.y().onTrue(hopper.stop());
+        // general bindings for the intake
+        intakeTrigger.whileTrue(intake.deployAndIntake());
+        stowIntakeTrigger.whileTrue(intake.stow());
 
-        // Shooter Controls
-        controller.leftBumper().onTrue(Commands.runOnce(() -> shootingAtHub = !shootingAtHub));
-        controller.rightTrigger().whileTrue(commandFactory.aimShooter(() -> shootingAtHub));
+
+        // general bindings for the shooter
+        shootIntoHubTrigger.whileTrue(commandFactory.aim(true));
+//        shootIntoZoneTrigger.whileTrue(commandFactory.aim(false));
+
+        // feed when we are aiming at the target while shooting
+        shooterReadyToFire.whileTrue(commandFactory.feedIntoShooter());
+
+        // while shooting and not intaking fuel, use the intake to aid in feeding
+        shootTrigger.and(intakeTrigger.negate()).whileTrue(intake.feed());
     }
 
     private void configureTestBindings() {
@@ -163,31 +179,38 @@ public class RobotContainer {
         // POV LEFT/RIGHT moves the turret left and right
         // X/Y increases and decreases the shooters velocity
 
-        final double TUNING_HOOD_ANGLE_CHANGE = Units.degreesToRadians(0.25);
-        final double TUNING_TURRET_ANGLE_CHANGE = Units.degreesToRadians(1.0);
+        final double TUNING_HOOD_ANGLE_CHANGE = Units.degreesToRadians(0.5);
         final double TUNING_SHOOTER_VELOCITY_CHANGE = Units.rotationsPerMinuteToRadiansPerSecond(50.0);
 
-        final double[] tuningHoodAngle = new double[] {shooter.getConstants().minimumHoodPosition()};
-        final double[] tuningTurretAngle = new double[] {0.0};
-        final double[] tuningShooterVelocity = new double[] {0.0};
+        final double[] tuningHoodAngle = new double[]{shooter.getConstants().minimumHoodPosition()};
+        final double[] tuningShooterVelocity = new double[]{0.0};
 
-        testController.a().toggleOnTrue(Commands.parallel(
-                shooter.follow(() -> tuningHoodAngle[0], () -> tuningTurretAngle[0], () -> tuningShooterVelocity[0]),
+        testController.rightBumper().whileTrue(Commands.parallel(
+                commandFactory.calibrateShooter(() -> tuningHoodAngle[0], () -> tuningShooterVelocity[0]),
                 Commands.run(() -> {
+                    Translation2d goalPosition = CommandFactory.isRedAlliance() ? Constants.Shooter.RED_HUB : Constants.Shooter.BLUE_HUB;
+
+                    Pose2d robotPose = drive.getPose();
+                    Rotation2d turretRotation = Rotation2d.fromRotations(shooter.getTurretPosition());
+
+                    Pose2d turretPose = FireControlSystem.getTurretPose(robotPose, turretRotation);
+
+                    Translation2d delta = goalPosition.minus(turretPose.getTranslation());
+                    double distance = delta.getNorm();
+
+                    Logger.recordOutput("Tuning/Distance", distance);
+
                     Logger.recordOutput("Tuning/TargetHoodAngle", tuningHoodAngle[0]);
-                    Logger.recordOutput("Tuning/TargetTurretAngle", tuningTurretAngle[0]);
                     Logger.recordOutput("Tuning/TargetShooterVelocity", tuningShooterVelocity[0]);
                 })
         ));
+        testController.rightTrigger().whileTrue(commandFactory.feedIntoShooter());
 
         testController.povUp().onTrue(Commands.runOnce(() -> tuningHoodAngle[0] += TUNING_HOOD_ANGLE_CHANGE));
         testController.povDown().onTrue(Commands.runOnce(() -> tuningHoodAngle[0] -= TUNING_HOOD_ANGLE_CHANGE));
 
-        testController.povLeft().onTrue(Commands.runOnce(() -> tuningTurretAngle[0] += TUNING_TURRET_ANGLE_CHANGE));
-        testController.povRight().onTrue(Commands.runOnce(() -> tuningTurretAngle[0] -= TUNING_TURRET_ANGLE_CHANGE));
-
-        testController.y().onTrue(Commands.runOnce(() -> tuningShooterVelocity[0] += TUNING_SHOOTER_VELOCITY_CHANGE));
-        testController.x().onTrue(Commands.runOnce(() -> tuningShooterVelocity[0] -= TUNING_SHOOTER_VELOCITY_CHANGE));
+        testController.povRight().onTrue(Commands.runOnce(() -> tuningShooterVelocity[0] += TUNING_SHOOTER_VELOCITY_CHANGE));
+        testController.povLeft().onTrue(Commands.runOnce(() -> tuningShooterVelocity[0] -= TUNING_SHOOTER_VELOCITY_CHANGE));
     }
 
     /**

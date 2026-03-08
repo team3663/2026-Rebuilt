@@ -7,7 +7,8 @@ import org.littletonrobotics.junction.Logger;
 public class Hopper extends SubsystemBase {
     private final HopperIO io;
     private final HopperInputsAutoLogged inputs = new HopperInputsAutoLogged();
-    private double targetVoltage;
+    private double targetHopperVoltage;
+    private double targetCorneringVoltage;
 
     public Hopper(HopperIO io) {
         this.io = io;
@@ -16,23 +17,25 @@ public class Hopper extends SubsystemBase {
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs("Hopper/Inputs", inputs);
-        Logger.recordOutput("Hopper/TargetVoltage", targetVoltage);
+        Logger.recordOutput("Hopper/TargetVoltage", targetHopperVoltage);
+        Logger.recordOutput("Hopper/CorneringTargetVoltage", targetCorneringVoltage);
     }
 
-    public double getTargetVoltage() {
-        return targetVoltage;
+    public double getTargetHopperVoltage() {
+        return targetHopperVoltage;
     }
 
-    public Command withVoltage(double voltage) {
+    public Command withVoltage(double corneringVoltage, double hopperVoltage) {
         return runEnd(() -> {
-            targetVoltage = voltage;
-            io.setTargetVoltage(voltage);
+            targetHopperVoltage = hopperVoltage;
+            targetCorneringVoltage = corneringVoltage;
+            io.setTargetVoltage(corneringVoltage, hopperVoltage);
         }, io::stop);
     }
 
     public Command stop() {
         return runOnce(() -> {
-            targetVoltage = 0.0;
+            targetHopperVoltage = 0.0;
             io.stop();
         });
     }
