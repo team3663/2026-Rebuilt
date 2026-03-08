@@ -10,6 +10,7 @@ package frc.robot;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.Unit;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -96,20 +97,9 @@ public class RobotContainer {
 
         shooter.setDefaultCommand(commandFactory.shooterDefault());
 
-        vision.setDefaultCommand(vision.consumeVisionMeasurements(drive::addVisionMeasurements, () -> {
-            Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
-
-            if (alliance.isPresent() && DriverStation.isDisabled()) {
-                if (alliance.get() == DriverStation.Alliance.Red) {
-                    return Rotation2d.fromDegrees(0);
-                }
-                else
-                    return Rotation2d.fromDegrees(180);
-            }
-            else {
-                return drive.getRotation();
-            }
-        }));
+        vision.setDefaultCommand(
+                vision.consumeVisionMeasurements(drive::addVisionMeasurements, drive::getRotation)
+                        .ignoringDisable(true));
 
         // Configure the button bindings
         configureButtonBindings();
@@ -134,6 +124,12 @@ public class RobotContainer {
                 () -> -controller.getRightX()
         ));
 
+        controller.a().whileTrue(
+                shooter.goTo(0.0, 0.0, Units.rotationsPerMinuteToRadiansPerSecond(2000.0)));
+        controller.b().whileTrue(shooter.goTo(0.0, 0.0, 0.0));
+        controller.x().whileTrue(shooter.goTo(0.0, Units.degreesToRadians(90.0), 0.0));
+        controller.y().whileTrue(shooter.goTo(0.0, Units.degreesToRadians(-90.0), 0.0));
+
         Trigger resetFieldOrientedTrigger = controller.back();
         Trigger zeroTrigger = controller.start();
 
@@ -143,7 +139,8 @@ public class RobotContainer {
         Trigger shootIntoHubTrigger = controller.rightBumper();
         Trigger shootIntoZoneTrigger = controller.rightTrigger();
         Trigger shootTrigger = shootIntoHubTrigger.or(shootIntoZoneTrigger);
-        Trigger shooterReadyToFire = shootTrigger.and(commandFactory::isAimingAtTarget);
+        Trigger shooterReadyToFire = shootTrigger.and(commandFactory::isAimingAtTarget)
+                .or(controller.rightTrigger());
 
         // Reset gyro to 0° when B button is pressed
         resetFieldOrientedTrigger.onTrue(drive.resetOdometry(() ->
@@ -166,7 +163,7 @@ public class RobotContainer {
 
         // general bindings for the shooter
         shootIntoHubTrigger.whileTrue(commandFactory.aim(true));
-        shootIntoZoneTrigger.whileTrue(commandFactory.aim(false));
+//        shootIntoZoneTrigger.whileTrue(commandFactory.aim(false));
 
         // feed when we are aiming at the target while shooting
         shooterReadyToFire.whileTrue(commandFactory.feedIntoShooter());
@@ -183,7 +180,7 @@ public class RobotContainer {
         // X/Y increases and decreases the shooters velocity
 
         final double TUNING_HOOD_ANGLE_CHANGE = Units.degreesToRadians(0.25);
-        final double TUNING_TURRET_ANGLE_CHANGE = Units.degreesToRadians(1.0);
+        final double TUNING_TURRET_ANGLE_CHANGE = Units.degreesToRadians(10.0);
         final double TUNING_SHOOTER_VELOCITY_CHANGE = Units.rotationsPerMinuteToRadiansPerSecond(50.0);
 
         final double[] tuningHoodAngle = new double[] {shooter.getConstants().minimumHoodPosition()};

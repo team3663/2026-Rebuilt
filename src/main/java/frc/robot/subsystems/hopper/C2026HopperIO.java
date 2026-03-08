@@ -36,11 +36,18 @@ public class C2026HopperIO implements HopperIO {
         corneringConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         corneringConfig.CurrentLimits.SupplyCurrentLimit = 20;
         corneringConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        corneringConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        corneringConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+
+        TalonFXConfiguration indexingConfig = new TalonFXConfiguration();
+        indexingConfig.Feedback.SensorToMechanismRatio = CORNERING_GEAR_RATIO;
+        indexingConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        indexingConfig.CurrentLimits.SupplyCurrentLimit = 20;
+        indexingConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+        indexingConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
         hopperMotor.getConfigurator().apply(config);
         corneringMotor.getConfigurator().apply(corneringConfig);
-        indexingMotor.getConfigurator().apply(config);
+        indexingMotor.getConfigurator().apply(indexingConfig);
     }
 
     @Override
@@ -53,10 +60,10 @@ public class C2026HopperIO implements HopperIO {
     }
 
     @Override
-    public void setTargetVoltage(double voltage) {
-        hopperMotor.setControl(voltageRequest.withOutput(voltage));
-        corneringMotor.setControl(voltageRequest.withOutput(voltage * (1.5)));
-        indexingMotor.setControl(voltageRequest.withOutput(voltage * (-1.5)));
+    public void setTargetVoltage(double corneringVoltage, double hopperVoltage) {
+        hopperMotor.setControl(voltageRequest.withOutput(hopperVoltage));
+        corneringMotor.setControl(voltageRequest.withOutput(corneringVoltage ));
+        indexingMotor.setControl(voltageRequest.withOutput(corneringVoltage));
     }
 
     @Override
