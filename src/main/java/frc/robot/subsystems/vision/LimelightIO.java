@@ -16,13 +16,13 @@ public class LimelightIO implements VisionIO {
         this.cameraName = name;
 
         // Initially the Limelight IMU should be in FUSED mode, it will change when robot is enabled.
-        LimelightHelpers.SetIMUMode(cameraName, LIMELIGHT_IMU_EXTERNAL);
+        LimelightHelpers.SetIMUMode(cameraName, LIMELIGHT_IMU_FUSED);
 
         // Tell the limelight were on the robot it is located.
         Rotation3d rotation = transform.getRotation();
         LimelightHelpers.setCameraPose_RobotSpace(name,
                 transform.getX(),
-                transform.getY(),
+                -transform.getY(),
                 transform.getZ(),
                 Units.radiansToDegrees(rotation.getX()),
                 Units.radiansToDegrees(rotation.getY()),

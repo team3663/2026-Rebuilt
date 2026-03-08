@@ -66,9 +66,10 @@ public class C2026ShooterIO implements ShooterIO {
 
         hoodConfig.Slot0.kV = 12 / ((7368.0 / 60.0) * HOOD_GEAR_RATIO);
         hoodConfig.Slot0.kA = 0.0;
-        hoodConfig.Slot0.kP = 10.0;
+        hoodConfig.Slot0.kP = 300.0;
         hoodConfig.Slot0.kI = 0.0;
         hoodConfig.Slot0.kD = 0.0;
+        hoodConfig.Slot0.kS = 0.8;
 
         hoodMotor.getConfigurator().apply(hoodConfig);
 

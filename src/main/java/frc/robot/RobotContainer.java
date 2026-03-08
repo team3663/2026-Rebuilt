@@ -9,6 +9,7 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.Unit;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -28,6 +29,7 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.led.Led;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.vision.Vision;
+import frc.robot.util.FireControlSystem;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -161,6 +163,7 @@ public class RobotContainer {
         intakeTrigger.whileTrue(intake.deployAndIntake());
         stowIntakeTrigger.whileTrue(intake.stow());
 
+
         // general bindings for the shooter
         shootIntoHubTrigger.whileTrue(commandFactory.aim(true));
 //        shootIntoZoneTrigger.whileTrue(commandFactory.aim(false));
@@ -179,31 +182,38 @@ public class RobotContainer {
         // POV LEFT/RIGHT moves the turret left and right
         // X/Y increases and decreases the shooters velocity
 
-        final double TUNING_HOOD_ANGLE_CHANGE = Units.degreesToRadians(0.25);
-        final double TUNING_TURRET_ANGLE_CHANGE = Units.degreesToRadians(10.0);
+        final double TUNING_HOOD_ANGLE_CHANGE = Units.degreesToRadians(0.5);
         final double TUNING_SHOOTER_VELOCITY_CHANGE = Units.rotationsPerMinuteToRadiansPerSecond(50.0);
 
         final double[] tuningHoodAngle = new double[] {shooter.getConstants().minimumHoodPosition()};
-        final double[] tuningTurretAngle = new double[] {0.0};
         final double[] tuningShooterVelocity = new double[] {0.0};
 
-        testController.a().toggleOnTrue(Commands.parallel(
-                shooter.follow(() -> tuningHoodAngle[0], () -> tuningTurretAngle[0], () -> tuningShooterVelocity[0]),
+        testController.rightBumper().whileTrue(Commands.parallel(
+                commandFactory.calibrateShooter(() -> tuningHoodAngle[0], () -> tuningShooterVelocity[0]),
                 Commands.run(() -> {
+                    Translation2d goalPosition = CommandFactory.isRedAlliance() ? Constants.Shooter.RED_HUB : Constants.Shooter.BLUE_HUB;
+
+                    Pose2d robotPose = drive.getPose();
+                    Rotation2d turretRotation = Rotation2d.fromRotations(shooter.getTurretPosition());
+
+                    Pose2d turretPose = FireControlSystem.getTurretPose(robotPose, turretRotation);
+
+                    Translation2d delta = goalPosition.minus(turretPose.getTranslation());
+                    double distance = delta.getNorm();
+
+                    Logger.recordOutput("Tuning/Distance", distance);
+
                     Logger.recordOutput("Tuning/TargetHoodAngle", tuningHoodAngle[0]);
-                    Logger.recordOutput("Tuning/TargetTurretAngle", tuningTurretAngle[0]);
                     Logger.recordOutput("Tuning/TargetShooterVelocity", tuningShooterVelocity[0]);
                 })
         ));
+        testController.rightTrigger().whileTrue(commandFactory.feedIntoShooter());
 
         testController.povUp().onTrue(Commands.runOnce(() -> tuningHoodAngle[0] += TUNING_HOOD_ANGLE_CHANGE));
         testController.povDown().onTrue(Commands.runOnce(() -> tuningHoodAngle[0] -= TUNING_HOOD_ANGLE_CHANGE));
 
-        testController.povLeft().onTrue(Commands.runOnce(() -> tuningTurretAngle[0] += TUNING_TURRET_ANGLE_CHANGE));
-        testController.povRight().onTrue(Commands.runOnce(() -> tuningTurretAngle[0] -= TUNING_TURRET_ANGLE_CHANGE));
-
-        testController.y().onTrue(Commands.runOnce(() -> tuningShooterVelocity[0] += TUNING_SHOOTER_VELOCITY_CHANGE));
-        testController.x().onTrue(Commands.runOnce(() -> tuningShooterVelocity[0] -= TUNING_SHOOTER_VELOCITY_CHANGE));
+        testController.povRight().onTrue(Commands.runOnce(() -> tuningShooterVelocity[0] += TUNING_SHOOTER_VELOCITY_CHANGE));
+        testController.povLeft().onTrue(Commands.runOnce(() -> tuningShooterVelocity[0] -= TUNING_SHOOTER_VELOCITY_CHANGE));
     }
 
     /**
