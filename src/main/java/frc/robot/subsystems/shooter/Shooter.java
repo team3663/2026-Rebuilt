@@ -181,9 +181,12 @@ public class Shooter extends SubsystemBase {
     }
 
     private double getNearestTargetTurretAngle(double target) {
-        double current = getValidTurretPosition(inputs.currentTurretPosition);
-
         target = getSmallestEquivalentAngle(target);
+
+        if (constants.maximumTurretPosition - constants.minimumTurretPosition <= 2 * Math.PI)
+            return getValidTurretPosition(target);
+
+        double current = getValidTurretPosition(inputs.currentTurretPosition);
         double reducedCurrent = getSmallestEquivalentAngle(current);
         double fullTarget = target + (current - reducedCurrent);
 
@@ -228,9 +231,8 @@ public class Shooter extends SubsystemBase {
     }
 
     public Command shooterVoltage(double voltage) {
-        return Commands.runEnd(() -> {
-            io.setShooterTargetVoltage(voltage);
-                }, io::stopShooter
+        return Commands.runEnd(
+                () -> io.setShooterTargetVoltage(voltage), io::stopShooter
         );
     }
 

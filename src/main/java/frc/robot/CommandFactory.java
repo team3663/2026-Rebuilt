@@ -61,7 +61,10 @@ public class CommandFactory {
     public Command shooterDefault() {
         return shooter.follow(() -> 0.0, () -> {
             Translation2d target = isRedAlliance() ? Constants.Shooter.RED_HUB : Constants.Shooter.BLUE_HUB;
-            return target.minus(drive.getPose().getTranslation()).getAngle().getRadians();
+            Logger.recordOutput("CommandFactory/ShooterTarget", new Pose2d(target, Rotation2d.kZero));
+            double rotation = target.minus(drive.getPose().getTranslation()).getAngle().getRadians();
+            Logger.recordOutput("CommandFactory/TargetTurretPose", new Pose2d(getTurretPose().getTranslation(), Rotation2d.fromRadians(rotation)));
+            return rotation;
         }, () -> Constants.Shooter.DEFAULT_VELOCITY);
     }
 
@@ -77,6 +80,10 @@ public class CommandFactory {
         }
         Logger.recordOutput("CommandFactory/ShooterTarget", new Pose2d(target, Rotation2d.kZero));
         return target;
+    }
+
+    private Pose2d getTurretPose() {
+        return fireControlSystem.getTurretPose(drive.getPose(), Rotation2d.fromRadians(shooter.getTurretPosition()));
     }
 
     private boolean isRedAlliance() {
