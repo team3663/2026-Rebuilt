@@ -141,6 +141,8 @@ public class RobotContainer {
         Trigger shooterReadyToFire = shootTrigger.and(commandFactory::isAimingAtTarget)
                 .or(controller.rightTrigger());
 
+        Trigger manualShootTrigger = controller.x();
+
         // Reset gyro to 0° when B button is pressed
         resetFieldOrientedTrigger.onTrue(drive.resetOdometry(() ->
                 new Pose2d(
@@ -170,6 +172,9 @@ public class RobotContainer {
 
         // while shooting and not intaking fuel, use the intake to aid in feeding
         shootTrigger.and(intakeTrigger.negate()).whileTrue(intake.feed());
+
+        // manual positions in case we don't want to use turret alignment code
+        manualShootTrigger.whileTrue(commandFactory.manualShooting());
     }
 
     private void configureTestBindings() {
@@ -181,12 +186,19 @@ public class RobotContainer {
 
         final double TUNING_HOOD_ANGLE_CHANGE = Units.degreesToRadians(0.5);
         final double TUNING_SHOOTER_VELOCITY_CHANGE = Units.rotationsPerMinuteToRadiansPerSecond(50.0);
+        final double TUNING_TURRET_ANGLE_CHANGE = Units.degreesToRadians(5.0);
 
         final double[] tuningHoodAngle = new double[]{shooter.getConstants().minimumHoodPosition()};
         final double[] tuningShooterVelocity = new double[]{0.0};
+        final double[] tuningTurretAngle = new double[]{0.0};
 
         testController.rightBumper().whileTrue(Commands.parallel(
-                commandFactory.calibrateShooter(() -> tuningHoodAngle[0], () -> tuningShooterVelocity[0]),
+                shooter.follow(() -> tuningHoodAngle[0], () -> tuningTurretAngle[0], () -> tuningShooterVelocity[0]),
+                Commands.run(() -> {
+                    Logger.recordOutput("Tuning/TargetHoodAngle", tuningHoodAngle[0]);
+                    Logger.recordOutput("Tuning/TargetTurretAngle", tuningTurretAngle[0]);
+                    Logger.recordOutput("Tuning/TargetShooterVelocity", tuningShooterVelocity[0]);
+                }),
                 Commands.run(() -> {
                     Translation2d goalPosition = CommandFactory.isRedAlliance() ? Constants.Shooter.RED_HUB : Constants.Shooter.BLUE_HUB;
 
@@ -202,12 +214,15 @@ public class RobotContainer {
 
                     Logger.recordOutput("Tuning/TargetHoodAngle", tuningHoodAngle[0]);
                     Logger.recordOutput("Tuning/TargetShooterVelocity", tuningShooterVelocity[0]);
-                })
-        ));
+                })));
+
         testController.rightTrigger().whileTrue(commandFactory.feedIntoShooter());
 
         testController.povUp().onTrue(Commands.runOnce(() -> tuningHoodAngle[0] += TUNING_HOOD_ANGLE_CHANGE));
         testController.povDown().onTrue(Commands.runOnce(() -> tuningHoodAngle[0] -= TUNING_HOOD_ANGLE_CHANGE));
+
+        testController.x().onTrue(Commands.runOnce(() -> tuningTurretAngle[0] += TUNING_TURRET_ANGLE_CHANGE));
+        testController.y().onTrue(Commands.runOnce(() -> tuningTurretAngle[0] -= TUNING_TURRET_ANGLE_CHANGE));
 
         testController.povRight().onTrue(Commands.runOnce(() -> tuningShooterVelocity[0] += TUNING_SHOOTER_VELOCITY_CHANGE));
         testController.povLeft().onTrue(Commands.runOnce(() -> tuningShooterVelocity[0] -= TUNING_SHOOTER_VELOCITY_CHANGE));

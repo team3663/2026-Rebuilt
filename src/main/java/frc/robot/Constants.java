@@ -12,6 +12,8 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
+import frc.robot.util.FireControlSystem;
+import frc.robot.util.FiringSolution;
 
 
 /**
@@ -68,5 +70,9 @@ public final class Constants {
 
         // The velocity of the Shooter while not shooting
         public static final double DEFAULT_VELOCITY = Units.rotationsPerMinuteToRadiansPerSecond(0.0);
+
+        public static final double MANUAL_SHOOTING_HOOD_POSITION = Units.degreesToRadians(7.0);
+        public static final double MANUAL_SHOOTING_SHOOTING_VELOCITY = Units.rotationsPerMinuteToRadiansPerSecond(1900.0);
+        public static final double MANUAL_SHOOTING_TURRET_ANGLE = Units.degreesToRadians(0.0);
     }
 }
