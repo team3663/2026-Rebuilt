@@ -24,12 +24,14 @@ import org.littletonrobotics.junction.Logger;
  * (log replay from a file).
  */
 public final class Constants {
+    // TODO get the 2026 one:
+    public static final boolean IS_ANDYMARK = false;
+    public static final AprilTagFieldLayout FIELD = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded);
+
+    public static final boolean ENABLE_TEST_FEATURES = true;
+
     public static final Mode simMode = Mode.SIM;
     public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
-
-    public static final Boolean IS_ANDYMARK = false;
-    public static AprilTagFieldLayout FIELD =
-            AprilTagFieldLayout.loadField(IS_ANDYMARK ? AprilTagFields.k2026RebuiltAndymark : AprilTagFields.k2026RebuiltWelded);
 
     // Auto Starting Positions
     // BLUE ALLIANCE
@@ -188,8 +190,14 @@ public final class Constants {
     public static class Shooter {
         // TODO: get actual values
         // The Pose2d's of the six locations we will want to shoot fuel to
-        public static final Translation2d BLUE_HUB = new Translation2d(4.4, 4.0);
-        public static final Translation2d RED_HUB = new Translation2d(11.8, 4.0);
+        public static final Translation2d BLUE_HUB = new Translation2d(
+                ((FIELD.getTagPose(26).get().getX() + FIELD.getTagPose(20).get().getX()) / 2.0),
+                ((FIELD.getTagPose(18).get().getY() + FIELD.getTagPose(21).get().getY()) / 2.0)
+        );
+        public static final Translation2d RED_HUB = new Translation2d(
+                ((FIELD.getTagPose(10).get().getX() + FIELD.getTagPose(4).get().getX()) / 2.0),
+                ((FIELD.getTagPose(2).get().getY() + FIELD.getTagPose(8).get().getY()) / 2.0)
+        );
 
         public static final Translation2d UPPER_PASS_BLUE = new Translation2d(0.0, 8.0);
         public static final Translation2d LOWER_PASS_BLUE = new Translation2d(0.0, 0.0);
@@ -197,7 +205,10 @@ public final class Constants {
         public static final Translation2d LOWER_PASS_RED = new Translation2d(16.5, 0.0);
 
         // The Translation the turret is from the center of the robot
-        public static final Translation2d TURRET_OFF_CENTER = new Translation2d(Units.inchesToMeters(-10.5), Units.inchesToMeters(-10.5));
+        public static final Translation2d TURRET_OFF_CENTER = new Translation2d(Units.inchesToMeters(-10.5), Units.inchesToMeters(10.5));
+
+        // The velocity of the Shooter while not shooting
+        public static final double DEFAULT_VELOCITY = Units.rotationsPerMinuteToRadiansPerSecond(0.0);
     }
 
     public static void RecordOutputs() {

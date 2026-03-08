@@ -30,10 +30,6 @@ public class Vision extends SubsystemBase {
 
     private final VisionInputsAutoLogged[] visionInputs;
 
-    private final VisionInputs leftInputs;
-    private final VisionInputs rightInputs;
-    private final VisionInputs backInputs;
-
     // current yaw of robot as provided by the pigeon
     private Rotation2d currentYaw = new Rotation2d();
 
@@ -42,8 +38,8 @@ public class Vision extends SubsystemBase {
     private final double[] processingDurations;
 
     static {
-        MEASUREMENT_STD_DEV_DISTANCE_MAP.put(0.1, VecBuilder.fill(0.05, 0.05, 0.05));
-        MEASUREMENT_STD_DEV_DISTANCE_MAP.put(8.0, VecBuilder.fill(3.0, 3.0, 3.0));
+        MEASUREMENT_STD_DEV_DISTANCE_MAP.put(0.1, VecBuilder.fill(0.05, 0.05, 0.0));
+        MEASUREMENT_STD_DEV_DISTANCE_MAP.put(8.0, VecBuilder.fill(3.0, 3.0, 0.0));
     }
 
     public Vision(AprilTagFieldLayout fieldLayout, VisionIO... ios) {
@@ -56,22 +52,6 @@ public class Vision extends SubsystemBase {
         visionInputs = new VisionInputsAutoLogged[ios.length];
         for (int i = 0; i < visionInputs.length; i++) {
             visionInputs[i] = new VisionInputsAutoLogged();
-        }
-        if (visionInputs.length > 0) {
-            leftInputs = visionInputs[0];
-        } else {
-            leftInputs = new VisionInputs();
-        }
-        if (visionInputs.length > 1) {
-            backInputs = visionInputs[1];
-        } else {
-            backInputs = new VisionInputs();
-        }
-
-        if (visionInputs.length > 2) {
-            rightInputs = visionInputs[2];
-        } else {
-            rightInputs = new VisionInputs();
         }
 
         // Register the command we use to detect when the robot is enabled/disabled.
