@@ -2,6 +2,13 @@ package frc.robot.config;
 
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.Unit;
+import frc.robot.Constants;
 import frc.robot.generated.C2026TunerConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -15,6 +22,8 @@ import frc.robot.subsystems.intake.C2026IntakeIO;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shooter.C2026ShooterIO;
 import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.vision.LimelightIO;
+import frc.robot.subsystems.vision.Vision;
 
 public class C2026RobotFactory implements RobotFactory {
     @Override
@@ -51,8 +60,8 @@ public class C2026RobotFactory implements RobotFactory {
     public Hopper createHopper() {
         return new Hopper(new C2026HopperIO(
                 new TalonFX(10),
-                new TalonFX(9),
-                new TalonFX(13)));
+                new TalonFX(13),
+                new TalonFX(9)));
     }
 
     @Override
@@ -72,6 +81,38 @@ public class C2026RobotFactory implements RobotFactory {
                 new TalonFX(19),
                 new CANcoder(7)
         ));
+    }
+
+    @Override
+    public Vision createVision() {
+        Rotation3d rightRotation = new Rotation3d(
+                Units.degreesToRadians(0.0),
+                Units.degreesToRadians(25.0),
+                -Units.degreesToRadians(72.68)
+        );
+        Transform3d rightTransform = new Transform3d(
+                -Units.inchesToMeters(6.5),
+                -Units.inchesToMeters(12.5),
+                Units.inchesToMeters(16.875),
+                rightRotation
+        );
+
+        Rotation3d backRotation = new Rotation3d(
+                Units.degreesToRadians(0.0),
+                Units.degreesToRadians(25.0),
+                Units.degreesToRadians(180.0)
+        );
+        Transform3d backTransform = new Transform3d(
+                -Units.inchesToMeters(6.0),
+                -Units.inchesToMeters(8.5),
+                Units.inchesToMeters(16.875),
+                backRotation
+        );
+
+        return new Vision (Constants.FIELD,
+                new LimelightIO("limelight-right", rightTransform, false),
+                new LimelightIO("limelight-back", backTransform, false)
+        );
     }
 
 //    @Override

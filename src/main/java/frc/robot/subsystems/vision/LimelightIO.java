@@ -22,7 +22,7 @@ public class LimelightIO implements VisionIO {
         Rotation3d rotation = transform.getRotation();
         LimelightHelpers.setCameraPose_RobotSpace(name,
                 transform.getX(),
-                -transform.getY(),
+                transform.getY(),
                 transform.getZ(),
                 Units.radiansToDegrees(rotation.getX()),
                 Units.radiansToDegrees(rotation.getY()),
@@ -48,7 +48,7 @@ public class LimelightIO implements VisionIO {
 
         // Get a new pose estimate
         double poseStart = System.currentTimeMillis();
-        LimelightHelpers.PoseEstimate estimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(cameraName);
+        LimelightHelpers.PoseEstimate estimate = LimelightHelpers.getBotPoseEstimate_wpiBlue(cameraName);
         double poseEnd = System.currentTimeMillis();
         visionInputs.poseEstimateDuration = poseEnd - poseStart;
 

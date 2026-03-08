@@ -22,9 +22,9 @@ import edu.wpi.first.wpilibj.RobotBase;
 public final class Constants {
     // TODO get the 2026 one:
     public static final boolean IS_ANDYMARK = false;
-    public static final AprilTagFieldLayout FIELD = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
+    public static final AprilTagFieldLayout FIELD = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded);
 
-    public static final boolean ENABLE_TEST_FEATURES = true;
+    public static final boolean ENABLE_TEST_FEATURES = false;
 
     public static final Mode simMode = Mode.SIM;
     public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
@@ -61,6 +61,6 @@ public final class Constants {
         public static final Translation2d TURRET_OFF_CENTER = new Translation2d(Units.inchesToMeters(-10.5), Units.inchesToMeters(-10.5));
 
         // The velocity of the Shooter while not shooting
-        public static final double DEFAULT_VELOCITY = Units.rotationsPerMinuteToRadiansPerSecond(3500.0);
+        public static final double DEFAULT_VELOCITY = Units.rotationsPerMinuteToRadiansPerSecond(0.0);
     }
 }

@@ -30,10 +30,6 @@ public class Vision extends SubsystemBase {
 
     private final VisionInputsAutoLogged[] visionInputs;
 
-    private final VisionInputs leftInputs;
-    private final VisionInputs rightInputs;
-    private final VisionInputs backInputs;
-
     // current yaw of robot as provided by the pigeon
     private Rotation2d currentYaw = new Rotation2d();
 
@@ -57,22 +53,6 @@ public class Vision extends SubsystemBase {
         for (int i = 0; i < visionInputs.length; i++) {
             visionInputs[i] = new VisionInputsAutoLogged();
         }
-        if (visionInputs.length > 0) {
-            leftInputs = visionInputs[0];
-        } else {
-            leftInputs = new VisionInputs();
-        }
-        if (visionInputs.length > 1) {
-            rightInputs = visionInputs[1];
-        } else {
-            rightInputs = new VisionInputs();
-        }
-
-        if (visionInputs.length > 2) {
-            backInputs = visionInputs[2];
-        } else {
-            backInputs = new VisionInputs();
-        }
 
         // Register the command we use to detect when the robot is enabled/disabled.
         RobotModeTriggers.disabled().onChange(updateRobotState());
@@ -89,7 +69,7 @@ public class Vision extends SubsystemBase {
             ioUpdateDurations[i] = duration;
         }
 
-        for (int i = 0; i > visionInputs.length; i++) {
+        for (int i = 0; i < visionInputs.length; i++) {
             Logger.processInputs("Vision/VisionInputs " + i, visionInputs[i]);
         }
 

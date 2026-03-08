@@ -5,26 +5,25 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.MotorAlignmentValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.ctre.phoenix6.signals.*;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
 
 public class C2026ShooterIO implements ShooterIO {
     // TODO: get actual values for these constants
     private static final Shooter.Constants constants = new Shooter.Constants(
-            0, Units.degreesToRadians(18.0), Units.degreesToRadians(-180), Units.degreesToRadians(180));
-    private static final double HOOD_GEAR_RATIO = 14.0 / 340.0;
-    private static final double TURRET_GEAR_RATIO = 1.0;
-    private static final double SHOOTER_GEAR_RATIO = 1.0;
-    private static final double SHOOTER_WHEEL_RADIUS = Units.inchesToMeters(2.0);
+            0.0,
+            Units.degreesToRadians(18.0),
+            Units.degreesToRadians(-185.0),
+            Units.degreesToRadians(165.0));
+    private static final double HOOD_GEAR_RATIO = 340.0 / 14.0;
+    private static final double SHOOTER_GEAR_RATIO = (15.0 / 18.0);
 
     // Gear Ratios
-    // TODO get actual gear ratio for ENCODER_TO_MECHANISM
-    private static final double ENCODER_TO_MECHANISM_RATIO = 1.0;
-    private static final double MOTOR_TO_ENCODER_RATIO = 2.0;
-    private static final double ENCODER_OFFSET = 0.114990234375;
+    private static final double MOTOR_TO_MECHANISM_RATIO = (44.0 / 14.0) * (80.0 / 16.0);
+    private static final double MOTOR_TO_SENSOR_RATIO = (44.0 / 14.0) * (62.0 / 18.0) * (60.0 / 24.0);
+    private static final double SENSOR_TO_MECHANISM_RATIO =  MOTOR_TO_MECHANISM_RATIO / MOTOR_TO_SENSOR_RATIO;
+    private static final double ENCODER_OFFSET = -0.09130859375;
 
     private final TalonFX hoodMotor;
     private final TalonFX turretMotor;
@@ -63,40 +62,35 @@ public class C2026ShooterIO implements ShooterIO {
         hoodConfig.CurrentLimits.SupplyCurrentLimit = 60;
         hoodConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-        hoodConfig.MotionMagic.MotionMagicCruiseVelocity = 0.5;
-        hoodConfig.MotionMagic.MotionMagicAcceleration = 0.5;
-        hoodConfig.MotorOutput.PeakForwardDutyCycle = 0.2;
-        hoodConfig.MotorOutput.PeakReverseDutyCycle = -0.2;
+        hoodConfig.MotionMagic.MotionMagicCruiseVelocity = 100.0;
+        hoodConfig.MotionMagic.MotionMagicAcceleration = 10.0;
 
-        hoodConfig.Slot0.kV = 12 / ((7368.0 * 2.0 * Math.PI) * HOOD_GEAR_RATIO);
+        hoodConfig.Slot0.kV = 12 / ((7368.0 / 60.0) * HOOD_GEAR_RATIO);
         hoodConfig.Slot0.kA = 0.0;
-        hoodConfig.Slot0.kP = 0.01;
+        hoodConfig.Slot0.kP = 10.0;
         hoodConfig.Slot0.kI = 0.0;
         hoodConfig.Slot0.kD = 0.0;
-
-//        shooterConfig.MotionMagic.MotionMagicJerk = 15.0;
-//        shooterConfig.MotionMagic.MotionMagicAcceleration = 5.0;
-//        shooterConfig.MotionMagic.MotionMagicCruiseVelocity = 2.0;
 
         hoodMotor.getConfigurator().apply(hoodConfig);
 
         // Turret motor config
         TalonFXConfiguration turretConfig = new TalonFXConfiguration();
-        turretConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        turretConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         turretConfig.CurrentLimits.SupplyCurrentLimit = 60;
         turretConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        turretConfig.Feedback.SensorToMechanismRatio = ENCODER_TO_MECHANISM_RATIO;
-        turretConfig.Feedback.RotorToSensorRatio = MOTOR_TO_ENCODER_RATIO;
+        turretConfig.Feedback.SensorToMechanismRatio = SENSOR_TO_MECHANISM_RATIO;
+        turretConfig.Feedback.RotorToSensorRatio = MOTOR_TO_SENSOR_RATIO;
+        turretConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+        turretConfig.Feedback.FeedbackRemoteSensorID = turretCanCoder.getDeviceID();
 
-        turretConfig.Slot0.kV = 0.0;
+        turretConfig.Slot0.kV = 12 / ((7368.0 / 60.0) * MOTOR_TO_MECHANISM_RATIO);
         turretConfig.Slot0.kA = 0.0;
-        turretConfig.Slot0.kP = 0.0;
+        turretConfig.Slot0.kP = 100.0;
         turretConfig.Slot0.kI = 0.0;
         turretConfig.Slot0.kD = 0.0;
 
-//        shooterConfig.MotionMagic.MotionMagicJerk = 15.0;
-//        shooterConfig.MotionMagic.MotionMagicAcceleration = 5.0;
-        turretConfig.MotionMagic.MotionMagicCruiseVelocity = 0.0;
+        turretConfig.MotionMagic.MotionMagicAcceleration = 7.5;
+        turretConfig.MotionMagic.MotionMagicCruiseVelocity = 10.0;
 
         turretMotor.getConfigurator().apply(turretConfig);
 
@@ -108,9 +102,9 @@ public class C2026ShooterIO implements ShooterIO {
         shooterConfig.CurrentLimits.SupplyCurrentLimit = 60;
         shooterConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-        shooterConfig.Slot0.kV = 0.0;
+        shooterConfig.Slot0.kV = 12 / ((7368.0 / 60.0) * SHOOTER_GEAR_RATIO);
         shooterConfig.Slot0.kA = 0.0;
-        shooterConfig.Slot0.kP = 1.0;
+        shooterConfig.Slot0.kP = 0.1;
         shooterConfig.Slot0.kI = 0.0;
         shooterConfig.Slot0.kD = 0.0;
 
@@ -146,7 +140,7 @@ public class C2026ShooterIO implements ShooterIO {
 
         inputs.currentTurretEncoderPosition = turretCanCoder.getPosition().getValueAsDouble();
 
-        inputs.currentTurretPosition = Units.rotationsToRadians(turretCanCoder.getPosition().getValueAsDouble());
+        inputs.currentTurretPosition = Units.rotationsToRadians(turretMotor.getPosition().getValueAsDouble());
 
         // Shooter Motor 1
         inputs.currentShooterAppliedVoltage1 = shooterMotor.getMotorVoltage().getValueAsDouble();
@@ -188,7 +182,7 @@ public class C2026ShooterIO implements ShooterIO {
 
     @Override
     public void setTurretTargetPosition(double position) {
-        turretMotor.setControl(positionRequest.withPosition(Units.radiansToRotations(position)));
+        turretMotor.setControl(positionRequest.withPosition(Units.radiansToRotations(MathUtil.clamp(position, constants.minimumTurretPosition(), constants.maximumTurretPosition()))));
     }
 
     @Override
@@ -203,7 +197,7 @@ public class C2026ShooterIO implements ShooterIO {
 
     @Override
     public void setShooterTargetVelocity(double velocity) {
-        shooterMotor.setControl(velocityRequest.withVelocity(velocity));
+        shooterMotor.setControl(velocityRequest.withVelocity(Units.radiansToRotations(velocity)));
     }
 
     @Override
