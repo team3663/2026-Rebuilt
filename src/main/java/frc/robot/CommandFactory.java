@@ -100,10 +100,10 @@ public class CommandFactory {
     }
 
     private Pose2d getTurretPose() {
-        return fireControlSystem.getTurretPose(drive.getPose(), Rotation2d.fromRadians(shooter.getTurretPosition()));
+        return FireControlSystem.getTurretPose(drive.getPose(), Rotation2d.fromRadians(shooter.getTurretPosition()));
     }
 
-    private static boolean isRedAlliance() {
+    public static boolean isRedAlliance() {
         var alliance = DriverStation.getAlliance();
         return alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red;
     }
