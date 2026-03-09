@@ -171,7 +171,7 @@ public final class Constants {
             FIELD.getTagPose(6).get().getY(), Rotation2d.fromDegrees(180))
             .plus(new Transform2d(-Units.feetToMeters(0.0), Units.feetToMeters(3.0), Rotation2d.fromDegrees(0.0)));
     public static final Pose2d RED_RIGHT_ALLIANCE_SIDE_TO_TRENCH = new Pose2d((FIELD.getFieldLength() / 2.0) - Units.feetToMeters(3.0),
-            FIELD.getTagPose(1).get().getY(), Rotation2d.fromDegrees(180.0)).plus(new Transform2d(-Units.feetToMeters(2.0), -Units.feetToMeters(2.5), Rotation2d.fromDegrees(90)))
+            FIELD.getTagPose(1).get().getY(), Rotation2d.fromDegrees(180.0)).plus(new Transform2d(-Units.feetToMeters(2.5), -Units.feetToMeters(3.5), Rotation2d.fromDegrees(90)))
             .plus(new Transform2d(Units.feetToMeters(0.5), Units.feetToMeters(2.5), Rotation2d.fromDegrees(0.0)));
     public static final Pose2d RED_LEFT_ALLIANCE_SIDE_TO_TRENCH = new Pose2d((FIELD.getFieldLength() / 2.0) - Units.feetToMeters(3.0),
             FIELD.getTagPose(6).get().getY(), Rotation2d.fromDegrees(180)).plus(new Transform2d(-Units.feetToMeters(2.0), Units.feetToMeters(2.5), Rotation2d.fromDegrees(90)))

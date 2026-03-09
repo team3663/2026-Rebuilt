@@ -22,6 +22,14 @@ public class AutoPaths {
 
     private Pose2d goToPositionTarget;
 
+    // The distance the robot has to be at before the goToPosition command switches from the
+    //     intermediate target to the actual target
+    private final double INTERMEDIATE_DISTANCE_THRESHOLD = 4.0;
+    // At what point the drivetrain should finish rotating, currently set to the end of the path
+    private final double DEFAULT_ANGLE_DISTANCE_THRESHOLD = 0.0;
+    // How long the robot should sit in place to shoot
+    private final double DEFAULT_SHOOTING_TIME = 3.0;
+
     public AutoPaths(Drive drive, Intake intake, Shooter shooter, CommandFactory commandFactory) {
         this.drive = drive;
         this.intake = intake;
@@ -99,6 +107,8 @@ public class AutoPaths {
 
     /**
      * Drives the robot to the target position
+     * <p>This command uses the {@link #DEFAULT_ANGLE_DISTANCE_THRESHOLD} to determine when the robot should be finished
+     * * rotating</p>
      * <p>
      * this command requires {@link Drive} and does not end
      * </p>
@@ -113,22 +123,33 @@ public class AutoPaths {
 
     /**
      * Drives the robot to the target position
+     * <p>This command uses the {@link #DEFAULT_ANGLE_DISTANCE_THRESHOLD} to determine when the robot should be finished
+     * rotating</p>
      * <p>
      * This command requires {@link Drive} and does not end
      * </p>
      *
      * @param blueTargetPose target position of the robot if on blue alliance
      * @param redTargetPose  target position of the robot if on red alliance
-     * @see #goToPosition(Pose2d, double)
      */
     private Command goToPosition(Pose2d blueTargetPose, Pose2d redTargetPose) {
-        return goToPosition(alliancePose(blueTargetPose, redTargetPose), 0.0);
+        return goToPosition(alliancePose(blueTargetPose, redTargetPose), DEFAULT_ANGLE_DISTANCE_THRESHOLD);
     }
 
-    private Command goToPosition(Pose2d blueTarget, Pose2d redTargetPose, double angleDistanceThreshold) {
-        return goToPosition(alliancePose(blueTarget, redTargetPose), angleDistanceThreshold);
-    }
-
+    /**
+     * Drives the robot to a target position
+     * <p> This command uses the {@link #INTERMEDIATE_DISTANCE_THRESHOLD} to determine the threshold distance for the
+     * robot to switch to the target</p>
+     * <p>
+     * This command requires {@link Drive} and ends when the robot is at the target position
+     * </p>
+     *
+     * @param blueTargetPose                   Target position of the robot if on the blue alliance
+     * @param redTargetPose                    Target position of the robot if on the red alliance
+     * @param blueAllianceIntermediateSupplier A supplier of positions the robot should go to if on the blue alliance
+     * @param redAllianceIntermediateSupplier  A supplier of positions the robot should go to if on the red alliance
+     * @param angleDistanceThreshold           At what point during the path the robot should be finished rotating
+     */
     private Command goToPosition(Pose2d blueTargetPose, Pose2d redTargetPose, Supplier<Pose2d> blueAllianceIntermediateSupplier, Supplier<Pose2d> redAllianceIntermediateSupplier, double angleDistanceThreshold) {
         Pose2d[] intermediatePoseHolder = new Pose2d[]{null};
 
@@ -136,7 +157,7 @@ public class AutoPaths {
                 () -> alliancePose(blueTargetPose, redTargetPose),
                 () -> {
                     if (intermediatePoseHolder[0] != null) {
-                        if (!drive.atPosition(intermediatePoseHolder[0].getTranslation(), Units.feetToMeters(3.5)))
+                        if (!drive.atPosition(intermediatePoseHolder[0].getTranslation(), Units.feetToMeters(INTERMEDIATE_DISTANCE_THRESHOLD)))
                             return intermediatePoseHolder[0];
                         else return null;
                     } else return null;
@@ -151,16 +172,46 @@ public class AutoPaths {
                 .until(() -> drive.atPosition(alliancePose(blueTargetPose, redTargetPose).getTranslation()));
     }
 
-    private Command goToPosition(Pose2d blueTargetPose, Pose2d redTargetPose, Supplier<Pose2d> blueIntermediatePose, Supplier<Pose2d> redIntermediatePose) {
-        return goToPosition(blueTargetPose, redTargetPose, blueIntermediatePose, redIntermediatePose, 0.0)
+    /**
+     * Drives the robot to a target position
+     * <p> This command uses the {@link #DEFAULT_ANGLE_DISTANCE_THRESHOLD} to determine the threshold distance for when
+     * in the path the robot should finish rotating</p>
+     * <p>Runs the shooter at its default speed and turret angle</p>
+     * <p>
+     * This command requires {@link Drive}, {@link Shooter}, {@link Intake} and ends when the robot is at the target position
+     * </p>
+     *
+     * @param blueTargetPose Target position of the robot if on the blue alliance
+     * @param redTargetPose  Target position of the robot if on the red alliance
+     * @param blueIntermediatePose A supplier of positions the robot should go to if on the blue alliance
+     * @param redIntermediatePose A supplier of positions the robot should go to if on the red alliance
+     * @param shouldZero A boolean for if the command should zero the intake pivot and hood
+     */
+    private Command goToPosition(Pose2d blueTargetPose, Pose2d redTargetPose, Supplier<Pose2d> blueIntermediatePose, Supplier<Pose2d> redIntermediatePose, boolean shouldZero) {
+        return goToPosition(blueTargetPose, redTargetPose, blueIntermediatePose, redIntermediatePose, DEFAULT_ANGLE_DISTANCE_THRESHOLD)
                 .alongWith(commandFactory.shooterDefault())
+                .beforeStarting(shouldZero ? intake.zeroPivot().alongWith(shooter.zeroHood()) : Commands.none())
                 .until(() -> drive.atPosition(alliancePose(blueTargetPose, redTargetPose).getTranslation()));
+    }
+
+    /**
+     * Drives the robot to a target position
+     * This commands uses the {@link Drive} subsystem
+     * @param blueTargetPose Target position if on the blue alliance
+     * @param redTargetPose Target position if on the red alliance
+     * @param blueIntermediatePose A supplier of positions for the robot to go to if on the blue alliance
+     * @param redIntermediatePose A supplier of positions for the robot to go to if on the red alliance
+     */
+    private Command goToPosition(Pose2d blueTargetPose, Pose2d redTargetPose, Supplier<Pose2d> blueIntermediatePose,
+                                 Supplier<Pose2d> redIntermediatePose) {
+        return goToPosition(blueTargetPose, redTargetPose, blueIntermediatePose, redIntermediatePose, false);
+
     }
 
     /**
      * Drives the robot to the target position while intaking
      * <p>
-     * This command requires {@link Drive} and does not end
+     * This command requires {@link Drive}, {@link Intake} and ends when the robot reaches the target position
      *
      * @param blueTargetPose               target position of the robot if on blue alliance
      * @param redTargetPose                target position of the robot if on red alliance
@@ -170,25 +221,38 @@ public class AutoPaths {
      */
     private Command intaking(Pose2d blueTargetPose, Pose2d redTargetPose, Supplier<Pose2d> blueIntermediatePoseSupplier, Supplier<Pose2d> redIntermediatePoseSupplier) {
         return goToPosition(blueTargetPose, redTargetPose,
-                blueIntermediatePoseSupplier, redIntermediatePoseSupplier)
+                blueIntermediatePoseSupplier, redIntermediatePoseSupplier, false)
                 .withDeadline(Commands.sequence(
                                 intake.deployAndIntake())
                         .andThen(intake.stow()))
                 .until(() -> drive.atPosition(alliancePose(blueTargetPose, redTargetPose).getTranslation()));
     }
 
+    /**
+     * Drives the robot to a target position while intaking
+     * This command zeros the intake pivot and hood
+     * This command uses {@link Drive}, {@link Intake}, {@link Shooter} subsystems
+     *
+     * @param blueTargetPose Target position of the robot if on the blue alliance
+     * @param redTargetPose Target position of the robot if on the red alliance
+     * @param blueIntermediatePoseSupplier A supplier of positions for the robot to go to if on the blue alliance
+     * @param redIntermediatePoseSupplier A supplier of positions for the robot to go to if on the red alliance
+     */
     private Command intakingAndZeroing(Pose2d blueTargetPose, Pose2d redTargetPose, Supplier<Pose2d> blueIntermediatePoseSupplier, Supplier<Pose2d> redIntermediatePoseSupplier) {
         return goToPosition(blueTargetPose, redTargetPose,
-                blueIntermediatePoseSupplier, redIntermediatePoseSupplier)
+                blueIntermediatePoseSupplier, redIntermediatePoseSupplier, false)
                 .alongWith(intake.deployAndIntake())
-                .until(() -> drive.atPosition(alliancePose(blueTargetPose, redTargetPose).getTranslation()))
-                .beforeStarting(intake.zeroPivot().alongWith(shooter.zeroHood()));
+                .beforeStarting(intake.zeroPivot().alongWith(shooter.zeroHood()))
+                .until(() -> drive.atPosition(alliancePose(blueTargetPose, redTargetPose).getTranslation()));
     }
 
     /**
      * Drives the robot to the target position while intaking
      * <p>
-     * This command requires {@link Intake}
+     *     <p>
+     *         This command uses {@link Drive}, {@link Intake}
+     *     </p>
+     * This command is an alternative to {@link #intaking(Pose2d, Pose2d, Supplier, Supplier)}
      *
      * @param blueTargetPose target position of the robot if on blue alliance
      * @param redTargetPose  target position of the robot if on red alliance
@@ -199,12 +263,11 @@ public class AutoPaths {
     }
 
     /**
-     * Runs the shooter and has an option to zero subsystems
+     * Runs the shooter in place
      * <p>
-     * This command requires {@link Shooter}
-     *
-     * @see #shooting(boolean, double)
-     * @see #zeroAndShootInPlace() a zeroing alternative
+     * This command requires {@link Shooter}, {@link Intake}
+     * @param shouldZero Boolean to determine if we zero the intake pivot and hood
+     * @param timeout Time in <b>seconds</b> for how long to let the robot shoot for
      */
     private Command shooting(boolean shouldZero, double timeout) {
         return commandFactory.aim(true).alongWith(commandFactory.feedIntoShooter()).alongWith(intake.feed())
@@ -213,32 +276,26 @@ public class AutoPaths {
                 .andThen(shooter.stop());
     }
 
-    private Command shootingInPlace(boolean shouldZeroHood) {
-        return shooting(shouldZeroHood, 2.0);
-    }
-
+    /**
+     * Runs the shooter in place
+     * This command uses {@link Shooter}
+     * This command uses {@link #shooting(boolean, double)} and {@link #DEFAULT_SHOOTING_TIME} to determine how long to shoot for
+     */
     private Command shootingInPlace() {
-        return shooting(false, 3.0);
+        return shooting(false, DEFAULT_SHOOTING_TIME);
     }
 
     /**
-     * Runs the shooter and zeros the Intake and Climber subsystems
-     * <p>
-     * This command requires {@link Shooter} {@link Intake}
+     * Runs the shooter in place and zeros the intake pivot and hood
+     * This command uses {@link Shooter}, {@link Intake}
      */
     private Command zeroAndShootInPlace() {
-        return shootingInPlace(true).alongWith(intake.zeroPivot());
+        return shooting(true, DEFAULT_SHOOTING_TIME);
     }
 
-    private Command zeroAndShoot() {
-        return shooting(true, 2.0).alongWith(intake.zeroPivot());
-    }
-
-    private Command goToPositionAndShoot(Pose2d blueTargetPose, Pose2d redTargetPose, Supplier<Pose2d> blueIntermediatePose, Supplier<Pose2d> redIntermediatePose, boolean shouldZero) {
-        return goToPosition(blueTargetPose, redTargetPose, blueIntermediatePose, redIntermediatePose)
-                // TODO Figure out how to do the timeout here
-                .alongWith(shooting(shouldZero, 10.0))
-                .alongWith(shouldZero ? intake.zeroPivot() : Commands.none())
+    private Command goToPositionAndShoot(Pose2d blueTargetPose, Pose2d redTargetPose, Supplier<Pose2d> blueIntermediatePose,
+                                         Supplier<Pose2d> redIntermediatePose, boolean shouldZero) {
+        return goToPosition(blueTargetPose, redTargetPose, blueIntermediatePose, redIntermediatePose, true)
                 .until(() -> drive.atPosition(alliancePose(blueTargetPose, redTargetPose).getTranslation()));
     }
 
@@ -259,13 +316,9 @@ public class AutoPaths {
                                    Supplier<Pose2d> blueIntermediatePose, Supplier<Pose2d> redIntermediatePose,
                                    boolean shouldZero) {
         return intaking(blueTargetPose, redTargetPose, blueIntermediatePose, redIntermediatePose)
-                .alongWith(shooting(shouldZero, 10.0))
+                .alongWith(shooting(shouldZero, DEFAULT_SHOOTING_TIME))
                 .beforeStarting(shouldZero ? intake.zeroPivot() : Commands.none())
                 .until(() -> drive.atPosition(alliancePose(blueTargetPose, redTargetPose).getTranslation()));
-    }
-
-    private Command intakeAndShoot(Pose2d blueTargetPose, Pose2d redTargetPose, boolean shouldZero) {
-        return intakeAndShoot(blueTargetPose, redTargetPose, () -> null, () -> null, shouldZero);
     }
 
     private Command intakeAndShoot(Pose2d blueTargetPose, Pose2d redTargetPose) {
@@ -289,7 +342,7 @@ public class AutoPaths {
     // TODO finish these with climber code
     private Command goToPositionAndClimb(Pose2d blueTargetPose, Pose2d redTargetPose,
                                          Supplier<Pose2d> blueIntermediatePose, Supplier<Pose2d> redIntermediatePose) {
-        return goToPosition(blueTargetPose, redTargetPose, blueIntermediatePose, redIntermediatePose)
+        return goToPosition(blueTargetPose, redTargetPose, blueIntermediatePose, redIntermediatePose, false)
                 // TODO make this not run until the robot is almost at the target climb positiom
                 .alongWith(intake.stow());
     }
@@ -321,13 +374,12 @@ public class AutoPaths {
     public Command rightStarting_neutralZone_outpost() {
         return Commands.sequence(
                 resetOdometry(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE),
-                intakingAndZeroing(Constants.BLUE_MIDDLE_CENTER_LINE, Constants.RED_MIDDLE_CENTER_LINE,
+                intakingAndZeroing(Constants.BLUE_RIGHT_CENTER_LINE, Constants.RED_RIGHT_CENTER_LINE,
                         () -> Constants.BLUE_RIGHT_CENTER_LINE_INTERMEDIATE, () -> Constants.RED_RIGHT_CENTER_LINE_INTERMEDIATE),
                 goToPosition(Constants.BLUE_OUTPOST_CENTERED, Constants.RED_OUTPOST_CENTERED,
                         () -> Constants.BLUE_RIGHT_CENTER_LINE_TO_TRENCH, () -> Constants.RED_RIGHT_CENTER_LINE_TO_TRENCH, 1.0),
-                shootingInPlace()
-//                goToPositionAndShoot(Constants.BLUE_OUTPOST_CENTERED, Constants.RED_OUTPOST_CENTERED,
-//                        ()-> Constants.BLUE_OUTPOST_INTERMEDIATE, ()-> Constants.RED_OUTPOST_INTERMEDIATE)
+                goToPositionAndShoot(Constants.BLUE_OUTPOST_CENTERED, Constants.RED_OUTPOST_CENTERED,
+                        () -> Constants.BLUE_OUTPOST_INTERMEDIATE, () -> Constants.RED_OUTPOST_INTERMEDIATE)
 
         );
     }
