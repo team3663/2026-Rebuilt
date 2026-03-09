@@ -138,8 +138,7 @@ public class RobotContainer {
         Trigger shootIntoHubTrigger = controller.rightBumper();
         Trigger shootIntoZoneTrigger = controller.rightTrigger();
         Trigger shootTrigger = shootIntoHubTrigger.or(shootIntoZoneTrigger);
-        Trigger shooterReadyToFire = shootTrigger.and(commandFactory::isAimingAtTarget)
-                .or(controller.rightTrigger());
+        Trigger shooterReadyToFire = shootTrigger.and(commandFactory::isAimingAtTarget);
 
         // Reset gyro to 0° when B button is pressed
         resetFieldOrientedTrigger.onTrue(drive.resetOdometry(() ->
@@ -163,7 +162,7 @@ public class RobotContainer {
 
         // general bindings for the shooter
         shootIntoHubTrigger.whileTrue(commandFactory.aim(true));
-//        shootIntoZoneTrigger.whileTrue(commandFactory.aim(false));
+        shootIntoZoneTrigger.whileTrue(commandFactory.aim(false));
 
         // feed when we are aiming at the target while shooting
         shooterReadyToFire.whileTrue(commandFactory.feedIntoShooter());
@@ -186,9 +185,11 @@ public class RobotContainer {
         final double[] tuningShooterVelocity = new double[]{0.0};
 
         testController.rightBumper().whileTrue(Commands.parallel(
-                commandFactory.calibrateShooter(() -> tuningHoodAngle[0], () -> tuningShooterVelocity[0]),
+                // Change both the boolean in calibrate shooter and the definition of goalPosition to swap between hub and passing
+                commandFactory.calibrateShooter(() -> tuningHoodAngle[0], () -> tuningShooterVelocity[0], true),
                 Commands.run(() -> {
                     Translation2d goalPosition = CommandFactory.isRedAlliance() ? Constants.Shooter.RED_HUB : Constants.Shooter.BLUE_HUB;
+                    Logger.recordOutput("Tuning/TargetPose", new Pose2d(goalPosition, Rotation2d.kZero));
 
                     Pose2d robotPose = drive.getPose();
                     Rotation2d turretRotation = Rotation2d.fromRotations(shooter.getTurretPosition());

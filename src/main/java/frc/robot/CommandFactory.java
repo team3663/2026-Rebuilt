@@ -39,10 +39,13 @@ public class CommandFactory {
 
     public boolean isAimingAtTarget() {
         if (firingSolution == null) {
+            Logger.recordOutput("CommandFactory/isAimingAtTarget", false);
             return false;
         }
 
-        return this.shooter.isAt(firingSolution.hoodAngle(), firingSolution.turretAngle(), firingSolution.shooterVelocity());
+        boolean atTarget = this.shooter.isAt(firingSolution.hoodAngle(), firingSolution.turretAngle(), firingSolution.shooterVelocity());
+        Logger.recordOutput("CommandFactory/isAimingAtTarget", atTarget);
+        return atTarget;
     }
 
     public Command aim(boolean aimAtHub) {
@@ -70,16 +73,16 @@ public class CommandFactory {
         }, () -> Constants.Shooter.DEFAULT_VELOCITY);
     }
 
-    public Command calibrateShooter(DoubleSupplier hoodAngleSupplier, DoubleSupplier shooterVelocitySupplier) {
+    public Command calibrateShooter(DoubleSupplier hoodAngleSupplier, DoubleSupplier shooterVelocitySupplier, boolean aimAtHub) {
         return shooter.follow(() -> {
             Pose2d robotPose = drive.getPose();
 
-            Translation2d targetPosition = getShooterTarget(robotPose, isRedAlliance(), true);
+            Translation2d targetPosition = getShooterTarget(robotPose, isRedAlliance(), aimAtHub);
 
             var firingSolution = fireControlSystem.calculate(
                     drive.getPose(), drive.getFieldOrientedVelocity(),
                     Rotation2d.fromRadians(shooter.getTurretPosition()),
-                    targetPosition, true);
+                    targetPosition, aimAtHub);
             return new FiringSolution(firingSolution.turretAngle(), hoodAngleSupplier.getAsDouble(),
                     shooterVelocitySupplier.getAsDouble());
         });

@@ -14,9 +14,9 @@ import static edu.wpi.first.wpilibj2.command.Commands.waitSeconds;
 import static edu.wpi.first.wpilibj2.command.Commands.waitUntil;
 
 public class Shooter extends SubsystemBase {
-    private final static double HOOD_POSITION_THRESHOLD = Units.degreesToRadians(1);
-    private final static double TURRET_POSITION_THRESHOLD = Units.degreesToRadians(1);
-    private final static double SHOOTER_VELOCITY_THRESHOLD = Units.rotationsPerMinuteToRadiansPerSecond(1);
+    private final static double HOOD_POSITION_THRESHOLD = Units.degreesToRadians(2.0);
+    private final static double TURRET_POSITION_THRESHOLD = Units.degreesToRadians(2.0);
+    private final static double SHOOTER_VELOCITY_THRESHOLD = Units.rotationsPerMinuteToRadiansPerSecond(10.0);
 
     private final ShooterIO io;
     private final ShooterInputsAutoLogged inputs = new ShooterInputsAutoLogged();
@@ -131,7 +131,9 @@ public class Shooter extends SubsystemBase {
     }
 
     public boolean hoodAtPosition(double position, double threshold) {
-        return Math.abs(inputs.currentHoodPosition - position) < threshold;
+        boolean atPosition = Math.abs(inputs.currentHoodPosition - position) < threshold;
+        Logger.recordOutput("Shooter/HoodAtPosition", atPosition);
+        return atPosition;
     }
 
     public double getTargetHoodPosition() {
@@ -173,7 +175,9 @@ public class Shooter extends SubsystemBase {
     }
 
     public boolean turretAtPosition(double position, double threshold) {
-        return Math.abs(inputs.currentTurretPosition - position) < threshold;
+        boolean atPosition = Math.abs(getSmallestEquivalentAngle(inputs.currentTurretPosition) - getSmallestEquivalentAngle(position)) < threshold;
+        Logger.recordOutput("Shooter/TurretAtPosition", atPosition);
+        return atPosition;
     }
 
     public double getTargetTurretPosition() {
@@ -223,7 +227,9 @@ public class Shooter extends SubsystemBase {
     }
 
     public boolean shooterAtVelocity(double position, double threshold) {
-        return Math.abs(inputs.currentShooterVelocity1 - position) < threshold;
+        boolean atVelocity = Math.abs(inputs.currentShooterVelocity1 - position) < threshold;
+        Logger.recordOutput("Shooter/ShooterAtVelocity", atVelocity);
+        return atVelocity;
     }
 
     public double getTargetShooterVelocity() {

@@ -47,7 +47,6 @@ public final class Constants {
     }
 
     public static class Shooter {
-        // TODO: get actual values
         // The Pose2d's of the six locations we will want to shoot fuel to
         public static final Translation2d BLUE_HUB = new Translation2d(
                 ((FIELD.getTagPose(26).get().getX() + FIELD.getTagPose(20).get().getX()) / 2.0),
@@ -61,16 +60,16 @@ public final class Constants {
 
         public static final Translation2d UPPER_PASS_BLUE = new Translation2d(
                 (FIELD.getTagPose(29).get().getX() + 0.5),
-                (FIELD.getTagPose(23).get().getY()));
+                (FIELD.getTagPose(23).get().getY() - 0.5));
         public static final Translation2d LOWER_PASS_BLUE = new Translation2d(
                 (FIELD.getTagPose(29).get().getX() + 0.5),
-                (FIELD.getTagPose(29).get().getY()));
+                (FIELD.getTagPose(29).get().getY() + 0.5));
         public static final Translation2d UPPER_PASS_RED = new Translation2d(
                 (FIELD.getTagPose(13).get().getX() - 0.5),
-                (FIELD.getTagPose(13).get().getY()));
+                (FIELD.getTagPose(13).get().getY() - 0.5));
         public static final Translation2d LOWER_PASS_RED = new Translation2d(
                 (FIELD.getTagPose(13).get().getX() - 0.5),
-                (FIELD.getTagPose(7).get().getY()));
+                (FIELD.getTagPose(7).get().getY() + 0.5));
 
         // The Translation the turret is from the center of the robot
         public static final Translation2d TURRET_OFF_CENTER = new Translation2d(Units.inchesToMeters(-10.5), Units.inchesToMeters(10.5));
