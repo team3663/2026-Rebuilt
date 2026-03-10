@@ -127,6 +127,10 @@ public class Intake extends SubsystemBase {
         return intakeAndPivot(FEED_VOLTAGE, FEED_ANGLE);
     }
 
+    public Command pivotDefault(){
+        return intakeAndPivot(0.0, FEED_ANGLE);
+    }
+
     public Command stop() {
         return runOnce(() -> {
             targetVoltage = 0.0;
