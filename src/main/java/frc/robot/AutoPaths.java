@@ -10,6 +10,7 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shooter.Shooter;
 
+import java.lang.reflect.Field;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
@@ -97,7 +98,7 @@ public class AutoPaths {
                                     target.getRotation().interpolate(startingPose[0].getRotation(), t));
                         },
                         slowAccel::getAsBoolean,
-                        drive::getMaxLinearSpeedMetersPerSec)
+                ()-> drive.getMaxLinearSpeedMetersPerSec() * 0.5)
                 .beforeStarting(() -> {
                     if (intermediatePoseSupplier != null) intermediateHolder[0] = intermediatePoseSupplier.get();
                     else Commands.none();
@@ -461,13 +462,14 @@ public class AutoPaths {
                 intakingAndZeroing(Constants.BLUE_RIGHT_CENTER_LINE, Constants.RED_RIGHT_CENTER_LINE,
                         () -> Constants.BLUE_RIGHT_CENTER_LINE_INTERMEDIATE, () -> Constants.RED_RIGHT_CENTER_LINE_INTERMEDIATE),
                 goToPosition(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE,
-                        () -> Constants.BLUE_RIGHT_CENTER_LINE_TO_TRENCH_INTERMEDIATE, () -> Constants.RED_RIGHT_CENTER_LINE_TO_TRENCH_INTERMEDIATE),
+                        () -> Constants.BLUE_RIGHT_CENTER_LINE_TO_TRENCH_INTERMEDIATE, () -> Constants.RED_RIGHT_CENTER_LINE_TO_TRENCH_INTERMEDIATE,
+                        Units.feetToMeters(5.0)),
                 shootingInPlace(),
                 intaking(Constants.BLUE_RIGHT_ALLIANCE_SIDE, Constants.RED_RIGHT_ALLIANCE_SIDE,
                         () -> Constants.BLUE_RIGHT_ALLIANCE_SIDE_INTERMEDIATE, () -> Constants.RED_RIGHT_ALLIANCE_SIDE_INTERMEDIATE),
                 goToPosition(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE,
                         () -> Constants.BLUE_RIGHT_ALLIANCE_SIDE_TO_TRENCH_INTERMEDIATE, () -> Constants.RED_RIGHT_ALLIANCE_SIDE_TO_TRENCH_INTERMEDIATE,
-                        1.0),
+                        Units.feetToMeters(5.0)),
                 shootingInPlace()
         );
     }
@@ -478,12 +480,14 @@ public class AutoPaths {
                 intakingAndZeroing(Constants.BLUE_LEFT_CENTER_LINE, Constants.RED_LEFT_CENTER_LINE,
                         () -> Constants.BLUE_LEFT_CENTER_LINE_INTERMEDIATE, () -> Constants.RED_LEFT_CENTER_LINE_INTERMEDIATE),
                 goToPosition(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE,
-                        () -> Constants.BLUE_LEFT_CENTER_LINE_INTERMEDIATE, () -> Constants.RED_LEFT_CENTER_LINE_INTERMEDIATE),
+                        () -> Constants.BLUE_LEFT_CENTER_LINE_INTERMEDIATE, () -> Constants.RED_LEFT_CENTER_LINE_INTERMEDIATE,
+                        Units.feetToMeters(5.0)),
                 shootingInPlace(),
                 intaking(Constants.BLUE_LEFT_ALLIANCE_SIDE, Constants.RED_LEFT_ALLIANCE_SIDE,
                         () -> Constants.BLUE_LEFT_ALLIANCE_SIDE_INTERMEDIATE, () -> Constants.RED_LEFT_ALLIANCE_SIDE_INTERMEDIATE),
                 goToPosition(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE,
-                        () -> Constants.BLUE_LEFT_ALLIANCE_SIDE_TO_TRENCH_INTERMEDIATE, () -> Constants.RED_LEFT_ALLIANCE_SIDE_TO_TRENCH_INTERMEDIATE),
+                        () -> Constants.BLUE_LEFT_ALLIANCE_SIDE_TO_TRENCH_INTERMEDIATE, () -> Constants.RED_LEFT_ALLIANCE_SIDE_TO_TRENCH_INTERMEDIATE,
+                        Units.feetToMeters(5.0)),
                 shootingInPlace()
         );
     }
@@ -493,8 +497,9 @@ public class AutoPaths {
                 resetOdometry(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE),
                 intakingAndZeroing(Constants.BLUE_RIGHT_CENTER_LINE, Constants.RED_RIGHT_CENTER_LINE,
                         () -> Constants.BLUE_RIGHT_CENTER_LINE_INTERMEDIATE, () -> Constants.RED_RIGHT_CENTER_LINE_INTERMEDIATE),
-                goToPosition(Constants.BLUE_OUTPOST_CENTERED, Constants.RED_OUTPOST_CENTERED,
-                        () -> Constants.BLUE_RIGHT_CENTER_LINE_TO_TRENCH_INTERMEDIATE, () -> Constants.RED_RIGHT_CENTER_LINE_TO_TRENCH_INTERMEDIATE, 1.0),
+                goToPosition(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE,
+                        () -> Constants.BLUE_RIGHT_CENTER_LINE_TO_TRENCH_INTERMEDIATE, () -> Constants.RED_RIGHT_CENTER_LINE_TO_TRENCH_INTERMEDIATE,
+                        Units.feetToMeters(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE.getX()) + 5.0),
                 goToPositionAndShoot(Constants.BLUE_OUTPOST_CENTERED, Constants.RED_OUTPOST_CENTERED,
                         () -> Constants.BLUE_OUTPOST_INTERMEDIATE, () -> Constants.RED_OUTPOST_INTERMEDIATE)
 
