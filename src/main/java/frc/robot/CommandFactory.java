@@ -39,12 +39,12 @@ public class CommandFactory {
 
     public boolean isAimingAtTarget() {
         if (firingSolution == null) {
-            Logger.recordOutput("CommandFactory/isAimingAtTarget", false);
+            Logger.recordOutput("CommandFactory/ShooterIsAimingAtTarget", false);
             return false;
         }
 
         boolean atTarget = this.shooter.isAt(firingSolution.hoodAngle(), firingSolution.turretAngle(), firingSolution.shooterVelocity());
-        Logger.recordOutput("CommandFactory/isAimingAtTarget", atTarget);
+        Logger.recordOutput("CommandFactory/ShooterIsAimingAtTarget", atTarget);
         return atTarget;
     }
 
