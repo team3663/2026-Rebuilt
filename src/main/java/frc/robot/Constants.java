@@ -38,6 +38,16 @@ public final class Constants {
     private static final double OUTPOST_OFFSET = 12.0;
     // Distance away from the wall that the robot sits for auto paths beginning at the trench; measured in feet
     private static final double TRENCH_STARTING_OFFSET = 2.0;
+    // Distance away from the middle line towards the driver station when crossing into the neutral zone
+    //     for the 2nd time in auto; measured in feet
+    private static final double NEUTRAL_ZONE_ALLIANCE_SIDE_X_OFFSET = 8.0;
+    // Y Distance from the April Tags that are used when in the neutral zone on the left and right sides; measured in feet
+    private static final double NEUTRAL_ZONE_Y_OFFSET = 3.0;
+    private static final double CENTER_LINE_INTERMEDIATE_X_OFFSET = 2.0;
+    private static final double CENTER_LINE_INTERMEDIATE_Y_OFFSET = 2.0;
+    private static final double NEUTRAL_ZONE_ALLIANCE_SIDE_INTERMEDIATE_X_OFFSET = 6.0;
+    private static final double NEUTRAL_ZONE_TO_TRENCH_Y_OFFSET = 2.0;
+
 
     // KEY NOTES:
     //     - If the robot is turned 90 or 270 degrees, X and Y are switched
@@ -133,84 +143,78 @@ public final class Constants {
     // Neutral Zone Positions
     // BLUE ALLIANCE
     public static final Pose2d BLUE_RIGHT_CENTER_LINE = new Pose2d((FIELD.getFieldLength() / 2.0),
-            FIELD.getTagPose(17).get().getY() + Units.feetToMeters(3.0), Rotation2d.fromDegrees(90));
+            FIELD.getTagPose(17).get().getY() + Units.feetToMeters(NEUTRAL_ZONE_Y_OFFSET), Rotation2d.fromDegrees(90));
     public static final Pose2d BLUE_MIDDLE_CENTER_LINE = new Pose2d((FIELD.getFieldLength() / 2.0),
             FIELD.getFieldWidth() / 2.0, Rotation2d.fromDegrees(90.0));
     public static final Pose2d BLUE_LEFT_CENTER_LINE = new Pose2d((FIELD.getFieldLength() / 2.0),
-            FIELD.getTagPose(22).get().getY() - Units.feetToMeters(3.0), Rotation2d.fromDegrees(270));
-    public static final Pose2d BLUE_RIGHT_ALLIANCE_SIDE = new Pose2d((FIELD.getFieldLength() / 2.0) - Units.feetToMeters(2.0),
-            FIELD.getTagPose(17).get().getY(), Rotation2d.fromDegrees(BLUE_RIGHT_CENTER_LINE.getRotation().getDegrees()))
-            .plus(new Transform2d(Units.feetToMeters(4.0), Units.feetToMeters(3.5), Rotation2d.fromDegrees(0.0)));
-    public static final Pose2d BLUE_MIDDLE_ALLIANCE_SIDE = new Pose2d((FIELD.getFieldLength() / 2.0) - Units.feetToMeters(1.5),
+            FIELD.getTagPose(22).get().getY() - Units.feetToMeters(NEUTRAL_ZONE_Y_OFFSET), Rotation2d.fromDegrees(270));
+    public static final Pose2d BLUE_RIGHT_ALLIANCE_SIDE = new Pose2d((FIELD.getFieldLength() / 2.0) - Units.feetToMeters(NEUTRAL_ZONE_ALLIANCE_SIDE_X_OFFSET),
+            FIELD.getTagPose(17).get().getY() + Units.feetToMeters(NEUTRAL_ZONE_Y_OFFSET),
+            Rotation2d.fromDegrees(BLUE_RIGHT_CENTER_LINE.getRotation().getDegrees()));
+    public static final Pose2d BLUE_MIDDLE_ALLIANCE_SIDE_FROM_RIGHT = new Pose2d((FIELD.getFieldLength() / 2.0) - Units.feetToMeters(NEUTRAL_ZONE_ALLIANCE_SIDE_X_OFFSET),
             FIELD.getFieldWidth() / 2.0, Rotation2d.fromDegrees(90));
-    public static final Pose2d BLUE_LEFT_ALLIANCE_SIDE = new Pose2d((FIELD.getFieldLength() / 2.0) - Units.feetToMeters(2.0),
-            FIELD.getTagPose(22).get().getY(), Rotation2d.fromDegrees(-90.0))
-            .plus(new Transform2d(Units.feetToMeters(3.5), -Units.feetToMeters(4.0), Rotation2d.fromDegrees(0.0)));
+    public static final Pose2d BLUE_LEFT_ALLIANCE_SIDE = new Pose2d((FIELD.getFieldLength() / 2.0) - Units.feetToMeters(NEUTRAL_ZONE_ALLIANCE_SIDE_X_OFFSET),
+            FIELD.getTagPose(22).get().getY() - Units.feetToMeters(NEUTRAL_ZONE_Y_OFFSET),
+            Rotation2d.fromDegrees(-90.0));
 
-    public static final Pose2d BLUE_RIGHT_CENTER_LINE_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) + Units.feetToMeters(2.0),
-            FIELD.getTagPose(17).get().getY(), Rotation2d.fromDegrees(45.0));
-    public static final Pose2d BLUE_LEFT_CENTER_LINE_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) + Units.feetToMeters(2.0),
+    public static final Pose2d BLUE_RIGHT_CENTER_LINE_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) + Units.feetToMeters(CENTER_LINE_INTERMEDIATE_X_OFFSET),
+            FIELD.getTagPose(17).get().getY(), Rotation2d.fromDegrees(0.0));
+    public static final Pose2d BLUE_LEFT_CENTER_LINE_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) + Units.feetToMeters(CENTER_LINE_INTERMEDIATE_X_OFFSET),
             FIELD.getTagPose(22).get().getY(), Rotation2d.fromDegrees(0.0));
-    public static final Pose2d BLUE_RIGHT_CENTER_LINE_TO_TRENCH_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) + Units.feetToMeters(2.0),
-            FIELD.getTagPose(17).get().getY(), Rotation2d.fromDegrees(0.0))
-            .plus(new Transform2d(-Units.feetToMeters(2.0), -Units.feetToMeters(2.5), Rotation2d.fromDegrees(90.0)));
-    public static final Pose2d BLUE_LEFT_CENTER_LINE_TO_TRENCH_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) + Units.feetToMeters(2.0),
-            FIELD.getTagPose(22).get().getY(), Rotation2d.fromDegrees(0.0))
-            .plus(new Transform2d(-Units.feetToMeters(2.0), Units.feetToMeters(2.5), Rotation2d.fromDegrees(90.0)));
-    public static final Pose2d BLUE_RIGHT_ALLIANCE_SIDE_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) - Units.feetToMeters(2.0),
-            FIELD.getTagPose(17).get().getY(), Rotation2d.fromDegrees(0.0))
-            .plus(new Transform2d(-Units.feetToMeters(1.5), 0.0, Rotation2d.fromDegrees(0.0)));
-    public static final Pose2d BLUE_LEFT_ALLIANCE_SIDE_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) - Units.feetToMeters(2.0),
-            FIELD.getTagPose(22).get().getY(), Rotation2d.fromDegrees(0.0))
-            .plus(new Transform2d(-Units.feetToMeters(2.0), Units.feetToMeters(0.0), Rotation2d.fromDegrees(-90.0)));
-    public static final Pose2d BLUE_RIGHT_ALLIANCE_SIDE_TO_TRENCH_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) - Units.feetToMeters(1.0),
-            FIELD.getTagPose(17).get().getY(), Rotation2d.fromDegrees(0.0))
-            .plus(new Transform2d(-Units.feetToMeters(1.0), -Units.feetToMeters(2.5), Rotation2d.fromDegrees(0.0)));
-    public static final Pose2d BLUE_LEFT_ALLIANCE_SIDE_TO_TRENCH_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) - Units.feetToMeters(2.0),
-            FIELD.getTagPose(22).get().getY(), Rotation2d.fromDegrees(90.0))
-            .plus(new Transform2d(Units.feetToMeters(3.0), Units.feetToMeters(0.0), Rotation2d.fromDegrees(90.0)));
+    public static final Pose2d BLUE_RIGHT_CENTER_LINE_TO_TRENCH_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) + Units.feetToMeters(CENTER_LINE_INTERMEDIATE_X_OFFSET),
+            FIELD.getTagPose(17).get().getY() - Units.feetToMeters(NEUTRAL_ZONE_TO_TRENCH_Y_OFFSET), Rotation2d.fromDegrees(0.0));
+    public static final Pose2d BLUE_LEFT_CENTER_LINE_TO_TRENCH_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) + Units.feetToMeters(CENTER_LINE_INTERMEDIATE_X_OFFSET),
+            FIELD.getTagPose(22).get().getY() + Units.feetToMeters(NEUTRAL_ZONE_TO_TRENCH_Y_OFFSET), Rotation2d.fromDegrees(0.0));
+    public static final Pose2d BLUE_RIGHT_ALLIANCE_SIDE_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) - Units.feetToMeters(NEUTRAL_ZONE_ALLIANCE_SIDE_INTERMEDIATE_X_OFFSET),
+            FIELD.getTagPose(17).get().getY(), Rotation2d.fromDegrees(90.0));
+    public static final Pose2d BLUE_LEFT_ALLIANCE_SIDE_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) - Units.feetToMeters(NEUTRAL_ZONE_ALLIANCE_SIDE_INTERMEDIATE_X_OFFSET),
+            FIELD.getTagPose(22).get().getY(), Rotation2d.fromDegrees(-90.0));
+    public static final Pose2d BLUE_RIGHT_ALLIANCE_SIDE_TO_TRENCH_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) - Units.feetToMeters(NEUTRAL_ZONE_ALLIANCE_SIDE_INTERMEDIATE_X_OFFSET),
+            FIELD.getTagPose(17).get().getY(), Rotation2d.fromDegrees(0.0));
+    public static final Pose2d BLUE_LEFT_ALLIANCE_SIDE_TO_TRENCH_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) - Units.feetToMeters(NEUTRAL_ZONE_ALLIANCE_SIDE_INTERMEDIATE_X_OFFSET),
+            FIELD.getTagPose(22).get().getY(), Rotation2d.fromDegrees(0.0));
 
 
     // RED ALLIANCE
     public static final Pose2d RED_RIGHT_CENTER_LINE = new Pose2d((FIELD.getFieldLength() / 2.0),
-            FIELD.getTagPose(1).get().getY() - Units.feetToMeters(4.0), Rotation2d.fromDegrees(270));
+            FIELD.getTagPose(1).get().getY() - Units.feetToMeters(NEUTRAL_ZONE_Y_OFFSET), Rotation2d.fromDegrees(270));
     public static final Pose2d RED_MIDDLE_CENTER_LINE = new Pose2d((FIELD.getFieldLength() / 2.0),
             FIELD.getFieldWidth() / 2.0, Rotation2d.fromDegrees(270));
     public static final Pose2d RED_LEFT_CENTER_LINE = new Pose2d((FIELD.getFieldLength() / 2.0),
-            FIELD.getTagPose(6).get().getY() + Units.feetToMeters(4.0), Rotation2d.fromDegrees(90));
-    public static final Pose2d RED_RIGHT_ALLIANCE_SIDE = new Pose2d((FIELD.getFieldLength() / 2.0) + Units.feetToMeters(3.0),
-            FIELD.getTagPose(1).get().getY(), Rotation2d.fromDegrees(RED_RIGHT_CENTER_LINE.getRotation().getDegrees()))
-            .plus(new Transform2d(Units.feetToMeters(4.0), Units.feetToMeters(3.5), Rotation2d.fromDegrees(0.0)));
-    public static final Pose2d RED_MIDDLE_ALLIANCE_SIDE = new Pose2d((FIELD.getFieldLength() / 2.0) + Units.feetToMeters(1.5),
+            FIELD.getTagPose(6).get().getY() + Units.feetToMeters(NEUTRAL_ZONE_Y_OFFSET), Rotation2d.fromDegrees(90));
+    public static final Pose2d RED_RIGHT_ALLIANCE_SIDE = new Pose2d((FIELD.getFieldLength() / 2.0) + Units.feetToMeters(NEUTRAL_ZONE_ALLIANCE_SIDE_X_OFFSET),
+            FIELD.getTagPose(1).get().getY() - Units.feetToMeters(NEUTRAL_ZONE_Y_OFFSET), Rotation2d.fromDegrees(RED_RIGHT_CENTER_LINE.getRotation().getDegrees()));
+    public static final Pose2d RED_MIDDLE_ALLIANCE_SIDE = new Pose2d((FIELD.getFieldLength() / 2.0) + Units.feetToMeters(NEUTRAL_ZONE_ALLIANCE_SIDE_X_OFFSET),
             FIELD.getFieldWidth() / 2.0, Rotation2d.fromDegrees(270));
-    public static final Pose2d RED_LEFT_ALLIANCE_SIDE = new Pose2d((FIELD.getFieldLength() / 2.0) + Units.feetToMeters(3.0),
-            FIELD.getTagPose(6).get().getY(), Rotation2d.fromDegrees(180))
-            .plus(new Transform2d(Units.feetToMeters(0.0), -Units.feetToMeters(3.0), Rotation2d.fromDegrees(-90.0)));
+    public static final Pose2d RED_LEFT_ALLIANCE_SIDE = new Pose2d((FIELD.getFieldLength() / 2.0) + Units.feetToMeters(NEUTRAL_ZONE_ALLIANCE_SIDE_X_OFFSET),
+            FIELD.getTagPose(6).get().getY() + Units.feetToMeters(NEUTRAL_ZONE_Y_OFFSET), Rotation2d.fromDegrees(90));
 
-    public static final Pose2d RED_RIGHT_CENTER_LINE_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) - Units.feetToMeters(3.0),
-            FIELD.getTagPose(1).get().getY(), Rotation2d.fromDegrees(180.0 + 45));
-    public static final Pose2d RED_LEFT_CENTER_LINE_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) - Units.feetToMeters(3.0),
+    public static final Pose2d RED_RIGHT_CENTER_LINE_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) - Units.feetToMeters(CENTER_LINE_INTERMEDIATE_X_OFFSET),
+            FIELD.getTagPose(1).get().getY(), Rotation2d.fromDegrees(180.0));
+    public static final Pose2d RED_LEFT_CENTER_LINE_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) - Units.feetToMeters(CENTER_LINE_INTERMEDIATE_X_OFFSET),
+            FIELD.getTagPose(6).get().getY(), Rotation2d.fromDegrees(180.0));
+    public static final Pose2d RED_RIGHT_CENTER_LINE_TO_TRENCH_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) - Units.feetToMeters(CENTER_LINE_INTERMEDIATE_X_OFFSET),
+            FIELD.getTagPose(1).get().getY() + Units.feetToMeters(CENTER_LINE_INTERMEDIATE_Y_OFFSET), Rotation2d.fromDegrees(180.0));
+    public static final Pose2d RED_LEFT_CENTER_LINE_TO_TRENCH_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) - Units.feetToMeters(CENTER_LINE_INTERMEDIATE_X_OFFSET),
+            FIELD.getTagPose(6).get().getY() - Units.feetToMeters(CENTER_LINE_INTERMEDIATE_Y_OFFSET), Rotation2d.fromDegrees(180));
+    public static final Pose2d RED_RIGHT_ALLIANCE_SIDE_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) + Units.feetToMeters(NEUTRAL_ZONE_ALLIANCE_SIDE_INTERMEDIATE_X_OFFSET),
+            FIELD.getTagPose(1).get().getY(), Rotation2d.fromDegrees(-90.0));
+    public static final Pose2d RED_LEFT_ALLIANCE_SIDE_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) + Units.feetToMeters(NEUTRAL_ZONE_ALLIANCE_SIDE_INTERMEDIATE_X_OFFSET),
+            FIELD.getTagPose(6).get().getY(), Rotation2d.fromDegrees(90.0));
+    public static final Pose2d RED_RIGHT_ALLIANCE_SIDE_TO_TRENCH_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) + Units.feetToMeters(NEUTRAL_ZONE_ALLIANCE_SIDE_INTERMEDIATE_X_OFFSET),
+            FIELD.getTagPose(1).get().getY(), Rotation2d.fromDegrees(180.0));
+    public static final Pose2d RED_LEFT_ALLIANCE_SIDE_TO_TRENCH_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) + Units.feetToMeters(NEUTRAL_ZONE_ALLIANCE_SIDE_INTERMEDIATE_X_OFFSET),
             FIELD.getTagPose(6).get().getY(), Rotation2d.fromDegrees(180));
-    public static final Pose2d RED_RIGHT_CENTER_LINE_TO_TRENCH_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) - Units.feetToMeters(3.0),
-            FIELD.getTagPose(1).get().getY(), Rotation2d.fromDegrees(180.0))
-            .plus(new Transform2d(-Units.feetToMeters(2.0), -Units.feetToMeters(2.5), Rotation2d.fromDegrees(90)));
-    public static final Pose2d RED_LEFT_CENTER_LINE_TO_TRENCH_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) - Units.feetToMeters(3.0),
-            FIELD.getTagPose(6).get().getY(), Rotation2d.fromDegrees(180))
-            .plus(new Transform2d(-Units.feetToMeters(2.0), Units.feetToMeters(2.5), Rotation2d.fromDegrees(90)));
-    public static final Pose2d RED_RIGHT_ALLIANCE_SIDE_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) + Units.feetToMeters(3.0),
-            FIELD.getTagPose(1).get().getY(), Rotation2d.fromDegrees(180.0))
-            .plus(new Transform2d(-Units.feetToMeters(.0), 0.0, Rotation2d.fromDegrees(90.0)));
-    public static final Pose2d RED_LEFT_ALLIANCE_SIDE_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) + Units.feetToMeters(3.0),
-            FIELD.getTagPose(6).get().getY(), Rotation2d.fromDegrees(180))
-            .plus(new Transform2d(-Units.feetToMeters(0.0), 0.0, Rotation2d.fromDegrees(0.0)));
-    public static final Pose2d RED_RIGHT_ALLIANCE_SIDE_TO_TRENCH_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) - Units.feetToMeters(3.0),
-            FIELD.getTagPose(1).get().getY(), Rotation2d.fromDegrees(180.0))
-            .plus(new Transform2d(-Units.feetToMeters(2.5), -Units.feetToMeters(3.5), Rotation2d.fromDegrees(90)))
-            .plus(new Transform2d(Units.feetToMeters(0.5), Units.feetToMeters(2.5), Rotation2d.fromDegrees(0.0)));
-    public static final Pose2d RED_LEFT_ALLIANCE_SIDE_TO_TRENCH_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) - Units.feetToMeters(3.0),
-            FIELD.getTagPose(6).get().getY(), Rotation2d.fromDegrees(180))
-            .plus(new Transform2d(-Units.feetToMeters(2.0), Units.feetToMeters(2.5), Rotation2d.fromDegrees(90)))
-            .plus(new Transform2d(Units.feetToMeters(0.0), Units.feetToMeters(3.5), Rotation2d.fromDegrees(0.0)));
+
+    // Swooping Auto Special Poses
+    public static final Pose2d BLUE_MIDDLE_CENTER_LINE_ROTATED = new Pose2d((FIELD.getFieldLength() / 2.0),
+            FIELD.getFieldWidth() / 2.0, Rotation2d.fromDegrees(90.0));
+    public static final Pose2d RED_MIDDLE_CENTER_LINE_ROTATED = new Pose2d((FIELD.getFieldLength() / 2.0),
+            FIELD.getFieldWidth() / 2.0, Rotation2d.fromDegrees(-90.0));
+    public static final Pose2d BLUE_MIDDLE_ALLIANCE_SIDE_FROM_LEFT = new Pose2d((FIELD.getFieldLength() / 2.0) - Units.feetToMeters(NEUTRAL_ZONE_ALLIANCE_SIDE_X_OFFSET),
+            FIELD.getFieldWidth() / 2.0, Rotation2d.fromDegrees(-90.0));
+    public static final Pose2d RED_MIDDLE_ALLIANCE_SIDE_FROM_LEFT = new Pose2d((FIELD.getFieldLength() / 2.0) + Units.feetToMeters(NEUTRAL_ZONE_ALLIANCE_SIDE_X_OFFSET),
+            FIELD.getFieldWidth() / 2.0, Rotation2d.fromDegrees(90.0));
 
 
     public enum Mode {
@@ -255,9 +259,10 @@ public final class Constants {
     }
 
     public static void RecordOutputs() {
-        Logger.recordOutput("Field/BlueOutpostIntermediate", BLUE_OUTPOST_INTERMEDIATE);
-        Logger.recordOutput("Field/RedOutpostIntermediate", RED_OUTPOST_INTERMEDIATE);
-        Logger.recordOutput("Field/BLUE_RIGHT_ALLIANCE_SIDE", BLUE_RIGHT_ALLIANCE_SIDE_INTERMEDIATE);
+        Logger.recordOutput("Field/BLUE_LEFT_CENTER_LINE_INTERMEDIATE", RED_LEFT_CENTER_LINE_INTERMEDIATE);
+        Logger.recordOutput("Field/BLUE_LEFT_ALLIANCE_SIDE_INTERMEDIATE", RED_LEFT_ALLIANCE_SIDE_INTERMEDIATE);
+        Logger.recordOutput("Field/BLUE_RIGHT_CENTER_LINE_INTERMEDIATE", RED_RIGHT_CENTER_LINE_INTERMEDIATE);
+        Logger.recordOutput("Field/BLUE_RIGHT_ALLIANCE_SIDE_INTERMEDIATE", RED_RIGHT_ALLIANCE_SIDE_INTERMEDIATE);
         Logger.recordOutput("Field/RedOutpostCentered", RED_OUTPOST_CENTERED);
     }
 }

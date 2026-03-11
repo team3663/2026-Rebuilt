@@ -10,7 +10,6 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shooter.Shooter;
 
-import java.lang.reflect.Field;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
@@ -26,6 +25,8 @@ public class AutoPaths {
     // The distance the robot has to be at before the goToPosition command switches from the
     //     intermediate target to the actual target
     private final double INTERMEDIATE_DISTANCE_THRESHOLD = 4.0;
+    // The distance at which the robot stops the goTowardsIntermediate command and starts going to next position
+    private final double LINKING_PATHS_DISTANCE_THRESHOLD = 2.0;
     // At what point the drivetrain should finish rotating, currently set to the end of the path
     private final double DEFAULT_ANGLE_DISTANCE_THRESHOLD = 0.0;
     // How long the robot should sit in place to shoot
@@ -60,6 +61,15 @@ public class AutoPaths {
      */
     private Command resetOdometry(Pose2d blueTargetPose, Pose2d redTargetPose) {
         return Commands.defer(() -> drive.resetOdometry(() -> alliancePose(blueTargetPose, redTargetPose)), Set.of(drive));
+    }
+
+    private double getDistanceToPose(Pose2d bluePose, Pose2d redPose) {
+        return (Units.feetToMeters(drive.getPose().getTranslation().getDistance(alliancePose(bluePose, redPose).getTranslation()))
+                + Units.feetToMeters(3.0));
+    }
+
+    private Command zeroIntakeAndHood() {
+        return intake.zeroPivot().alongWith(shooter.zeroHood());
     }
 
     /**
@@ -98,7 +108,7 @@ public class AutoPaths {
                                     target.getRotation().interpolate(startingPose[0].getRotation(), t));
                         },
                         slowAccel::getAsBoolean,
-                ()-> drive.getMaxLinearSpeedMetersPerSec() * 0.5)
+                        () -> drive.getMaxLinearSpeedMetersPerSec() * 0.5)
                 .beforeStarting(() -> {
                     if (intermediatePoseSupplier != null) intermediateHolder[0] = intermediatePoseSupplier.get();
                     else Commands.none();
@@ -195,6 +205,13 @@ public class AutoPaths {
                 .until(() -> drive.atPosition(alliancePose(blueTargetPose, redTargetPose).getTranslation()));
     }
 
+    private Command goToPositionJustDriving(Pose2d blueTargetPose, Pose2d redTargetPose, Supplier<Pose2d> blueIntermediatePose,
+                                            Supplier<Pose2d> redIntermediatePose, double angleDistance) {
+        return goToPosition(blueTargetPose, redTargetPose, blueIntermediatePose, redIntermediatePose, angleDistance)
+                .until(() -> drive.atPosition(alliancePose(blueTargetPose, redTargetPose).getTranslation()));
+
+    }
+
     /**
      * Drives the robot to a target position
      * This commands uses the {@link Drive} subsystem
@@ -211,6 +228,26 @@ public class AutoPaths {
     }
 
     /**
+     * Drives the robot towards a given target until the robot is within a certain distance of it's target
+     * <p>This command uses {@link Drive}</p>
+     * <p>This command uses the {@link #LINKING_PATHS_DISTANCE_THRESHOLD} to determine the distance away
+     * from the target at which the command ends</p>
+     *
+     * @param blueTargetPose Target position to drive towards if on the blue alliance
+     * @param redTargetPose  Target position to drive towards if on the red alliance
+     */
+    private Command goTowardsIntermediate(Pose2d blueTargetPose, Pose2d redTargetPose,
+                                          Supplier<Pose2d> blueIntermediatePositon, Supplier<Pose2d> redIntermediatePosition, double angleDistance) {
+        return goToPositionJustDriving(blueTargetPose, redTargetPose, blueIntermediatePositon, redIntermediatePosition, angleDistance)
+                .until(() -> drive.atPosition(alliancePose(blueTargetPose, redTargetPose)
+                        .getTranslation(), Units.feetToMeters(LINKING_PATHS_DISTANCE_THRESHOLD)));
+    }
+
+    private Command goTowardsIntermediate(Pose2d blueTargetPose, Pose2d redTargetPose) {
+        return goTowardsIntermediate(blueTargetPose, redTargetPose, () -> null, () -> null, DEFAULT_ANGLE_DISTANCE_THRESHOLD);
+    }
+
+    /**
      * Drives the robot to the target position while intaking
      * <p>
      * This command requires {@link Drive}, {@link Intake} and ends when the robot reaches the target position
@@ -224,10 +261,16 @@ public class AutoPaths {
     private Command intaking(Pose2d blueTargetPose, Pose2d redTargetPose, Supplier<Pose2d> blueIntermediatePoseSupplier, Supplier<Pose2d> redIntermediatePoseSupplier) {
         return goToPosition(blueTargetPose, redTargetPose,
                 blueIntermediatePoseSupplier, redIntermediatePoseSupplier, false)
-                .withDeadline(Commands.sequence(
-                                intake.deployAndIntake())
-                        .andThen(intake.stow()))
+                .alongWith(intake.deployAndIntake())
+                .andThen(intake.stow())
                 .until(() -> drive.atPosition(alliancePose(blueTargetPose, redTargetPose).getTranslation()));
+    }
+
+    private Command intaking(Pose2d blueTaretPose, Pose2d redTargetPose, double angleDistance) {
+        return goToPosition(blueTaretPose, redTargetPose, () -> null, () -> null, angleDistance)
+                .alongWith(intake.deployAndIntake())
+                .andThen(intake.stow())
+                .until(() -> drive.atPosition(alliancePose(blueTaretPose, redTargetPose).getTranslation()));
     }
 
     /**
@@ -264,6 +307,26 @@ public class AutoPaths {
         return intaking(blueTargetPose, redTargetPose, () -> null, () -> null);
     }
 
+    private Command intakingWithDistanceThreshold(Pose2d blueTargetPose, Pose2d redTargetPose,
+                                                  Supplier<Pose2d> blueIntermediatePose, Supplier<Pose2d> redIntermediatePose, double angleDistance) {
+        return goTowardsIntermediate(blueTargetPose, redTargetPose, blueIntermediatePose, redIntermediatePose, angleDistance)
+                .alongWith(intake.deployAndIntake())
+                .until(() -> drive.atPosition(alliancePose(blueTargetPose, redTargetPose).getTranslation(), Units.feetToMeters(LINKING_PATHS_DISTANCE_THRESHOLD)));
+    }
+
+    private Command intakingWithDistanceThreshold(Pose2d blueTargetPose, Pose2d redTargetPose, Supplier<Pose2d> blueIntermediatePose,
+                                                  Supplier<Pose2d> redIntermediatePose) {
+        return intakingWithDistanceThreshold(blueTargetPose, redTargetPose, blueIntermediatePose, redIntermediatePose, DEFAULT_ANGLE_DISTANCE_THRESHOLD);
+    }
+
+    private Command intakingWithDistanceThreshold(Pose2d blueTargetPose, Pose2d redTargetPose, double angleDistance) {
+        return intakingWithDistanceThreshold(blueTargetPose, redTargetPose, () -> null, () -> null, angleDistance);
+    }
+
+    private Command intakingWithDistanceThreshold(Pose2d blueTargetPose, Pose2d redTargetPose) {
+        return intakingWithDistanceThreshold(blueTargetPose, redTargetPose, DEFAULT_ANGLE_DISTANCE_THRESHOLD);
+    }
+
     /**
      * Runs the shooter in place
      * <p>
@@ -277,6 +340,12 @@ public class AutoPaths {
                 .beforeStarting(shouldZero ? shooter.zeroHood().alongWith(intake.zeroPivot()) : Commands.none())
                 .withTimeout(timeout)
                 .andThen(shooter.stop());
+    }
+
+    private Command shooting(boolean shouldZero, boolean shouldStopShooter) {
+        return commandFactory.aim(true).alongWith(commandFactory.feedIntoShooter().alongWith(intake.feed()))
+                .andThen(shouldStopShooter ? shooter.stop() : Commands.none())
+                .beforeStarting(shouldZero ? intake.zeroPivot().alongWith(shooter.zeroHood()) : Commands.none());
     }
 
     /**
@@ -309,9 +378,12 @@ public class AutoPaths {
      * @param redIntermediatePose  A supplier of positions for the robot to drive to if on the red alliance
      * @param shouldZero           Boolean that determines if the robot zeros the intake pivot and hood
      */
+    // TODO this doesn't actually zero because it makes it crash, so figure this out at a later point --- not using it rn
     private Command goToPositionAndShoot(Pose2d blueTargetPose, Pose2d redTargetPose, Supplier<Pose2d> blueIntermediatePose,
                                          Supplier<Pose2d> redIntermediatePose, boolean shouldZero) {
-        return goToPosition(blueTargetPose, redTargetPose, blueIntermediatePose, redIntermediatePose, shouldZero)
+        return goToPosition(blueTargetPose, redTargetPose, blueIntermediatePose, redIntermediatePose)
+//                .alongWith(commandFactory.aim(true).alongWith(commandFactory.feedIntoShooter()))
+//                .beforeStarting(shouldZero ? intake.zeroPivot().alongWith(shooter.zeroHood()) : Commands.none())
                 .until(() -> drive.atPosition(alliancePose(blueTargetPose, redTargetPose).getTranslation()));
     }
 
@@ -354,6 +426,13 @@ public class AutoPaths {
      */
     private Command goToPositionAndShoot(Pose2d blueTargetPose, Pose2d redTargetPose) {
         return goToPositionAndShoot(blueTargetPose, redTargetPose, () -> null, () -> null, false);
+    }
+
+    private Command goTowardsPositionAndShoot(Pose2d blueTargetPose, Pose2d redTargetPose, boolean shouldStopShooter) {
+        return goTowardsIntermediate(blueTargetPose, redTargetPose)
+                .alongWith(shooting(false, shouldStopShooter))
+                .until(() -> drive.atPosition(alliancePose(blueTargetPose, redTargetPose).getTranslation(),
+                        Units.feetToMeters(LINKING_PATHS_DISTANCE_THRESHOLD)));
     }
 
     /**
@@ -456,6 +535,27 @@ public class AutoPaths {
     }
 
     // Auto Routines
+    public Command leftStarting_neutralZone_neutralZoneSwoop() {
+        return Commands.sequence(
+                resetOdometry(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE),
+                intaking(Constants.BLUE_LEFT_CENTER_LINE, Constants.RED_LEFT_CENTER_LINE,
+                        () -> Constants.BLUE_LEFT_CENTER_LINE_INTERMEDIATE, () -> Constants.RED_LEFT_CENTER_LINE_INTERMEDIATE),
+                goToPosition(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE,
+                        () -> Constants.BLUE_LEFT_CENTER_LINE_TO_TRENCH_INTERMEDIATE, () -> Constants.RED_LEFT_CENTER_LINE_TO_TRENCH_INTERMEDIATE,
+                        Units.feetToMeters(3.0)),
+                shootingInPlace(),
+                intakingWithDistanceThreshold(Constants.BLUE_LEFT_ALLIANCE_SIDE_INTERMEDIATE, Constants.RED_LEFT_ALLIANCE_SIDE_INTERMEDIATE),
+                intakingWithDistanceThreshold(Constants.BLUE_MIDDLE_ALLIANCE_SIDE_FROM_LEFT, Constants.RED_MIDDLE_ALLIANCE_SIDE_FROM_LEFT,
+                        getDistanceToPose(Constants.BLUE_MIDDLE_ALLIANCE_SIDE_FROM_LEFT, Constants.RED_MIDDLE_ALLIANCE_SIDE_FROM_LEFT)),
+                intakingWithDistanceThreshold(Constants.BLUE_MIDDLE_CENTER_LINE_ROTATED, Constants.RED_MIDDLE_CENTER_LINE_ROTATED,
+                        Units.feetToMeters(3.0)),
+                intakingWithDistanceThreshold(Constants.BLUE_LEFT_ALLIANCE_SIDE_TO_TRENCH_INTERMEDIATE, Constants.RED_LEFT_ALLIANCE_SIDE_TO_TRENCH_INTERMEDIATE),
+                intaking(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE,
+                        Units.feetToMeters(3.0)),
+                shootingInPlace()
+        );
+    }
+
     public Command rightStarting_neutralZone_neutralZone() {
         return Commands.sequence(
                 resetOdometry(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE),
@@ -572,7 +672,7 @@ public class AutoPaths {
     public Command leftStartingNoShooting_neutralZone_AllianceSide_rightClimb() {
         return Commands.sequence(
                 resetOdometry(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE),
-                intakePassAndZero(Constants.BLUE_MIDDLE_ALLIANCE_SIDE, Constants.RED_MIDDLE_ALLIANCE_SIDE,
+                intakePassAndZero(Constants.BLUE_MIDDLE_ALLIANCE_SIDE_FROM_RIGHT, Constants.RED_MIDDLE_ALLIANCE_SIDE,
                         () -> Constants.BLUE_LEFT_ALLIANCE_SIDE, () -> Constants.RED_LEFT_ALLIANCE_SIDE_INTERMEDIATE),
                 intaking(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE,
                         () -> Constants.BLUE_RIGHT_ALLIANCE_SIDE_TO_TRENCH_INTERMEDIATE, () -> Constants.RED_RIGHT_ALLIANCE_SIDE_TO_TRENCH_INTERMEDIATE),
@@ -586,7 +686,7 @@ public class AutoPaths {
     public Command rightStartingNoShooting_neutralZone_AllianceSide_leftClimb() {
         return Commands.sequence(
                 resetOdometry(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE),
-                intakePassAndZero(Constants.BLUE_MIDDLE_ALLIANCE_SIDE, Constants.RED_MIDDLE_ALLIANCE_SIDE,
+                intakePassAndZero(Constants.BLUE_MIDDLE_ALLIANCE_SIDE_FROM_RIGHT, Constants.RED_MIDDLE_ALLIANCE_SIDE,
                         () -> Constants.BLUE_RIGHT_ALLIANCE_SIDE_INTERMEDIATE, () -> Constants.RED_RIGHT_ALLIANCE_SIDE_INTERMEDIATE),
                 intaking(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE,
                         () -> Constants.BLUE_LEFT_ALLIANCE_SIDE_TO_TRENCH_INTERMEDIATE, () -> Constants.RED_LEFT_ALLIANCE_SIDE_TO_TRENCH_INTERMEDIATE),
@@ -604,7 +704,7 @@ public class AutoPaths {
                 intaking(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE,
                         () -> Constants.BLUE_RIGHT_CENTER_LINE_TO_TRENCH_INTERMEDIATE, () -> Constants.RED_RIGHT_CENTER_LINE_TO_TRENCH_INTERMEDIATE),
                 shootingInPlace(),
-                intakeAndPass(Constants.BLUE_MIDDLE_ALLIANCE_SIDE, Constants.RED_MIDDLE_ALLIANCE_SIDE,
+                intakeAndPass(Constants.BLUE_MIDDLE_ALLIANCE_SIDE_FROM_RIGHT, Constants.RED_MIDDLE_ALLIANCE_SIDE,
                         () -> Constants.BLUE_RIGHT_ALLIANCE_SIDE_INTERMEDIATE, () -> Constants.RED_RIGHT_ALLIANCE_SIDE_INTERMEDIATE),
                 intaking(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE,
                         () -> Constants.BLUE_LEFT_ALLIANCE_SIDE_TO_TRENCH_INTERMEDIATE, () -> Constants.RED_LEFT_ALLIANCE_SIDE_TO_TRENCH_INTERMEDIATE),
@@ -620,7 +720,7 @@ public class AutoPaths {
                 intaking(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE,
                         () -> Constants.BLUE_LEFT_CENTER_LINE_TO_TRENCH_INTERMEDIATE, () -> Constants.RED_LEFT_CENTER_LINE_TO_TRENCH_INTERMEDIATE),
                 shootingInPlace(),
-                intakeAndPass(Constants.BLUE_MIDDLE_ALLIANCE_SIDE, Constants.RED_MIDDLE_ALLIANCE_SIDE,
+                intakeAndPass(Constants.BLUE_MIDDLE_ALLIANCE_SIDE_FROM_RIGHT, Constants.RED_MIDDLE_ALLIANCE_SIDE,
                         () -> Constants.BLUE_LEFT_ALLIANCE_SIDE, () -> Constants.RED_LEFT_ALLIANCE_SIDE_INTERMEDIATE),
                 intaking(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE,
                         () -> Constants.BLUE_RIGHT_ALLIANCE_SIDE_TO_TRENCH_INTERMEDIATE, () -> Constants.RED_RIGHT_ALLIANCE_SIDE_TO_TRENCH_INTERMEDIATE),
@@ -682,7 +782,7 @@ public class AutoPaths {
         return Commands.sequence(
                 resetOdometry(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE),
                 zeroAndShootInPlace(),
-                intakeAndPass(Constants.BLUE_MIDDLE_ALLIANCE_SIDE, Constants.RED_MIDDLE_ALLIANCE_SIDE,
+                intakeAndPass(Constants.BLUE_MIDDLE_ALLIANCE_SIDE_FROM_RIGHT, Constants.RED_MIDDLE_ALLIANCE_SIDE,
                         () -> Constants.BLUE_LEFT_ALLIANCE_SIDE, () -> Constants.RED_LEFT_ALLIANCE_SIDE_INTERMEDIATE),
                 intaking(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE,
                         () -> Constants.BLUE_RIGHT_ALLIANCE_SIDE_TO_TRENCH_INTERMEDIATE, () -> Constants.RED_RIGHT_ALLIANCE_SIDE_TO_TRENCH_INTERMEDIATE),
@@ -697,7 +797,7 @@ public class AutoPaths {
         return Commands.sequence(
                 resetOdometry(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE),
                 zeroAndShootInPlace(),
-                intakeAndPass(Constants.BLUE_MIDDLE_ALLIANCE_SIDE, Constants.RED_MIDDLE_ALLIANCE_SIDE,
+                intakeAndPass(Constants.BLUE_MIDDLE_ALLIANCE_SIDE_FROM_RIGHT, Constants.RED_MIDDLE_ALLIANCE_SIDE,
                         () -> Constants.BLUE_RIGHT_ALLIANCE_SIDE_INTERMEDIATE, () -> Constants.RED_RIGHT_ALLIANCE_SIDE_INTERMEDIATE),
                 intaking(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE,
                         () -> Constants.BLUE_LEFT_ALLIANCE_SIDE_TO_TRENCH_INTERMEDIATE, () -> Constants.RED_LEFT_ALLIANCE_SIDE_TO_TRENCH_INTERMEDIATE),
@@ -716,7 +816,7 @@ public class AutoPaths {
                 intaking(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE,
                         () -> Constants.BLUE_RIGHT_CENTER_LINE_TO_TRENCH_INTERMEDIATE, () -> Constants.RED_RIGHT_CENTER_LINE_TO_TRENCH_INTERMEDIATE),
                 shootingInPlace(),
-                intakeAndPass(Constants.BLUE_MIDDLE_ALLIANCE_SIDE, Constants.RED_MIDDLE_ALLIANCE_SIDE,
+                intakeAndPass(Constants.BLUE_MIDDLE_ALLIANCE_SIDE_FROM_RIGHT, Constants.RED_MIDDLE_ALLIANCE_SIDE,
                         () -> Constants.BLUE_RIGHT_ALLIANCE_SIDE_INTERMEDIATE, () -> Constants.RED_RIGHT_ALLIANCE_SIDE_INTERMEDIATE),
                 intaking(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE,
                         () -> Constants.BLUE_LEFT_ALLIANCE_SIDE_TO_TRENCH_INTERMEDIATE, () -> Constants.RED_LEFT_ALLIANCE_SIDE_TO_TRENCH_INTERMEDIATE),
@@ -733,7 +833,7 @@ public class AutoPaths {
                 intaking(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE,
                         () -> Constants.BLUE_LEFT_CENTER_LINE_TO_TRENCH_INTERMEDIATE, () -> Constants.RED_LEFT_CENTER_LINE_TO_TRENCH_INTERMEDIATE),
                 shootingInPlace(),
-                intakeAndPass(Constants.BLUE_MIDDLE_ALLIANCE_SIDE, Constants.RED_MIDDLE_ALLIANCE_SIDE,
+                intakeAndPass(Constants.BLUE_MIDDLE_ALLIANCE_SIDE_FROM_RIGHT, Constants.RED_MIDDLE_ALLIANCE_SIDE,
                         () -> Constants.BLUE_LEFT_ALLIANCE_SIDE, () -> Constants.RED_LEFT_ALLIANCE_SIDE_INTERMEDIATE),
                 intaking(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE,
                         () -> Constants.BLUE_RIGHT_ALLIANCE_SIDE_TO_TRENCH_INTERMEDIATE, () -> Constants.RED_RIGHT_ALLIANCE_SIDE_TO_TRENCH_INTERMEDIATE),

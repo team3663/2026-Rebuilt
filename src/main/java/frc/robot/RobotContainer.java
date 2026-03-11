@@ -94,9 +94,10 @@ public class RobotContainer {
 //                "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
         // Auto Routines
-        autoChooser.addOption("RightUnderTrench2ft-NeutralZone-Shoot-NeutralZone-Shoot", autoPaths.rightStarting_neutralZone_neutralZone());
         autoChooser.addOption("RightUnderTrench2ft-NeutralZone-Outpost", autoPaths.rightStarting_neutralZone_outpost());
-        autoChooser.addOption("LeftUnderTrench2ft-NeutralZone-Shoot_NeutralZone-Shoot", autoPaths.leftStarting_neutralZone_neutralZone());
+        autoChooser.addOption("LeftUnderTrench2ft-NeutralZone-Shoot-NeutralZone-Shoot", autoPaths.leftStarting_neutralZone_neutralZoneSwoop());
+//        autoChooser.addOption("RightUnderTrench2ft-NeutralZone-Shoot-NeutralZone-Shoot", autoPaths.rightStarting_neutralZone_neutralZone());
+//        autoChooser.addOption("LeftUnderTrench2ft-NeutralZone-Shoot_NeutralZone-Shoot", autoPaths.leftStarting_neutralZone_neutralZone());
         //        autoChooser.addOption("LeftInFrontOfBump5ft-Depot-LeftClimb", autoPaths.leftSide_depot_leftClimb());
 //        autoChooser.addOption("RightAllianceZone2ft-Outpost-RightClimb", autoPaths.rightSide_outpost_rightClimb());
 //        autoChooser.addOption("LeftUnderTrench2ft-NeutralZone", autoPaths.leftStarting_neutralZone_middleLine());
