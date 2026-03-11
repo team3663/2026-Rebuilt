@@ -96,6 +96,7 @@ public class RobotContainer {
         // Auto Routines
         autoChooser.addOption("RightUnderTrench2ft-NeutralZone-Outpost-NeutralZone", autoPaths.rightStarting_neutralZone_outpost());
         autoChooser.addOption("LeftUnderTrench2ft-NeutralZone-Shoot-NeutralZone-Shoot", autoPaths.leftStarting_neutralZone_neutralZoneSwoop());
+        autoChooser.addOption("MiddleStarting-ShootInHub", autoPaths.middleStarting_shootIntoHub());
         // TODO - get this one working
         autoChooser.addOption("LeftUnderTrench2ft-NeutralZone-UnderTrench-NeutralZone", autoPaths.leftStarting_neutralZone_neutralZone_fullPasses());
 //        autoChooser.addOption("RightUnderTrench2ft-NeutralZone-Shoot-NeutralZone-Shoot", autoPaths.rightStarting_neutralZone_neutralZone());

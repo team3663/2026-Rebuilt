@@ -146,7 +146,7 @@ public class AutoPaths {
      * @param redTargetPose  target position of the robot if on red alliance
      */
     private Command goToPosition(Pose2d blueTargetPose, Pose2d redTargetPose) {
-        return goToPosition(alliancePose(blueTargetPose, redTargetPose), DEFAULT_ANGLE_DISTANCE_THRESHOLD);
+        return goToPosition(()-> alliancePose(blueTargetPose, redTargetPose), ()-> null, ()-> false, DEFAULT_ANGLE_DISTANCE_THRESHOLD);
     }
 
     /**
@@ -436,7 +436,7 @@ public class AutoPaths {
 
     private Command goTowardsPositionAndShoot(Pose2d blueTargetPose, Pose2d redTargetPose, boolean shouldStopShooter,
                                               double angleDistance, double shootingTime) {
-        return goTowardsIntermediate(blueTargetPose, redTargetPose, ()-> null, ()-> null, angleDistance)
+        return goTowardsIntermediate(blueTargetPose, redTargetPose, () -> null, () -> null, angleDistance)
                 .alongWith(shooting(false, shouldStopShooter, shootingTime))
                 .until(() -> drive.atPosition(alliancePose(blueTargetPose, redTargetPose).getTranslation(),
                         Units.feetToMeters(LINKING_PATHS_DISTANCE_THRESHOLD)));
@@ -494,7 +494,7 @@ public class AutoPaths {
                                                  Supplier<Pose2d> redIntermediatePose) {
         return intaking(blueTargetPose, redTargetPose, blueIntermediatePose, redIntermediatePose)
                 .alongWith(commandFactory.aim(false))
-                .until(()-> drive.atPosition(alliancePose(blueTargetPose, redTargetPose).getTranslation(), LINKING_PATHS_DISTANCE_THRESHOLD));
+                .until(() -> drive.atPosition(alliancePose(blueTargetPose, redTargetPose).getTranslation(), LINKING_PATHS_DISTANCE_THRESHOLD));
     }
 
     /**
@@ -526,8 +526,8 @@ public class AutoPaths {
                         Units.feetToMeters(linkingThreshold)));
     }
 
-    private Command intakePassAndZeroTowardsPosition(Pose2d blueTargetPose, Pose2d redTargetPose){
-        return intakePassAndZeroTowardsPosition(blueTargetPose, redTargetPose, ()-> null, ()-> null, true, LINKING_PATHS_DISTANCE_THRESHOLD);
+    private Command intakePassAndZeroTowardsPosition(Pose2d blueTargetPose, Pose2d redTargetPose) {
+        return intakePassAndZeroTowardsPosition(blueTargetPose, redTargetPose, () -> null, () -> null, true, LINKING_PATHS_DISTANCE_THRESHOLD);
     }
 
     /**
@@ -609,7 +609,7 @@ public class AutoPaths {
                 intakingWithDistanceThreshold(Constants.BLUE_MIDDLE_CENTER_LINE_ROTATED_RIGHT, Constants.RED_MIDDLE_CENTER_LINE_ROTATED_RIGHT,
                         getDistanceToPose(Constants.BLUE_MIDDLE_CENTER_LINE_ROTATED_RIGHT, Constants.RED_MIDDLE_ALLIANCE_SIDE_FROM_RIGHT)),
                 intaking(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE,
-                        () -> Constants.BLUE_RIGHT_CENTER_LINE_TO_TRENCH_INTERMEDIATE_ROTATED, () -> Constants.RED_RIGHT_CENTER_LINE_TO_TRENCH_INTERMEDIATE),
+                        () -> Constants.BLUE_RIGHT_CENTER_LINE_TO_TRENCH_INTERMEDIATE_ROTATED, () -> Constants.RED_RIGHT_CENTER_LINE_TO_TRENCH_INTERMEDIATE_ROTATED),
                 shootingInPlace(),
                 intakeAndPassTowardsPosition(Constants.BLUE_MIDDLE_ALLIANCE_SIDE_FROM_LEFT, Constants.RED_MIDDLE_ALLIANCE_SIDE_FROM_LEFT,
                         () -> Constants.BLUE_RIGHT_ALLIANCE_SIDE_INTERMEDIATE, () -> Constants.RED_RIGHT_ALLIANCE_SIDE_INTERMEDIATE),
@@ -619,6 +619,13 @@ public class AutoPaths {
         );
     }
 
+    public Command middleStarting_shootIntoHub() {
+        return Commands.sequence(
+                resetOdometry(Constants.BLUE_IN_FRONT_OF_HUB_AUTO_LINE, Constants.RED_IN_FRONT_OF_HUB_AUTO_LINE),
+                goToPosition(Constants.BLUE_HUB_SHOOTING, Constants.RED_HUB_SHOOTING),
+                shootingInPlace()
+        );
+    }
 
     public Command rightStarting_neutralZone_neutralZone() {
         return Commands.sequence(
