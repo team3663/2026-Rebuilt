@@ -193,10 +193,11 @@ public class RobotContainer {
         final double[] tuningShooterVelocity = new double[]{0.0};
 
         testController.rightBumper().whileTrue(Commands.parallel(
-                // Change both the boolean in calibrate shooter and the definition of goalPosition to swap between hub and passing
+                // TO CHANGE TARGET: Change both the boolean in calibrate shooter and the definition of goalPosition to swap between hub and passing,
+                //                      and to choose which passing corner modify CommandFactory.getShooterTarget()
                 commandFactory.calibrateShooter(() -> tuningHoodAngle[0], () -> tuningShooterVelocity[0], false),
                 Commands.run(() -> {
-                    Translation2d goalPosition = CommandFactory.isRedAlliance() ? Constants.Shooter.LOWER_PASS_RED : Constants.Shooter.LOWER_PASS_BLUE;
+                    Translation2d goalPosition = CommandFactory.isRedAlliance() ? Constants.Shooter.UPPER_PASS_RED : Constants.Shooter.UPPER_PASS_BLUE;
                     Logger.recordOutput("Tuning/TargetPose", new Pose2d(goalPosition, Rotation2d.kZero));
 
                     Pose2d robotPose = drive.getPose();

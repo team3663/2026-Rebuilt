@@ -43,7 +43,9 @@ public class FireControlSystem {
         DISTANCE_LOOKUP_TABLE_PASS.put(6.0, new LookupEntry(degreesToRadians(15.0), rotationsPerMinuteToRadiansPerSecond(2200.0)));
         DISTANCE_LOOKUP_TABLE_PASS.put(7.0, new LookupEntry(degreesToRadians(15.0), rotationsPerMinuteToRadiansPerSecond(2400.0)));
         DISTANCE_LOOKUP_TABLE_PASS.put(8.0, new LookupEntry(degreesToRadians(15.0), rotationsPerMinuteToRadiansPerSecond(2600.0)));
-
+        DISTANCE_LOOKUP_TABLE_PASS.put(9.0, new LookupEntry(degreesToRadians(17.0), rotationsPerMinuteToRadiansPerSecond(3000.0)));
+        DISTANCE_LOOKUP_TABLE_PASS.put(10.0, new LookupEntry(degreesToRadians(17.0), rotationsPerMinuteToRadiansPerSecond(3200.0)));
+        DISTANCE_LOOKUP_TABLE_PASS.put(11.0, new LookupEntry(degreesToRadians(17.0), rotationsPerMinuteToRadiansPerSecond(3300.0)));
     }
 
     public FiringSolution calculate(Pose2d robotPose, ChassisSpeeds fieldOrientedVelocity,
