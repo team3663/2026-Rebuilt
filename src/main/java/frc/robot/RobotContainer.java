@@ -100,6 +100,8 @@ public class RobotContainer {
                 vision.consumeVisionMeasurements(drive::addVisionMeasurements, drive::getRotation)
                         .ignoringDisable(true));
 
+        intake.setDefaultCommand(intake.pivotDefault());
+
         // Configure the button bindings
         configureButtonBindings();
 
