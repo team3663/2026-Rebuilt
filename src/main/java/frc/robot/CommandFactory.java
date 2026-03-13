@@ -39,10 +39,13 @@ public class CommandFactory {
 
     public boolean isAimingAtTarget() {
         if (firingSolution == null) {
+            Logger.recordOutput("CommandFactory/ShooterIsAimingAtTarget", false);
             return false;
         }
 
-        return this.shooter.isAt(firingSolution.hoodAngle(), firingSolution.turretAngle(), firingSolution.shooterVelocity());
+        boolean atTarget = this.shooter.isAt(firingSolution.hoodAngle(), firingSolution.turretAngle(), firingSolution.shooterVelocity());
+        Logger.recordOutput("CommandFactory/ShooterIsAimingAtTarget", atTarget);
+        return atTarget;
     }
 
     public Command aim(boolean aimAtHub) {
@@ -70,16 +73,16 @@ public class CommandFactory {
         }, () -> Constants.Shooter.DEFAULT_VELOCITY);
     }
 
-    public Command calibrateShooter(DoubleSupplier hoodAngleSupplier, DoubleSupplier shooterVelocitySupplier) {
+    public Command calibrateShooter(DoubleSupplier hoodAngleSupplier, DoubleSupplier shooterVelocitySupplier, boolean aimAtHub) {
         return shooter.follow(() -> {
             Pose2d robotPose = drive.getPose();
 
-            Translation2d targetPosition = getShooterTarget(robotPose, isRedAlliance(), true);
+            Translation2d targetPosition = getShooterTarget(robotPose, isRedAlliance(), aimAtHub);
 
             var firingSolution = fireControlSystem.calculate(
                     drive.getPose(), drive.getFieldOrientedVelocity(),
                     Rotation2d.fromRadians(shooter.getTurretPosition()),
-                    targetPosition, true);
+                    targetPosition, aimAtHub);
             return new FiringSolution(firingSolution.turretAngle(), hoodAngleSupplier.getAsDouble(),
                     shooterVelocitySupplier.getAsDouble());
         });
@@ -90,8 +93,8 @@ public class CommandFactory {
         if (aimAtHub)
             target = redAlliance ? Constants.Shooter.RED_HUB : Constants.Shooter.BLUE_HUB;
         else {
-            Translation2d upper = redAlliance ? Constants.Shooter.UPPER_PASS_RED : Constants.Shooter.UPPER_PASS_BLUE;
-            Translation2d lower = redAlliance ? Constants.Shooter.LOWER_PASS_RED : Constants.Shooter.LOWER_PASS_BLUE;
+            Translation2d upper = redAlliance ? Constants.Shooter.PASS_DEPOT_RED : Constants.Shooter.PASS_OUTPOST_BLUE;
+            Translation2d lower = redAlliance ? Constants.Shooter.PASS_OUTPOST_RED : Constants.Shooter.PASS_DEPOT_BLUE;
 
             target = robot.getY() > (upper.getY() + lower.getY()) / 2 ? upper : lower;
         }
@@ -100,7 +103,7 @@ public class CommandFactory {
     }
 
     private Pose2d getTurretPose() {
-        return fireControlSystem.getTurretPose(drive.getPose(), Rotation2d.fromRadians(shooter.getTurretPosition()));
+        return FireControlSystem.getTurretPose(drive.getPose(), Rotation2d.fromRadians(shooter.getTurretPosition()));
     }
 
     public static boolean isRedAlliance() {
@@ -115,8 +118,8 @@ public class CommandFactory {
      */
     public Command feedIntoShooter() {
         return parallel(
-                hopper.withVoltage(6.5, 5.0),
-                feeder.withVoltage(5.5)
+                hopper.withVoltage(4.0, 4.0),
+                feeder.withVoltage(4.0)
         );
     }
 }

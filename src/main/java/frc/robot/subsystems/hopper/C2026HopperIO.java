@@ -60,7 +60,7 @@ public class C2026HopperIO implements HopperIO {
     @Override
     public void setTargetVoltage(double corneringVoltage, double hopperVoltage) {
         hopperMotor.setControl(voltageRequest.withOutput(hopperVoltage));
-        corneringMotor.setControl(voltageRequest.withOutput(corneringVoltage));
+        corneringMotor.setControl(voltageRequest.withOutput(corneringVoltage ));
         indexingMotor.setControl(voltageRequest.withOutput(corneringVoltage));
     }
 
