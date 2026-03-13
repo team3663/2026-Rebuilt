@@ -13,7 +13,7 @@ public class C2026ShooterIO implements ShooterIO {
     private static final Shooter.Constants constants = new Shooter.Constants(
             0.0,
             Units.degreesToRadians(18.0),
-            Units.degreesToRadians(-185.0),
+            Units.degreesToRadians(-171.0),
             Units.degreesToRadians(165.0));
     private static final double HOOD_GEAR_RATIO = 340.0 / 14.0;
     private static final double SHOOTER_GEAR_RATIO = (15.0 / 18.0);
@@ -22,7 +22,7 @@ public class C2026ShooterIO implements ShooterIO {
     private static final double MOTOR_TO_MECHANISM_RATIO = (44.0 / 14.0) * (80.0 / 16.0);
     private static final double MOTOR_TO_SENSOR_RATIO = (44.0 / 14.0) * (62.0 / 18.0) * (60.0 / 24.0);
     private static final double SENSOR_TO_MECHANISM_RATIO = MOTOR_TO_MECHANISM_RATIO / MOTOR_TO_SENSOR_RATIO;
-    private static final double ENCODER_OFFSET = -0.09130859375;
+    private static final double ENCODER_OFFSET = 0.193115234375;
 
     private final TalonFX hoodMotor;
     private final TalonFX turretMotor;

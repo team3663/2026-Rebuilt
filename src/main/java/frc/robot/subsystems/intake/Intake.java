@@ -15,6 +15,7 @@ public class Intake extends SubsystemBase {
     public static final double DEPLOY_ANGLE = Units.degreesToRadians(150.0);
     public static final double STOW_ANGLE = Units.degreesToRadians(0.0);
     public static final double FEED_ANGLE = Units.degreesToRadians(70.0);
+    public static final double DEFAULT_ANGLE = Units.degreesToRadians(90.0);
     public static final double INTAKE_VOLTAGE = 6.5;
     public static final double FEED_VOLTAGE = 5.0;
 
@@ -121,6 +122,10 @@ public class Intake extends SubsystemBase {
 
     public Command feed() {
         return intakeAndPivot(FEED_VOLTAGE, FEED_ANGLE);
+    }
+
+    public Command pivotDefault(){
+        return intakeAndPivot(0.0, DEFAULT_ANGLE);
     }
 
     public Command stop() {
