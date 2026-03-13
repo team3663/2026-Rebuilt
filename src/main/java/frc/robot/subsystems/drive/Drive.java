@@ -52,7 +52,7 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 public class Drive extends SubsystemBase {
-    private static final double DISTANCE_THRESHOLD = Units.inchesToMeters(1.5);
+    private static final double DISTANCE_THRESHOLD = Units.inchesToMeters(3.0);
 
     static final Lock odometryLock = new ReentrantLock();
     private final GyroIO gyroIO;

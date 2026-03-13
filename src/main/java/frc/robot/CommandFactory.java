@@ -17,7 +17,7 @@ import org.littletonrobotics.junction.Logger;
 
 import java.util.function.DoubleSupplier;
 
-import static edu.wpi.first.wpilibj2.command.Commands.parallel;
+import static edu.wpi.first.wpilibj2.command.Commands.*;
 
 public class CommandFactory {
     private final Drive drive;
@@ -140,10 +140,13 @@ public class CommandFactory {
         );
     }
 
-    public Command autonomousFeedAndShoot(boolean aimAtHub) {
+    public Command autonomousFeedAndShoot(boolean aimAtHub, double pivotAngle) {
         return aim(aimAtHub)
-                .alongWith(feedIntoShooter()
-                        .onlyWhile(shooter::atShooterTargetVelocity), intake.feed());
+                .alongWith(
+                        repeatingSequence(
+                                waitUntil(shooter::atShooterTargetVelocity),
+                                feedIntoShooter().onlyWhile(shooter::atShooterTargetVelocity)
+                        ), intake.feedWithAngle(pivotAngle));
     }
 
     public Command autonomousFeedShootAndZero(boolean aimAtHub) {

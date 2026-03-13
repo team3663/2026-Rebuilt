@@ -128,6 +128,10 @@ public class Intake extends SubsystemBase {
         return intakeAndPivot(FEED_VOLTAGE, FEED_ANGLE);
     }
 
+    public Command feedWithAngle(double angle) {
+        return intakeAndPivot(FEED_VOLTAGE, angle);
+    }
+
     public Command pivotDefault(){
         return intakeAndPivot(0.0, DEFAULT_ANGLE);
     }

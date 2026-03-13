@@ -32,7 +32,7 @@ public class AutoPaths {
     // At what point the drivetrain should finish rotating, currently set to the end of the path
     private final double DEFAULT_ANGLE_DISTANCE_THRESHOLD = 3.0;
     // How long the robot should sit in place to shoot under the trench
-    private final double DEFAULT_SHOOTING_TIME = 3.0;
+    private final double DEFAULT_SHOOTING_TIME = 6.0;
     // How long the robot should sit in place to shoot at the outpost
     private final double OUTPOST_SHOOTING_TIME = 5.0;
 
@@ -113,7 +113,7 @@ public class AutoPaths {
                                     target.getRotation().interpolate(startingPose[0].getRotation(), t));
                         },
                         slowAccel::getAsBoolean,
-                        () -> drive.getMaxLinearSpeedMetersPerSec() * 0.5)
+                        () -> drive.getMaxLinearSpeedMetersPerSec() * 0.8)
                 .beforeStarting(() -> {
                     if (intermediatePoseSupplier != null) intermediateHolder[0] = intermediatePoseSupplier.get();
                     else Commands.none();
@@ -347,10 +347,14 @@ public class AutoPaths {
      *
      * @param timeout Time in <b>seconds</b> for how long to let the robot shoot for
      */
-    private Command shooting(double timeout) {
-        return commandFactory.autonomousFeedAndShoot(true)
+    private Command shooting(double timeout, double pivotAngle) {
+        return commandFactory.autonomousFeedAndShoot(true, pivotAngle)
                 .withTimeout(timeout)
                 .andThen(shooter.stop());
+    }
+
+    private Command shooting(double timeout) {
+        return shooting(timeout, Units.degreesToRadians(70.0));
     }
 
     /**
@@ -359,6 +363,10 @@ public class AutoPaths {
      */
     private Command shootingInPlace() {
         return shooting(DEFAULT_SHOOTING_TIME);
+    }
+
+    private Command shootingInPlace(double angle) {
+        return shooting(DEFAULT_SHOOTING_TIME, angle);
     }
 
     /**
@@ -384,7 +392,7 @@ public class AutoPaths {
     private Command goToPositionAndShoot(Pose2d blueTargetPose, Pose2d redTargetPose, Supplier<Pose2d> blueIntermediatePose,
                                          Supplier<Pose2d> redIntermediatePose, double angleDistance) {
         return goToPositionJustDriving(blueTargetPose, redTargetPose, blueIntermediatePose, redIntermediatePose, angleDistance)
-                .alongWith(commandFactory.autonomousFeedAndShoot(true))
+                .alongWith(commandFactory.autonomousFeedAndShoot(true, Units.degreesToRadians(70.0)))
                 .until(() -> drive.atPosition(alliancePose(blueTargetPose, redTargetPose).getTranslation()));
     }
 
@@ -585,6 +593,23 @@ public class AutoPaths {
         );
     }
 
+    public Command rightStarting_neutralZone_shoot_neutralZone() {
+        return Commands.sequence(
+                resetOdometry(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE),
+                intakingAndZeroing(Constants.BLUE_RIGHT_CENTER_LINE, Constants.RED_RIGHT_CENTER_LINE,
+                        () -> Constants.BLUE_RIGHT_CENTER_LINE_INTERMEDIATE, () -> Constants.RED_RIGHT_CENTER_LINE_INTERMEDIATE,
+                        5.0),
+                goToPosition(Constants.BLUE_RIGHT_CENTER_LINE_TO_TRENCH_INTERMEDIATE, Constants.RED_RIGHT_CENTER_LINE_TO_TRENCH_INTERMEDIATE),
+                goToPosition(Constants.BLUE_RIGHT_UNDER_TRENCH_SHOOTING, Constants.RED_RIGHT_UNDER_TRENCH_SHOOTING),
+                Commands.parallel(shootingInPlace(), runOnce(drive::stop)),
+                intaking(Constants.BLUE_RIGHT_ALLIANCE_SIDE, Constants.RED_RIGHT_ALLIANCE_SIDE,
+                        () -> Constants.BLUE_RIGHT_ALLIANCE_SIDE_INTERMEDIATE, () -> Constants.RED_RIGHT_ALLIANCE_SIDE_INTERMEDIATE,
+                        getDistanceToPose(Constants.BLUE_RIGHT_ALLIANCE_SIDE_INTERMEDIATE, Constants.RED_RIGHT_ALLIANCE_SIDE_INTERMEDIATE)),
+                goToPosition(Constants.BLUE_RIGHT_ALLIANCE_SIDE_TO_TRENCH_INTERMEDIATE_WITH_Y_OFFSET, Constants.RED_RIGHT_ALLIANCE_SIDE_TO_TRENCH_INTERMEDIATE_WITH_Y_OFFSET),
+                goToPosition(Constants.BLUE_RIGHT_UNDER_TRENCH_SHOOTING, Constants.RED_RIGHT_UNDER_TRENCH_SHOOTING),
+                Commands.parallel(shootingInPlace(), runOnce(drive::stop)));
+    }
+
     public Command leftStarting_neutralZone_neutralZone_fullPasses() {
         return Commands.sequence(
                 resetOdometry(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE,
@@ -628,24 +653,27 @@ public class AutoPaths {
     public Command middleStarting_shootIntoHub() {
         return Commands.sequence(
                 resetOdometry(Constants.BLUE_IN_FRONT_OF_HUB_AUTO_LINE, Constants.RED_IN_FRONT_OF_HUB_AUTO_LINE),
-                goToPosition(Constants.BLUE_HUB_SHOOTING, Constants.RED_HUB_SHOOTING),
-                shootingInPlace().alongWith(runOnce(drive::stop))
+                zeroIntakeAndHood(),
+                goToPositionAndShoot(Constants.BLUE_HUB_SHOOTING, Constants.RED_HUB_SHOOTING),
+                shootingInPlace(Units.degreesToRadians(40.0)).alongWith(runOnce(drive::stop))
         );
     }
 
     public Command leftStarting_shootIntoHub(){
         return Commands.sequence(
                 resetOdometry(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE),
-                goToPosition(Constants.BLUE_LEFT_UNDER_TRENCH_SHOOTING, Constants.RED_LEFT_UNDER_TRENCH_SHOOTING),
-                shootingInPlace().alongWith(runOnce(drive::stop))
+                zeroIntakeAndHood(),
+                goToPositionAndShoot(Constants.BLUE_LEFT_UNDER_TRENCH_SHOOTING, Constants.RED_LEFT_UNDER_TRENCH_SHOOTING),
+                shootingInPlace(Units.degreesToRadians(40.0)).alongWith(runOnce(drive::stop))
         );
     }
 
     public Command rightStarting_shootIntoHub() {
         return Commands.sequence(
                 resetOdometry(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE),
-                goToPosition(Constants.BLUE_RIGHT_UNDER_TRENCH_SHOOTING, Constants.RED_RIGHT_UNDER_TRENCH_SHOOTING),
-                shootingInPlace().alongWith(runOnce(drive::stop))
+                zeroIntakeAndHood(),
+                goToPositionAndShoot(Constants.BLUE_RIGHT_UNDER_TRENCH_SHOOTING, Constants.RED_RIGHT_UNDER_TRENCH_SHOOTING),
+                shootingInPlace(Units.degreesToRadians(40.0)).alongWith(runOnce(drive::stop))
         );
     }
 
