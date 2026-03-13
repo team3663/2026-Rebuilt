@@ -58,16 +58,16 @@ public final class Constants {
         );
 
 
-        public static final Translation2d UPPER_PASS_BLUE = new Translation2d(
+        public static final Translation2d PASS_DEPOT_BLUE = new Translation2d(
                 (FIELD.getTagPose(29).get().getX() + 0.5),
                 (FIELD.getTagPose(23).get().getY() - 0.5));
-        public static final Translation2d LOWER_PASS_BLUE = new Translation2d(
+        public static final Translation2d PASS_OUTPOST_BLUE = new Translation2d(
                 (FIELD.getTagPose(29).get().getX() + 0.5),
                 (FIELD.getTagPose(29).get().getY() + 0.5));
-        public static final Translation2d UPPER_PASS_RED = new Translation2d(
+        public static final Translation2d PASS_OUTPOST_RED = new Translation2d(
                 (FIELD.getTagPose(13).get().getX() - 0.5),
                 (FIELD.getTagPose(13).get().getY() - 0.5));
-        public static final Translation2d LOWER_PASS_RED = new Translation2d(
+        public static final Translation2d PASS_DEPOT_RED = new Translation2d(
                 (FIELD.getTagPose(13).get().getX() - 0.5),
                 (FIELD.getTagPose(7).get().getY() + 0.5));
 
