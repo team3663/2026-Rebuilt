@@ -55,6 +55,7 @@ public class FireControlSystem {
         // TODO: Get Values
         // Leading
         DISTANCE_LOOKUP_TABLE_LEAD.put(2.0, 0.8);
+        DISTANCE_LOOKUP_TABLE_LEAD.put(4.0, 1.0);
     }
 
     public FiringSolution calculate(Pose2d robotPose, ChassisSpeeds fieldOrientedVelocity,
