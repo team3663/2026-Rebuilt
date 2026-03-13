@@ -93,8 +93,8 @@ public class CommandFactory {
         if (aimAtHub)
             target = redAlliance ? Constants.Shooter.RED_HUB : Constants.Shooter.BLUE_HUB;
         else {
-            Translation2d upper = redAlliance ? Constants.Shooter.UPPER_PASS_RED : Constants.Shooter.UPPER_PASS_BLUE;
-            Translation2d lower = redAlliance ? Constants.Shooter.LOWER_PASS_RED : Constants.Shooter.LOWER_PASS_BLUE;
+            Translation2d upper = redAlliance ? Constants.Shooter.PASS_DEPOT_RED : Constants.Shooter.PASS_OUTPOST_BLUE;
+            Translation2d lower = redAlliance ? Constants.Shooter.PASS_OUTPOST_RED : Constants.Shooter.PASS_DEPOT_BLUE;
 
             target = robot.getY() > (upper.getY() + lower.getY()) / 2 ? upper : lower;
         }

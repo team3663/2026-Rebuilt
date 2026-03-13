@@ -197,7 +197,7 @@ public class RobotContainer {
                 //                      and to choose which passing corner modify CommandFactory.getShooterTarget()
                 commandFactory.calibrateShooter(() -> tuningHoodAngle[0], () -> tuningShooterVelocity[0], false),
                 Commands.run(() -> {
-                    Translation2d goalPosition = CommandFactory.isRedAlliance() ? Constants.Shooter.UPPER_PASS_RED : Constants.Shooter.UPPER_PASS_BLUE;
+                    Translation2d goalPosition = CommandFactory.isRedAlliance() ? Constants.Shooter.PASS_OUTPOST_RED : Constants.Shooter.PASS_OUTPOST_BLUE;
                     Logger.recordOutput("Tuning/TargetPose", new Pose2d(goalPosition, Rotation2d.kZero));
 
                     Pose2d robotPose = drive.getPose();
