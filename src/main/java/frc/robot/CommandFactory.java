@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.hopper.Hopper;
@@ -57,6 +58,22 @@ public class CommandFactory {
                             targetPosition, aimAtHub);
                     return firingSolution;
                 })
+                .finallyDo(() -> firingSolution = null);
+    }
+
+    public Command aimAndZeroHood(boolean aimAtHub) {
+        return shooter.follow(() -> {
+                    Pose2d robotPose = drive.getPose();
+
+                    Translation2d targetPosition = getShooterTarget(robotPose, isRedAlliance(), aimAtHub);
+
+                    firingSolution = fireControlSystem.calculate(
+                            drive.getPose(), drive.getFieldOrientedVelocity(),
+                            Rotation2d.fromRadians(shooter.getTurretPosition()),
+                            targetPosition, aimAtHub);
+                    return firingSolution;
+                })
+                .beforeStarting(shooter::zeroHood)
                 .finallyDo(() -> firingSolution = null);
     }
 
@@ -118,5 +135,25 @@ public class CommandFactory {
                 hopper.withVoltage(6.5, 5.0),
                 feeder.withVoltage(5.5)
         );
+    }
+
+    public Command autonomousFeedAndShoot(boolean aimAtHub) {
+        return aim(aimAtHub)
+                .alongWith(feedIntoShooter()
+                        .onlyWhile(shooter::atShooterTargetVelocity), intake.feed());
+    }
+
+    public Command autonomousFeedShootAndZero(boolean aimAtHub) {
+        return aimAndZeroHood(aimAtHub)
+                .alongWith(feedIntoShooter()
+                        .onlyWhile(shooter::atShooterTargetVelocity))
+                .alongWith(intake.feed()
+                        .beforeStarting(intake::zeroPivot));
+    }
+
+    public Command autonomousFeedAndShootWithoutIntake(boolean aimAtHub, boolean shouldZero) {
+        return aim(aimAtHub)
+                .alongWith((feedIntoShooter().onlyWhile(shooter::atShooterTargetVelocity))
+                        .beforeStarting(shouldZero ? shooter.zeroHood() : Commands.none()));
     }
 }
