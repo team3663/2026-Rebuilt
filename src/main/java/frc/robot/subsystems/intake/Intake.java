@@ -56,6 +56,10 @@ public class Intake extends SubsystemBase {
         return Math.abs(inputs.currentPivot1Position - position) < threshold;
     }
 
+    public boolean isZeroed(){
+        return pivotZeroed;
+    }
+
     public double getValidPivotPosition(double position) {
         return Math.max(constants.minimumPivotAngle, Math.min(constants.maximumPivotAngle, position));
     }
@@ -122,6 +126,10 @@ public class Intake extends SubsystemBase {
 
     public Command feed() {
         return intakeAndPivot(FEED_VOLTAGE, FEED_ANGLE);
+    }
+
+    public Command feedWithAngle(double angle) {
+        return intakeAndPivot(FEED_VOLTAGE, angle);
     }
 
     public Command pivotDefault(){

@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.hopper.Hopper;
@@ -16,7 +17,7 @@ import org.littletonrobotics.junction.Logger;
 
 import java.util.function.DoubleSupplier;
 
-import static edu.wpi.first.wpilibj2.command.Commands.parallel;
+import static edu.wpi.first.wpilibj2.command.Commands.*;
 
 public class CommandFactory {
     private final Drive drive;
@@ -63,6 +64,22 @@ public class CommandFactory {
                 .finallyDo(() -> firingSolution = null);
     }
 
+    public Command aimAndZeroHood(boolean aimAtHub) {
+        return shooter.follow(() -> {
+                    Pose2d robotPose = drive.getPose();
+
+                    Translation2d targetPosition = getShooterTarget(robotPose, isRedAlliance(), aimAtHub);
+
+                    firingSolution = fireControlSystem.calculate(
+                            drive.getPose(), drive.getFieldOrientedVelocity(),
+                            Rotation2d.fromRadians(shooter.getTurretPosition()),
+                            targetPosition, aimAtHub);
+                    return firingSolution;
+                })
+                .beforeStarting(shooter::zeroHood)
+                .finallyDo(() -> firingSolution = null);
+    }
+
     public Command shooterDefault() {
         return shooter.follow(() -> 0.0, () -> {
             Translation2d target = isRedAlliance() ? Constants.Shooter.RED_HUB : Constants.Shooter.BLUE_HUB;
@@ -93,8 +110,8 @@ public class CommandFactory {
         if (aimAtHub)
             target = redAlliance ? Constants.Shooter.RED_HUB : Constants.Shooter.BLUE_HUB;
         else {
-            Translation2d upper = redAlliance ? Constants.Shooter.PASS_DEPOT_RED : Constants.Shooter.PASS_OUTPOST_BLUE;
-            Translation2d lower = redAlliance ? Constants.Shooter.PASS_OUTPOST_RED : Constants.Shooter.PASS_DEPOT_BLUE;
+            Translation2d upper = redAlliance ? Constants.Shooter.PASS_OUTPOST_RED : Constants.Shooter.PASS_DEPOT_BLUE;
+            Translation2d lower = redAlliance ? Constants.Shooter.PASS_DEPOT_RED : Constants.Shooter.PASS_OUTPOST_BLUE;
 
             target = robot.getY() > (upper.getY() + lower.getY()) / 2 ? upper : lower;
         }
@@ -121,5 +138,28 @@ public class CommandFactory {
                 hopper.withVoltage(4.0, 4.0),
                 feeder.withVoltage(4.0)
         );
+    }
+
+    public Command autonomousFeedAndShoot(boolean aimAtHub, double pivotAngle) {
+        return aim(aimAtHub)
+                .alongWith(
+                        repeatingSequence(
+                                waitUntil(shooter::atShooterTargetVelocity),
+                                feedIntoShooter().onlyWhile(shooter::atShooterTargetVelocity)
+                        ), intake.feedWithAngle(pivotAngle));
+    }
+
+    public Command autonomousFeedShootAndZero(boolean aimAtHub) {
+        return aimAndZeroHood(aimAtHub)
+                .alongWith(feedIntoShooter()
+                        .onlyWhile(shooter::atShooterTargetVelocity))
+                .alongWith(intake.feed()
+                        .beforeStarting(intake::zeroPivot));
+    }
+
+    public Command autonomousFeedAndShootWithoutIntake(boolean aimAtHub, boolean shouldZero) {
+        return aim(aimAtHub)
+                .alongWith((feedIntoShooter().onlyWhile(shooter::atShooterTargetVelocity))
+                        .beforeStarting(shouldZero ? shooter.zeroHood() : Commands.none()));
     }
 }
