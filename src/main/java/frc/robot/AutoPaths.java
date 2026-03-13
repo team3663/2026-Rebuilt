@@ -601,7 +601,7 @@ public class AutoPaths {
                         5.0),
                 goToPosition(Constants.BLUE_RIGHT_CENTER_LINE_TO_TRENCH_INTERMEDIATE, Constants.RED_RIGHT_CENTER_LINE_TO_TRENCH_INTERMEDIATE),
                 goToPosition(Constants.BLUE_RIGHT_UNDER_TRENCH_SHOOTING, Constants.RED_RIGHT_UNDER_TRENCH_SHOOTING),
-                Commands.parallel(shootingInPlace(), runOnce(drive::stop)),
+                Commands.parallel(shooting(4.0), runOnce(drive::stop)),
                 intaking(Constants.BLUE_RIGHT_ALLIANCE_SIDE, Constants.RED_RIGHT_ALLIANCE_SIDE,
                         () -> Constants.BLUE_RIGHT_ALLIANCE_SIDE_INTERMEDIATE, () -> Constants.RED_RIGHT_ALLIANCE_SIDE_INTERMEDIATE,
                         getDistanceToPose(Constants.BLUE_RIGHT_ALLIANCE_SIDE_INTERMEDIATE, Constants.RED_RIGHT_ALLIANCE_SIDE_INTERMEDIATE)),
