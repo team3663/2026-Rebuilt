@@ -633,6 +633,22 @@ public class AutoPaths {
         );
     }
 
+    public Command leftStarting_shootIntoHub(){
+        return Commands.sequence(
+                resetOdometry(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE),
+                goToPosition(Constants.BLUE_LEFT_UNDER_TRENCH_SHOOTING, Constants.RED_LEFT_UNDER_TRENCH_SHOOTING),
+                shootingInPlace().alongWith(runOnce(drive::stop))
+        );
+    }
+
+    public Command rightStarting_shootIntoHub() {
+        return Commands.sequence(
+                resetOdometry(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE),
+                goToPosition(Constants.BLUE_RIGHT_UNDER_TRENCH_SHOOTING, Constants.RED_RIGHT_UNDER_TRENCH_SHOOTING),
+                shootingInPlace().alongWith(runOnce(drive::stop))
+        );
+    }
+
     public Command rightStarting_neutralZone_neutralZone() {
         return Commands.sequence(
                 resetOdometry(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE),

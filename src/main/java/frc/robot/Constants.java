@@ -167,6 +167,10 @@ public final class Constants {
             FIELD.getTagPose(22).get().getY() - Units.feetToMeters(NEUTRAL_ZONE_Y_OFFSET),
             Rotation2d.fromDegrees(-90.0));
     public static final Pose2d BLUE_HUB_SHOOTING = BLUE_IN_FRONT_OF_HUB_AUTO_LINE.plus(new Transform2d(-Units.feetToMeters(3.5), 0.0, Rotation2d.fromDegrees(0.0)));
+    public static final Pose2d BLUE_LEFT_UNDER_TRENCH_SHOOTING = new Pose2d(FIELD.getTagPose(23).get().getX() - Units.inchesToMeters((47.0 / 2) - 13.0) - Units.feetToMeters(3.5),
+            FIELD.getFieldWidth() - Units.feetToMeters(TRENCH_STARTING_OFFSET), FIELD.getTagPose(23).get().getRotation().toRotation2d().plus(Rotation2d.fromDegrees(180.0)));
+    public static final Pose2d BLUE_RIGHT_UNDER_TRENCH_SHOOTING = new Pose2d(FIELD.getTagPose(28).get().getX() - Units.inchesToMeters((47.0 / 2) - 13.0) - Units.feetToMeters(3.5),
+            Units.feetToMeters(TRENCH_STARTING_OFFSET), FIELD.getTagPose(28).get().getRotation().toRotation2d().plus(Rotation2d.fromDegrees(180.0)));
 
     public static final Pose2d BLUE_RIGHT_CENTER_LINE_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) + Units.feetToMeters(CENTER_LINE_INTERMEDIATE_X_OFFSET),
             FIELD.getTagPose(17).get().getY(), Rotation2d.fromDegrees(0.0));
@@ -226,6 +230,10 @@ public final class Constants {
     public static final Pose2d RED_LEFT_ALLIANCE_SIDE = new Pose2d((FIELD.getFieldLength() / 2.0) + Units.feetToMeters(NEUTRAL_ZONE_ALLIANCE_SIDE_X_OFFSET),
             FIELD.getTagPose(6).get().getY() + Units.feetToMeters(NEUTRAL_ZONE_Y_OFFSET), Rotation2d.fromDegrees(90));
     public static final Pose2d RED_HUB_SHOOTING = RED_IN_FRONT_OF_HUB_AUTO_LINE.plus(new Transform2d(-Units.feetToMeters(3.5), 0.0, Rotation2d.fromDegrees(0.0)));
+    public static final Pose2d RED_LEFT_UNDER_TRENCH_SHOOTING = new Pose2d(FIELD.getTagPose(7).get().getX() + Units.inchesToMeters((47.0 / 2) - 13.0) + Units.feetToMeters(3.5),
+            Units.feetToMeters(TRENCH_STARTING_OFFSET), FIELD.getTagPose(7).get().getRotation().toRotation2d().plus(Rotation2d.fromDegrees(180.0)));
+    public static final Pose2d RED_RIGHT_UNDER_TRENCH_SHOOTING = new Pose2d(FIELD.getTagPose(12).get().getX() + Units.inchesToMeters((47.0 / 2) - 13.0) + Units.feetToMeters(3.5),
+            FIELD.getFieldWidth() - Units.feetToMeters(TRENCH_STARTING_OFFSET), FIELD.getTagPose(12).get().getRotation().toRotation2d().plus(Rotation2d.fromDegrees((180.0))));
 
     public static final Pose2d RED_RIGHT_CENTER_LINE_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) - Units.feetToMeters(CENTER_LINE_INTERMEDIATE_X_OFFSET),
             FIELD.getTagPose(1).get().getY(), Rotation2d.fromDegrees(180.0));

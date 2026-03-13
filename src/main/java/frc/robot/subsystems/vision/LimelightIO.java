@@ -22,7 +22,7 @@ public class LimelightIO implements VisionIO {
         Rotation3d rotation = transform.getRotation();
         LimelightHelpers.setCameraPose_RobotSpace(name,
                 transform.getX(),
-                transform.getY(),
+                -transform.getY(),
                 transform.getZ(),
                 Units.radiansToDegrees(rotation.getX()),
                 Units.radiansToDegrees(rotation.getY()),
