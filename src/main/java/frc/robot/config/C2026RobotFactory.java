@@ -119,7 +119,7 @@ public class C2026RobotFactory implements RobotFactory {
                 frontRotation
         );
 
-        return new Vision (Constants.FIELD,
+        return new Vision(Constants.FIELD,
                 new LimelightIO("limelight-right", rightTransform, false),
                 new LimelightIO("limelight-back", backTransform, false),
                 new LimelightIO("limelight-front", frontTransform, false)
