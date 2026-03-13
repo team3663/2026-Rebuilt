@@ -15,8 +15,9 @@ import frc.robot.util.FiringSolution;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
-import static edu.wpi.first.wpilibj2.command.Commands.parallel;
+import static edu.wpi.first.wpilibj2.command.Commands.*;
 
 public class CommandFactory {
     private final Drive drive;
@@ -48,44 +49,27 @@ public class CommandFactory {
         return atTarget;
     }
 
-    public Command aim(boolean aimAtHub) {
-        return shooter.follow(() -> {
-                    Pose2d robotPose = drive.getPose();
+    public Command aim(DoubleSupplier xSupplier, DoubleSupplier ySupplier, boolean aimAtHub) {
+        return parallel(shooter.follow(() -> firingSolution.hoodAngle(), () -> 0.0, () -> firingSolution.shooterVelocity()),
+                drive.driveWithAngle(xSupplier, ySupplier, () -> firingSolution.turretAngle()),
+                run(() -> firingSolution = getFiringSolution(aimAtHub))
+        ).beforeStarting(runOnce(() -> firingSolution = getFiringSolution(aimAtHub))).finallyDo(() -> firingSolution = null);
+    }
 
-                    Translation2d targetPosition = getShooterTarget(robotPose, isRedAlliance(), aimAtHub);
-
-                    firingSolution = fireControlSystem.calculate(
-                            drive.getPose(), drive.getFieldOrientedVelocity(),
-                            Rotation2d.fromRadians(shooter.getTurretPosition()),
-                            targetPosition, aimAtHub);
-                    return firingSolution;
-                })
-                .finallyDo(() -> firingSolution = null);
+    private FiringSolution getFiringSolution(boolean aimAtHub) {
+        return fireControlSystem.calculate(
+                drive.getPose(), drive.getFieldOrientedVelocity(),
+                getShooterTarget(drive.getPose(), isRedAlliance(), aimAtHub), aimAtHub);
     }
 
     public Command shooterDefault() {
-        return shooter.follow(() -> 0.0, () -> {
-            Translation2d target = isRedAlliance() ? Constants.Shooter.RED_HUB : Constants.Shooter.BLUE_HUB;
-            Logger.recordOutput("CommandFactory/ShooterTarget", new Pose2d(target, Rotation2d.kZero));
-            double rotation = target.minus(drive.getPose().getTranslation()).getAngle().getRadians();
-            Logger.recordOutput("CommandFactory/TargetTurretPose", new Pose2d(getTurretPose().getTranslation(), Rotation2d.fromRadians(rotation)));
-            return rotation - drive.getRotation().getRadians();
-        }, () -> Constants.Shooter.DEFAULT_VELOCITY);
+        return shooter.follow(() -> 0.0, () -> 0.0, () -> Constants.Shooter.DEFAULT_VELOCITY);
     }
 
-    public Command calibrateShooter(DoubleSupplier hoodAngleSupplier, DoubleSupplier shooterVelocitySupplier, boolean aimAtHub) {
-        return shooter.follow(() -> {
-            Pose2d robotPose = drive.getPose();
+    public Command calibrateShooter(DoubleSupplier xSupplier, DoubleSupplier ySupplier, DoubleSupplier hoodAngleSupplier, DoubleSupplier shooterVelocitySupplier, boolean aimAtHub) {
+        Supplier<FiringSolution> firingSolution = () -> getFiringSolution(aimAtHub);
 
-            Translation2d targetPosition = getShooterTarget(robotPose, isRedAlliance(), aimAtHub);
-
-            var firingSolution = fireControlSystem.calculate(
-                    drive.getPose(), drive.getFieldOrientedVelocity(),
-                    Rotation2d.fromRadians(shooter.getTurretPosition()),
-                    targetPosition, aimAtHub);
-            return new FiringSolution(firingSolution.turretAngle(), hoodAngleSupplier.getAsDouble(),
-                    shooterVelocitySupplier.getAsDouble());
-        });
+        return shooter.follow(hoodAngleSupplier, () -> 0.0, shooterVelocitySupplier).alongWith(drive.driveWithAngle(xSupplier, ySupplier, () -> firingSolution.get().turretAngle()));
     }
 
     private Translation2d getShooterTarget(Pose2d robot, boolean redAlliance, boolean aimAtHub) {
@@ -103,7 +87,7 @@ public class CommandFactory {
     }
 
     private Pose2d getTurretPose() {
-        return FireControlSystem.getTurretPose(drive.getPose(), Rotation2d.fromRadians(shooter.getTurretPosition()));
+        return FireControlSystem.getTurretPose(drive.getPose());
     }
 
     public static boolean isRedAlliance() {

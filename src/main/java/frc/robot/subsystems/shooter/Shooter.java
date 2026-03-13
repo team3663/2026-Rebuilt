@@ -110,7 +110,7 @@ public class Shooter extends SubsystemBase {
     }
 
     public Command follow(Supplier<FiringSolution> firingSolution) {
-        return follow(() -> firingSolution.get().hoodAngle(), () -> firingSolution.get().turretAngle(), () -> firingSolution.get().shooterVelocity());
+        return follow(() -> firingSolution.get().hoodAngle(), () -> 0.0, () -> firingSolution.get().shooterVelocity());
     }
 
     // Hood

@@ -473,6 +473,56 @@ public class Drive extends SubsystemBase {
                 });
     }
 
+    /**
+     * Field relative drive command using two joysticks (controlling linear velocities), and a target position for the rotation.
+     */
+    public Command driveWithAngle(
+            DoubleSupplier xSupplier,
+            DoubleSupplier ySupplier,
+            DoubleSupplier omegaPositionSupplier) {
+
+        PIDController rotationController = new PIDController(10.0, 0.0, 0.0);
+        rotationController.enableContinuousInput(-Math.PI, Math.PI);
+
+        return runOnce(() -> {
+            rotationController.reset();
+            rotationController.setSetpoint(omegaPositionSupplier.getAsDouble());
+        }).andThen(drive(
+                () -> {// Apply deadband
+                    double x = xSupplier.getAsDouble();
+                    double y = ySupplier.getAsDouble();
+
+                    double linearMagnitude = MathUtil.applyDeadband(Math.hypot(x, y), ControllerHelper.DEADBAND);
+                    Rotation2d linearDirection = new Rotation2d(Math.atan2(y, x));
+
+                    // Square magnitude for more precise control
+                    linearMagnitude = linearMagnitude * linearMagnitude;
+
+                    // Return new linear velocity
+                    Translation2d linearVelocity = new Pose2d(Translation2d.kZero, linearDirection)
+                            .transformBy(new Transform2d(linearMagnitude, 0.0, Rotation2d.kZero))
+                            .getTranslation();
+
+                    var angularVel = rotationController.calculate(getPose().getRotation().getRadians(), omegaPositionSupplier.getAsDouble());
+
+                    // Convert to field relative speeds & send command
+                    ChassisSpeeds speeds =
+                            new ChassisSpeeds(
+                                    linearVelocity.getX() * getMaxLinearSpeedMetersPerSec(),
+                                    linearVelocity.getY() * getMaxLinearSpeedMetersPerSec(),
+                                    angularVel);
+                    boolean isFlipped =
+                            DriverStation.getAlliance().isPresent()
+                                    && DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
+                    return
+                            ChassisSpeeds.fromFieldRelativeSpeeds(
+                                    speeds,
+                                    isFlipped
+                                            ? getRotation().plus(new Rotation2d(Math.PI))
+                                            : getRotation());
+                }));
+    }
+
     public ChassisSpeeds getRelativeVelocity() {
         return kinematics.toChassisSpeeds(this.getModuleStates());
     }

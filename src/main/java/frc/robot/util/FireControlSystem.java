@@ -49,12 +49,11 @@ public class FireControlSystem {
     }
 
     public FiringSolution calculate(Pose2d robotPose, ChassisSpeeds fieldOrientedVelocity,
-                                    Rotation2d turretRotation,
                                     Translation2d goalPosition, boolean aimAtHub) {
         Translation2d leadTarget = goalPosition.minus(getLeadingOffset(fieldOrientedVelocity));
         Logger.recordOutput("CommandFactory/LeadGoalPose", new Pose2d(leadTarget, Rotation2d.kZero));
 
-        Pose2d turretPose = getTurretPose(robotPose, turretRotation);
+        Pose2d turretPose = getTurretPose(robotPose);
 
         Translation2d delta = leadTarget.minus(turretPose.getTranslation());
 
@@ -71,15 +70,14 @@ public class FireControlSystem {
         Logger.recordOutput("CommandFactory/TargetTurretPose", new Pose2d(turretPose.getTranslation(), rotation));
 
         // Add a slight offset when we are shooting at an angle
-        return new FiringSolution(rotation.getRadians() - robotPose.getRotation().getRadians(),
-                entry.hoodAngle, entry.shooterVelocity);
+        return new FiringSolution(rotation.getRadians(), entry.hoodAngle, entry.shooterVelocity);
     }
 
-    public static Pose2d getTurretPose(Pose2d robotPose, Rotation2d turretRotation) {
+    public static Pose2d getTurretPose(Pose2d robotPose) {
         Pose2d turretPose = robotPose.plus(
                 new Transform2d(
                         Constants.Shooter.TURRET_OFF_CENTER,
-                        turretRotation));
+                        Rotation2d.kZero));
         Logger.recordOutput("CommandFactory/TurretPose", turretPose);
         return turretPose;
     }

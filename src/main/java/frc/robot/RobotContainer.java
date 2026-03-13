@@ -128,12 +128,6 @@ public class RobotContainer {
                 () -> -controller.getRightX()
         ));
 
-        controller.a().whileTrue(
-                shooter.goTo(0.0, 0.0, Units.rotationsPerMinuteToRadiansPerSecond(2000.0)));
-        controller.b().whileTrue(shooter.goTo(0.0, 0.0, 0.0));
-        controller.x().whileTrue(shooter.goTo(0.0, Units.degreesToRadians(90.0), 0.0));
-        controller.y().whileTrue(shooter.goTo(0.0, Units.degreesToRadians(-90.0), 0.0));
-
         Trigger resetFieldOrientedTrigger = controller.back();
         Trigger zeroTrigger = controller.start();
 
@@ -165,9 +159,9 @@ public class RobotContainer {
         intakeTrigger.whileTrue(intake.deployAndIntake());
         stowIntakeTrigger.whileTrue(intake.stow());
 
-        // general bindings for the shooter
-        shootTrigger.and(() -> shootingIntoHub).whileTrue(commandFactory.aim(true));
-        shootTrigger.and(() -> !shootingIntoHub).whileTrue(commandFactory.aim(false));
+        // General bindings for the shooter
+        shootTrigger.and(() -> shootingIntoHub).whileTrue(commandFactory.aim(() -> -controller.getLeftY(), () -> -controller.getLeftX(),true));
+        shootTrigger.and(() -> !shootingIntoHub).whileTrue(commandFactory.aim(() -> -controller.getLeftY(), () -> -controller.getLeftX(),false));
 
         setPassingMode.onTrue(runOnce(() -> shootingIntoHub = false));
         setShootingMode.onTrue(runOnce(() -> shootingIntoHub = true));
@@ -195,15 +189,14 @@ public class RobotContainer {
         testController.rightBumper().whileTrue(Commands.parallel(
                 // TO CHANGE TARGET: Change both the boolean in calibrate shooter and the definition of goalPosition to swap between hub and passing,
                 //                      and to choose which passing corner modify CommandFactory.getShooterTarget()
-                commandFactory.calibrateShooter(() -> tuningHoodAngle[0], () -> tuningShooterVelocity[0], false),
+                commandFactory.calibrateShooter(() -> -controller.getLeftY(), () -> -controller.getLeftX(), () -> tuningHoodAngle[0], () -> tuningShooterVelocity[0], false),
                 Commands.run(() -> {
                     Translation2d goalPosition = CommandFactory.isRedAlliance() ? Constants.Shooter.PASS_OUTPOST_RED : Constants.Shooter.PASS_OUTPOST_BLUE;
                     Logger.recordOutput("Tuning/TargetPose", new Pose2d(goalPosition, Rotation2d.kZero));
 
                     Pose2d robotPose = drive.getPose();
-                    Rotation2d turretRotation = Rotation2d.fromRotations(shooter.getTurretPosition());
 
-                    Pose2d turretPose = FireControlSystem.getTurretPose(robotPose, turretRotation);
+                    Pose2d turretPose = FireControlSystem.getTurretPose(robotPose);
 
                     Translation2d delta = goalPosition.minus(turretPose.getTranslation());
                     double distance = delta.getNorm();

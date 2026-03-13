@@ -38,8 +38,8 @@ public class C2026ShooterIO implements ShooterIO {
     public C2026ShooterIO(TalonFX hoodMotor, TalonFX turretMotor, TalonFX shooterMotor, TalonFX shooterMotor2,
                           CANcoder turretCanCoder) {
         this.hoodMotor = hoodMotor;
-        this.turretMotor = turretMotor;
-        this.turretCanCoder = turretCanCoder;
+        this.turretMotor = null;
+        this.turretCanCoder = null;
         this.shooterMotor = shooterMotor;
         this.shooterMotor2 = shooterMotor2;
 
