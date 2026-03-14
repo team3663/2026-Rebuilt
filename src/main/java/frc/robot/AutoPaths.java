@@ -282,7 +282,7 @@ public class AutoPaths {
     }
 
     private Command intaking(Pose2d blueTargetPose, Pose2d redTargetPose, Supplier<Pose2d> blueIntermediateSupplier, Supplier<Pose2d> redIntermediateSupplier) {
-        return intaking(blueTargetPose, redTargetPose, blueIntermediateSupplier, redIntermediateSupplier, Units.feetToMeters(DEFAULT_ANGLE_DISTANCE_THRESHOLD));
+        return intaking(blueTargetPose, redTargetPose, blueIntermediateSupplier, redIntermediateSupplier, 0.0);
     }
 
     private Command intaking(Pose2d blueTaretPose, Pose2d redTargetPose, double angleDistance) {
@@ -607,8 +607,8 @@ public class AutoPaths {
         return Commands.sequence(
                 resetOdometry(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE),
                 goToPosition(Constants.BLUE_RIGHT_CENTER_LINE_INTERMEDIATE, Constants.RED_RIGHT_CENTER_LINE_INTERMEDIATE)
-                        .alongWith(zeroIntakeAndHood()),
-                intakingAndZeroing(Constants.BLUE_RIGHT_CENTER_LINE, Constants.RED_RIGHT_CENTER_LINE, ()-> null, ()-> null),
+                        .raceWith(zeroIntakeAndHood().andThen(intake.deploy())),
+                intaking(Constants.BLUE_RIGHT_CENTER_LINE, Constants.RED_RIGHT_CENTER_LINE, ()-> null, ()-> null),
                 goToPosition(Constants.BLUE_RIGHT_CENTER_LINE_TO_TRENCH_INTERMEDIATE, Constants.RED_RIGHT_CENTER_LINE_TO_TRENCH_INTERMEDIATE),
                 goToPosition(Constants.BLUE_RIGHT_UNDER_TRENCH_SHOOTING, Constants.RED_RIGHT_UNDER_TRENCH_SHOOTING),
                 Commands.parallel(shooting(2.5), runOnce(drive::stop)),
