@@ -32,6 +32,7 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
+import static edu.wpi.first.wpilibj2.command.Commands.waitSeconds;
 import static frc.robot.Constants.ENABLE_TEST_FEATURES;
 
 /**
@@ -172,8 +173,7 @@ public class RobotContainer {
         Trigger intakeTrigger = controller.leftTrigger();
         Trigger stowIntakeTrigger = controller.leftBumper();
 
-        Trigger shootTrigger = controller.rightBumper();
-        Trigger shooterReadyToFire = shootTrigger.and(controller.rightTrigger());
+        Trigger shootTrigger = controller.rightTrigger();
 
         Trigger setPassingMode = controller.a();
         Trigger setShootingMode = controller.x();
@@ -198,14 +198,13 @@ public class RobotContainer {
         stowIntakeTrigger.whileTrue(intake.stow());
 
         // general bindings for the shooter
-        shootTrigger.and(() -> shootingIntoHub).whileTrue(commandFactory.aim(true));
-        shootTrigger.and(() -> !shootingIntoHub).whileTrue(commandFactory.aim(false));
+        shootTrigger.and(() -> shootingIntoHub).whileTrue(commandFactory.aim(true)
+                .alongWith(waitSeconds(0.2).andThen(commandFactory.feedIntoShooter())));
+        shootTrigger.and(() -> !shootingIntoHub).whileTrue(commandFactory.aim(false)
+                .alongWith(waitSeconds(0.2).andThen(commandFactory.feedIntoShooter())));
 
         setPassingMode.onTrue(runOnce(() -> shootingIntoHub = false));
         setShootingMode.onTrue(runOnce(() -> shootingIntoHub = true));
-
-        // feed when we are aiming at the target while shooting
-        shooterReadyToFire.whileTrue(commandFactory.feedIntoShooter());
 
         // while shooting and not intaking fuel, use the intake to aid in feeding
         shootTrigger.and(intakeTrigger.negate()).whileTrue(intake.feed());
