@@ -93,7 +93,7 @@ public class AutoPaths {
      * @see #goToPosition(Pose2d, Pose2d)
      * @see #goToPosition(Pose2d, double)
      */
-    private Command goToPosition(Supplier<Pose2d> targetPose, Supplier<Pose2d> intermediatePoseSupplier, BooleanSupplier slowAccel, double angleDistanceThreshold) {
+    private Command goToPosition(Supplier<Pose2d> targetPose, Supplier<Pose2d> intermediatePoseSupplier, BooleanSupplier slowVelocity, double angleDistanceThreshold) {
         Pose2d[] intermediateHolder = new Pose2d[]{null};
         Pose2d[] startingPose = new Pose2d[]{null};
 
@@ -112,8 +112,8 @@ public class AutoPaths {
                             return new Pose2d(goToPositionTarget.getTranslation(),
                                     target.getRotation().interpolate(startingPose[0].getRotation(), t));
                         },
-                        slowAccel::getAsBoolean,
-                        () -> drive.getMaxLinearSpeedMetersPerSec() * 0.8)
+                        ()-> false,
+                        () -> (slowVelocity.getAsBoolean() ? drive.getMaxLinearSpeedMetersPerSec() * 0.5 : drive.getMaxLinearSpeedMetersPerSec() * 0.8))
                 .beforeStarting(() -> {
                     if (intermediatePoseSupplier != null) intermediateHolder[0] = intermediatePoseSupplier.get();
                     else Commands.none();
@@ -167,7 +167,7 @@ public class AutoPaths {
      * @param redAllianceIntermediateSupplier  A supplier of positions the robot should go to if on the red alliance
      * @param angleDistanceThreshold           At what point during the path the robot should be finished rotating
      */
-    private Command goToPosition(Pose2d blueTargetPose, Pose2d redTargetPose, Supplier<Pose2d> blueAllianceIntermediateSupplier, Supplier<Pose2d> redAllianceIntermediateSupplier, double angleDistanceThreshold) {
+    private Command goToPosition(Pose2d blueTargetPose, Pose2d redTargetPose, Supplier<Pose2d> blueAllianceIntermediateSupplier, Supplier<Pose2d> redAllianceIntermediateSupplier, double angleDistanceThreshold, BooleanSupplier slowVelocity) {
         Pose2d[] intermediatePoseHolder = new Pose2d[]{null};
 
         return goToPosition(
@@ -179,7 +179,7 @@ public class AutoPaths {
                         else return null;
                     } else return null;
                 },
-                () -> false,
+                () -> slowVelocity.getAsBoolean(),
                 angleDistanceThreshold)
                 .beforeStarting(() -> {
                     if (blueAllianceIntermediateSupplier != null)
@@ -187,6 +187,10 @@ public class AutoPaths {
                     else Commands.none();
                 })
                 .until(() -> drive.atPosition(alliancePose(blueTargetPose, redTargetPose).getTranslation()));
+    }
+
+    private Command goToPosition(Pose2d blueTargetPose, Pose2d redTargetPose, Supplier<Pose2d> blueAllianceIntermediateSupplier, Supplier<Pose2d> redAllianceIntermediateSupplier, double angleDistanceThreshold){
+        return goToPosition(blueTargetPose, redTargetPose, blueAllianceIntermediateSupplier, redAllianceIntermediateSupplier, angleDistanceThreshold, ()-> false);
     }
 
     /**
@@ -212,9 +216,15 @@ public class AutoPaths {
     }
 
     private Command goToPositionJustDriving(Pose2d blueTargetPose, Pose2d redTargetPose, Supplier<Pose2d> blueIntermediatePose,
-                                            Supplier<Pose2d> redIntermediatePose, double angleDistance) {
-        return goToPosition(blueTargetPose, redTargetPose, blueIntermediatePose, redIntermediatePose, angleDistance)
+                                            Supplier<Pose2d> redIntermediatePose, double angleDistance, BooleanSupplier slowVelocity) {
+        return goToPosition(blueTargetPose, redTargetPose, blueIntermediatePose, redIntermediatePose, angleDistance, slowVelocity)
                 .until(() -> drive.atPosition(alliancePose(blueTargetPose, redTargetPose).getTranslation()));
+
+    }
+
+    private Command goToPositionJustDriving(Pose2d blueTargetPose, Pose2d redTargetPose, Supplier<Pose2d> blueIntermediatePose,
+                                            Supplier<Pose2d> redIntermediatePose, double angleDistance) {
+        return goToPositionJustDriving(blueTargetPose, redTargetPose, blueIntermediatePose, redIntermediatePose, angleDistance, ()-> false);
 
     }
 
@@ -266,7 +276,7 @@ public class AutoPaths {
      */
     private Command intaking(Pose2d blueTargetPose, Pose2d redTargetPose, Supplier<Pose2d> blueIntermediatePoseSupplier, Supplier<Pose2d> redIntermediatePoseSupplier, double angleDistance) {
         return goToPositionJustDriving(blueTargetPose, redTargetPose,
-                blueIntermediatePoseSupplier, redIntermediatePoseSupplier, angleDistance)
+                blueIntermediatePoseSupplier, redIntermediatePoseSupplier, angleDistance, ()-> true)
                 .alongWith(intake.deployAndIntake())
                 .until(() -> drive.atPosition(alliancePose(blueTargetPose, redTargetPose).getTranslation()));
     }
@@ -293,7 +303,7 @@ public class AutoPaths {
      */
     private Command intakingAndZeroing(Pose2d blueTargetPose, Pose2d redTargetPose, Supplier<Pose2d> blueIntermediatePoseSupplier, Supplier<Pose2d> redIntermediatePoseSupplier, double angleDistance) {
         return Commands.parallel(goToPositionJustDriving(blueTargetPose, redTargetPose,
-                                blueIntermediatePoseSupplier, redIntermediatePoseSupplier, Units.feetToMeters(angleDistance)),
+                                blueIntermediatePoseSupplier, redIntermediatePoseSupplier, Units.feetToMeters(angleDistance), ()-> true),
                         intake.zeroPivot().alongWith(shooter.zeroHood())
                                 .andThen(intake.deployAndIntake()))
                 .until(() -> drive.atPosition(alliancePose(blueTargetPose, redTargetPose).getTranslation()));
@@ -601,10 +611,9 @@ public class AutoPaths {
                         5.0),
                 goToPosition(Constants.BLUE_RIGHT_CENTER_LINE_TO_TRENCH_INTERMEDIATE, Constants.RED_RIGHT_CENTER_LINE_TO_TRENCH_INTERMEDIATE),
                 goToPosition(Constants.BLUE_RIGHT_UNDER_TRENCH_SHOOTING, Constants.RED_RIGHT_UNDER_TRENCH_SHOOTING),
-                Commands.parallel(shooting(4.0), runOnce(drive::stop)),
-                intaking(Constants.BLUE_RIGHT_ALLIANCE_SIDE, Constants.RED_RIGHT_ALLIANCE_SIDE,
-                        () -> Constants.BLUE_RIGHT_ALLIANCE_SIDE_INTERMEDIATE, () -> Constants.RED_RIGHT_ALLIANCE_SIDE_INTERMEDIATE,
-                        getDistanceToPose(Constants.BLUE_RIGHT_ALLIANCE_SIDE_INTERMEDIATE, Constants.RED_RIGHT_ALLIANCE_SIDE_INTERMEDIATE)),
+                Commands.parallel(shooting(2.5), runOnce(drive::stop)),
+                goToPosition(Constants.BLUE_RIGHT_ALLIANCE_SIDE_INTERMEDIATE, Constants.RED_RIGHT_ALLIANCE_SIDE_INTERMEDIATE),
+                intaking(Constants.BLUE_RIGHT_ALLIANCE_SIDE, Constants.RED_RIGHT_ALLIANCE_SIDE),
                 goToPosition(Constants.BLUE_RIGHT_ALLIANCE_SIDE_TO_TRENCH_INTERMEDIATE_WITH_Y_OFFSET, Constants.RED_RIGHT_ALLIANCE_SIDE_TO_TRENCH_INTERMEDIATE_WITH_Y_OFFSET),
                 goToPosition(Constants.BLUE_RIGHT_UNDER_TRENCH_SHOOTING, Constants.RED_RIGHT_UNDER_TRENCH_SHOOTING),
                 Commands.parallel(shootingInPlace(), runOnce(drive::stop)));
