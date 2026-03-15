@@ -62,7 +62,7 @@ public class FireControlSystem {
         DISTANCE_LOOKUP_TABLE_LEAD.put(5.0, 1.25);
     }
 
-    private final LoggedNetworkNumber shooterVelocityTrimEntry = new LoggedNetworkNumber("Shooter Velocity Trim", 0.0);
+    private final LoggedNetworkNumber shooterVelocityTrimEntry = new LoggedNetworkNumber("Shooter Velocity Trim", 100.0);
 
     public FiringSolution calculate(Pose2d robotPose, ChassisSpeeds fieldOrientedVelocity,
                                     Rotation2d turretRotation,
