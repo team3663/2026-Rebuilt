@@ -88,7 +88,7 @@ public class C2026ShooterIO implements ShooterIO {
 
         turretConfig.Slot0.kV = 12 / ((7368.0 / 60.0) * MOTOR_TO_MECHANISM_RATIO);
         turretConfig.Slot0.kA = 0.0;
-        turretConfig.Slot0.kP = 100.0;
+        turretConfig.Slot0.kP = 80.0;
         turretConfig.Slot0.kI = 0.0;
         turretConfig.Slot0.kD = 0.0;
 
