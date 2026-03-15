@@ -620,6 +620,22 @@ public class AutoPaths {
                 Commands.parallel(shootingInPlace(), runOnce(drive::stop)));
     }
 
+    public Command leftStarting_neutralZone_shoot_neutralZone() {
+        return Commands.sequence(
+                resetOdometry(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE),
+                goToPosition(Constants.BLUE_LEFT_CENTER_LINE_INTERMEDIATE, Constants.RED_LEFT_CENTER_LINE_INTERMEDIATE)
+                        .raceWith(zeroIntakeAndHood().andThen(intake.deploy())),
+                intaking(Constants.BLUE_LEFT_CENTER_LINE, Constants.RED_LEFT_CENTER_LINE, ()-> null, ()-> null),
+                goToPosition(Constants.BLUE_LEFT_CENTER_LINE_INTERMEDIATE, Constants.RED_LEFT_CENTER_LINE_INTERMEDIATE),
+                goToPosition(Constants.BLUE_LEFT_UNDER_TRENCH_SHOOTING, Constants.RED_LEFT_UNDER_TRENCH_SHOOTING),
+                Commands.parallel(shooting(2.5), runOnce(drive::stop)),
+                goToPosition(Constants.BLUE_LEFT_ALLIANCE_SIDE_INTERMEDIATE, Constants.RED_LEFT_ALLIANCE_SIDE_INTERMEDIATE),
+                intaking(Constants.BLUE_LEFT_ALLIANCE_SIDE, Constants.RED_LEFT_ALLIANCE_SIDE),
+                goToPosition(Constants.BLUE_LEFT_ALLIANCE_SIDE_TO_TRENCH_INTERMEDIATE, Constants.RED_LEFT_ALLIANCE_SIDE_TO_TRENCH_INTERMEDIATE),
+                goToPosition(Constants.BLUE_LEFT_UNDER_TRENCH_SHOOTING, Constants.RED_LEFT_UNDER_TRENCH_SHOOTING),
+                Commands.parallel(shootingInPlace(), runOnce(drive::stop)));
+    }
+
     public Command leftStarting_neutralZone_neutralZone_fullPasses() {
         return Commands.sequence(
                 resetOdometry(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE,
