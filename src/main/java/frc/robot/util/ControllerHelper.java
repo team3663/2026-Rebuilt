@@ -10,7 +10,7 @@ import java.util.function.BooleanSupplier;
 import static edu.wpi.first.wpilibj2.command.Commands.runEnd;
 
 public class ControllerHelper {
-    public static final double DEADBAND = 0.08;
+    public static final double DEADBAND = 0.05;
 
     /**
      * Modifies the axis directly from a controller so that it is correct, with a deadband, scaled, inverted, and clipped.
