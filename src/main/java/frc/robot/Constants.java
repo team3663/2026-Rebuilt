@@ -40,7 +40,7 @@ public final class Constants {
     private static final double TRENCH_STARTING_OFFSET = 2.0;
     // Distance away from the middle line towards the driver station when crossing into the neutral zone
     //     for the 2nd time in auto; measured in feet
-    private static final double NEUTRAL_ZONE_ALLIANCE_SIDE_X_OFFSET = 8.0;
+    private static final double NEUTRAL_ZONE_ALLIANCE_SIDE_X_OFFSET = 6.0;
     // Y Distance from the April Tags that are used when in the neutral zone on the left and right sides; measured in feet
     private static final double NEUTRAL_ZONE_Y_OFFSET = 10.5;
     private static final double CENTER_LINE_INTERMEDIATE_X_OFFSET = 3.0;
