@@ -109,8 +109,9 @@ public class AutoPaths {
                             var t = MathUtil.inverseInterpolate(angleDistanceThreshold, distanceStartToTarget, distanceCurrentToTarget);
 
                             goToPositionTarget = target;
-                            return new Pose2d(goToPositionTarget.getTranslation(),
-                                    target.getRotation().interpolate(startingPose[0].getRotation(), t));
+                            return goToPositionTarget;
+//                            return new Pose2d(goToPositionTarget.getTranslation(),
+//                                    target.getRotation().interpolate(startingPose[0].getRotation(), t));
                         },
                         ()-> false,
                         () -> (slowVelocity.getAsBoolean() ? drive.getMaxLinearSpeedMetersPerSec() * 0.5 : drive.getMaxLinearSpeedMetersPerSec()))
