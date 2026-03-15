@@ -63,6 +63,8 @@ public class FireControlSystem {
     }
 
     private final LoggedNetworkNumber shooterVelocityTrimEntry = new LoggedNetworkNumber("Shooter Velocity Trim", 100.0);
+    private final LoggedNetworkNumber turretAngleTrimEntry = new LoggedNetworkNumber("Turret Angle Trim", 0.0);
+
 
     public FiringSolution calculate(Pose2d robotPose, ChassisSpeeds fieldOrientedVelocity,
                                     Rotation2d turretRotation,
@@ -88,9 +90,10 @@ public class FireControlSystem {
         Logger.recordOutput("CommandFactory/TargetTurretPose", new Pose2d(turretPose.getTranslation(), rotation));
 
         double shooterVelocityTrim = Units.rotationsPerMinuteToRadiansPerSecond(shooterVelocityTrimEntry.getAsDouble());
+        double turretAngleTrim = Units.degreesToRadians(turretAngleTrimEntry.getAsDouble());
 
         // Add a slight offset when we are shooting at an angle
-        return new FiringSolution(rotation.getRadians() - robotPose.getRotation().getRadians(),
+        return new FiringSolution((rotation.getRadians() - robotPose.getRotation().getRadians() + turretAngleTrim),
                 entry.hoodAngle, entry.shooterVelocity + shooterVelocityTrim);
     }
 

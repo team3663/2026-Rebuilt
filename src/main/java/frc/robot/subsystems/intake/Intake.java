@@ -82,8 +82,7 @@ public class Intake extends SubsystemBase {
      */
     public Command zeroPivot() {
         return runEnd(() -> {
-            // TODO CHANGE THIS VOLTAGE BACK TO 1.5 AFTER TESTING
-            io.setTargetPivotVoltage(-1.0);
+            io.setTargetPivotVoltage(-1.5);
         }, io::stopPivot)
                 .withDeadline(waitUntil(() -> Math.abs(inputs.currentPivot1Velocity) < 0.01)
                         .beforeStarting(waitSeconds(0.25))
