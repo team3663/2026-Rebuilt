@@ -9,8 +9,10 @@ import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.math.interpolation.Interpolator;
 import edu.wpi.first.math.interpolation.InverseInterpolator;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 import static edu.wpi.first.math.util.Units.degreesToRadians;
 import static edu.wpi.first.math.util.Units.rotationsPerMinuteToRadiansPerSecond;
@@ -60,6 +62,8 @@ public class FireControlSystem {
         DISTANCE_LOOKUP_TABLE_LEAD.put(5.0, 1.25);
     }
 
+    private final LoggedNetworkNumber shooterVelocityTrimEntry = new LoggedNetworkNumber("Shooter Velocity Trim", 0.0);
+
     public FiringSolution calculate(Pose2d robotPose, ChassisSpeeds fieldOrientedVelocity,
                                     Rotation2d turretRotation,
                                     Translation2d goalPosition, boolean aimAtHub) {
@@ -83,9 +87,11 @@ public class FireControlSystem {
 
         Logger.recordOutput("CommandFactory/TargetTurretPose", new Pose2d(turretPose.getTranslation(), rotation));
 
+        double shooterVelocityTrim = Units.rotationsPerMinuteToRadiansPerSecond(shooterVelocityTrimEntry.getAsDouble());
+
         // Add a slight offset when we are shooting at an angle
         return new FiringSolution(rotation.getRadians() - robotPose.getRotation().getRadians(),
-                entry.hoodAngle, entry.shooterVelocity);
+                entry.hoodAngle, entry.shooterVelocity + shooterVelocityTrim);
     }
 
     public static Pose2d getTurretPose(Pose2d robotPose, Rotation2d turretRotation) {
