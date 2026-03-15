@@ -365,7 +365,7 @@ public class AutoPaths {
     }
 
     private Command shooting(double timeout) {
-        return shooting(timeout, Units.degreesToRadians(70.0));
+        return shooting(timeout, Units.degreesToRadians(130.0));
     }
 
     /**
