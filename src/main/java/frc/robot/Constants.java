@@ -173,9 +173,9 @@ public final class Constants {
             Units.feetToMeters(TRENCH_STARTING_OFFSET), FIELD.getTagPose(28).get().getRotation().toRotation2d().plus(Rotation2d.fromDegrees(180.0)));
 
     public static final Pose2d BLUE_RIGHT_CENTER_LINE_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) - Units.feetToMeters(1.5),
-            FIELD.getTagPose(17).get().getY(), Rotation2d.fromDegrees(0.0));
+            FIELD.getTagPose(17).get().getY() + Units.inchesToMeters(4.0), Rotation2d.fromDegrees(0.0));
     public static final Pose2d BLUE_LEFT_CENTER_LINE_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) - Units.feetToMeters(1.5),
-            FIELD.getTagPose(22).get().getY(), Rotation2d.fromDegrees(0.0));
+            FIELD.getTagPose(22).get().getY() - Units.inchesToMeters(4.0), Rotation2d.fromDegrees(0.0));
     public static final Pose2d BLUE_RIGHT_CENTER_LINE_TO_TRENCH_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) + Units.feetToMeters(CENTER_LINE_INTERMEDIATE_X_OFFSET - 6.0) - Units.feetToMeters(1.5),
             FIELD.getTagPose(17).get().getY(), Rotation2d.fromDegrees(0.0));
     public static final Pose2d BLUE_LEFT_CENTER_LINE_TO_TRENCH_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) + Units.feetToMeters(CENTER_LINE_INTERMEDIATE_X_OFFSET),
@@ -238,9 +238,9 @@ public final class Constants {
             FIELD.getFieldWidth() - Units.feetToMeters(TRENCH_STARTING_OFFSET), FIELD.getTagPose(12).get().getRotation().toRotation2d().plus(Rotation2d.fromDegrees((180.0))));
 
     public static final Pose2d RED_RIGHT_CENTER_LINE_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) + Units.feetToMeters(1.5),
-            FIELD.getTagPose(1).get().getY(), Rotation2d.fromDegrees(180.0));
+            FIELD.getTagPose(1).get().getY() - Units.inchesToMeters(4.0), Rotation2d.fromDegrees(180.0));
     public static final Pose2d RED_LEFT_CENTER_LINE_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) + Units.feetToMeters(1.5),
-            FIELD.getTagPose(6).get().getY(), Rotation2d.fromDegrees(180.0));
+            FIELD.getTagPose(6).get().getY() + Units.inchesToMeters(4.0), Rotation2d.fromDegrees(180.0));
     public static final Pose2d RED_RIGHT_CENTER_LINE_TO_TRENCH_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) - Units.feetToMeters(CENTER_LINE_INTERMEDIATE_X_OFFSET - 6.0) + Units.feetToMeters(1.5),
             FIELD.getTagPose(1).get().getY(), Rotation2d.fromDegrees(180.0));
     public static final Pose2d RED_LEFT_CENTER_LINE_TO_TRENCH_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) - Units.feetToMeters(CENTER_LINE_INTERMEDIATE_X_OFFSET),
