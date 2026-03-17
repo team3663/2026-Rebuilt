@@ -31,6 +31,8 @@ import frc.robot.util.FireControlSystem;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
+import static edu.wpi.first.wpilibj.DriverStation.Alliance;
+import static edu.wpi.first.wpilibj.DriverStation.getAlliance;
 import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
 import static edu.wpi.first.wpilibj2.command.Commands.waitSeconds;
 import static frc.robot.Constants.ENABLE_TEST_FEATURES;
@@ -134,7 +136,18 @@ public class RobotContainer {
         shooter.setDefaultCommand(commandFactory.shooterDefault());
 
         vision.setDefaultCommand(
-                vision.consumeVisionMeasurements(drive::addVisionMeasurements, drive::getRotation)
+                vision.consumeVisionMeasurements(drive::addVisionMeasurements, () -> {
+                            if (DriverStation.isAutonomous() && DriverStation.isDisabled()) {
+                                if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) ==
+                                        DriverStation.Alliance.Blue) {
+                                    return Rotation2d.fromDegrees(0.0);
+                                } else {
+                                    return Rotation2d.fromDegrees(180.0);
+                                }
+                            } else {
+                                return drive.getRotation();
+                            }
+                        })
                         .ignoringDisable(true));
 
         intake.setDefaultCommand(intake.pivotDefault());
@@ -183,7 +196,7 @@ public class RobotContainer {
         resetFieldOrientedTrigger.onTrue(drive.resetOdometry(() ->
                 new Pose2d(
                         drive.getPose().getTranslation(),
-                        DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == DriverStation.Alliance.Red ?
+                        getAlliance().isPresent() && getAlliance().get() == Alliance.Red ?
                                 Rotation2d.k180deg :
                                 Rotation2d.kZero)));
 

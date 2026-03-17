@@ -3,20 +3,21 @@ package frc.robot.subsystems.vision;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.LimelightHelpers;
 
 public class LimelightIO implements VisionIO {
     private static final int LIMELIGHT_IMU_EXTERNAL = 0;
-    private static final int LIMELIGHT_IMU_FUSED = 1;
+    private static final int LIMELIGHT_IMU_EXTERNAL_SEED = 1;
     private static final int LIMELIGHT_IMU_INTERNAL = 2;
+    private static final int LIMELIGHT_IMU_INTERNAL_EXTERNAL_ASSIST = 4;
 
     private final String cameraName;
 
     public LimelightIO(String name, Transform3d transform, boolean isIgnored) {
         this.cameraName = name;
 
-        // Initially the Limelight IMU should be in FUSED mode, it will change when robot is enabled.
-        LimelightHelpers.SetIMUMode(cameraName, LIMELIGHT_IMU_FUSED);
+        LimelightHelpers.SetIMUMode(cameraName, LIMELIGHT_IMU_EXTERNAL_SEED);
 
         // Tell the limelight were on the robot it is located.
         Rotation3d rotation = transform.getRotation();
@@ -30,6 +31,13 @@ public class LimelightIO implements VisionIO {
     }
 
     public void updateInputs(VisionInputs visionInputs, double currentYaw) {
+        if (DriverStation.isEnabled()) {
+            LimelightHelpers.SetIMUMode(cameraName, LIMELIGHT_IMU_INTERNAL_EXTERNAL_ASSIST);
+        }
+        if (DriverStation.isDisabled()) {
+            LimelightHelpers.SetIMUMode(cameraName, LIMELIGHT_IMU_EXTERNAL_SEED);
+        }
+
         // Assume pose will not be updated.
         visionInputs.poseUpdated = false;
 
@@ -48,7 +56,7 @@ public class LimelightIO implements VisionIO {
 
         // Get a new pose estimate
         double poseStart = System.currentTimeMillis();
-        LimelightHelpers.PoseEstimate estimate = LimelightHelpers.getBotPoseEstimate_wpiBlue(cameraName);
+        LimelightHelpers.PoseEstimate estimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(cameraName);
         double poseEnd = System.currentTimeMillis();
         visionInputs.poseEstimateDuration = poseEnd - poseStart;
 
