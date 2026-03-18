@@ -109,30 +109,6 @@ public class RobotContainer {
         autoChooser.addOption("RightUnderTrench2ft-NeutralZone-Shoot-NeutralZoneLoop-Shoot", autoPaths.rightStarting_neutralZone_shoot_neutralZoneLoop_shoot());
         autoChooser.addOption("RightUnderTrench2ft-Outpost", autoPaths.rightStarting_outpost());
         autoChooser.addOption("MiddleStarting-Depot", autoPaths.middleStarting_depot());
-        //        autoChooser.addOption("RightUnderTrench2ft-NeutralZone-Outpost-NeutralZone", autoPaths.rightStarting_neutralZone_outpost());
-//        autoChooser.addOption("LeftUnderTrench2ft-NeutralZone-Shoot-NeutralZone-Shoot", autoPaths.leftStarting_neutralZone_neutralZoneSwoop());
-//        autoChooser.addOption("LeftUnderTrench2ft-NeutralZone-UnderTrench-NeutralZone", autoPaths.leftStarting_neutralZone_neutralZone_fullPasses());
-//        autoChooser.addOption("RightUnderTrench2ft-NeutralZone-UnderTrench-NeutralZone", autoPaths.rightStarting_neutralZone_neutralZone_fullPasses());
-        //        autoChooser.addOption("RightUnderTrench2ft-NeutralZone-Shoot-NeutralZone-Shoot", autoPaths.rightStarting_neutralZone_neutralZone());
-//        autoChooser.addOption("LeftUnderTrench2ft-NeutralZone-Shoot_NeutralZone-Shoot", autoPaths.leftStarting_neutralZone_neutralZone());
-        //        autoChooser.addOption("LeftInFrontOfBump5ft-Depot-LeftClimb", autoPaths.leftSide_depot_leftClimb());
-//        autoChooser.addOption("RightAllianceZone2ft-Outpost-RightClimb", autoPaths.rightSide_outpost_rightClimb());
-//        autoChooser.addOption("LeftUnderTrench2ft-NeutralZone", autoPaths.leftStarting_neutralZone_middleLine());
-//        autoChooser.addOption("RightUnderTrench2ft-NeutralZone", autoPaths.rightStarting_neutralZone_middleLine());
-//        autoChooser.addOption("RightUnderTrench2ft-NeutralZone-LeftClimb", autoPaths.rightStarting_neutralZone_middleLine_leftClimb());
-//        autoChooser.addOption("LeftUnderTrench2ft-NeutralZone-RightClimb", autoPaths.leftStarting_neutralZone_middleLine_rightClimb());
-//        autoChooser.addOption("RightUnderTrench2ft-NeutralZone-UnderTrench-NeutralZone", autoPaths.rightStarting_neutralZone_middleLine_x2());
-//        autoChooser.addOption("LeftInFrontOfBump5ft-Depot-Outpost-RightClimb", autoPaths.leftStarting_depot_outpost_rightClimb());
-//        autoChooser.addOption("RightAllianceZone2ft-Outpost-Depot-LeftClimb", autoPaths.rightStarting_outpost_depot_leftClimb());
-//        autoChooser.addOption("LeftUnderTrench2ft-AllianceSideNeutralZone-RightClimb", autoPaths.leftStarting_neutralZone_AllianceSide_rightClimb());
-//        autoChooser.addOption("RightUnderTrench2ft-AllianceSideNeutralZone-LeftClimb", autoPaths.rightStarting_neutralZone_AllianceSide_leftClimb());
-//        autoChooser.addOption("RightUnderTrench2ft-PickupInNeutralZone-PickupInNeutralZone-Outpost", autoPaths.rightStarting_pickupNeutral_pickupNeutral_Outpost());
-//        autoChooser.addOption("LeftUnderTrench2ftNoShooting-NeutralZone", autoPaths.leftStarting_neutralZone_middleLine());
-//        autoChooser.addOption("RightUnderTrench2ftNoShooting-NeutralZone", autoPaths.rightStarting_neutralZone_middleLine());
-//        autoChooser.addOption("RightUnderTrench2ftNoShooting-NeutralZone-LeftClimb", autoPaths.rightStarting_neutralZone_middleLine_leftClimb());
-//        autoChooser.addOption("LeftUnderTrench2ftNoShooting-NeutralZone-RightClimb", autoPaths.leftStarting_neutralZone_middleLine_rightClimb());
-//        autoChooser.addOption("LeftUnderTrench2ftNoShooting-NeutralZone-UnderTrench-NeutralZone", autoPaths.leftStarting_neutralZone_middleLine_x2());
-//        autoChooser.addOption("RightUnderTrench2ftNoShooting-NeutralZone-UnderTrench-NeutralZone", autoPaths.rightStarting_neutralZone_middleLine_x2());
 
         // Configure the button bindings
         configureButtonBindings();

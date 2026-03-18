@@ -26,6 +26,7 @@ public class AutoPaths {
     // The distance the robot has to be at before the goToPosition command switches from the
     //     intermediate target to the actual target
     private final double DEFAULT_INTERMEDIATE_DISTANCE_THRESHOLD = Units.feetToMeters(2.0);
+    // Default distance for how close the the trench poses the robot can get before switching targets
     private final double DEFAULT_TRENCH_DISTANCE_THRESHOLD = Units.feetToMeters(0.5);
     // How long the robot should sit in place to shoot under the trench
     private final double DEFAULT_SHOOTING_TIME = 6.0;
@@ -96,7 +97,7 @@ public class AutoPaths {
                         },
                         () -> false,
 //                        () -> (slowVelocity.getAsBoolean() ? drive.getMaxLinearSpeedMetersPerSec() * 0.5 : drive.getMaxLinearSpeedMetersPerSec()))
-                ()-> drive.getMaxLinearSpeedMetersPerSec() * 0.5)
+                        () -> drive.getMaxLinearSpeedMetersPerSec() * 0.5)
                 .beforeStarting(() -> {
                     if (intermediatePoseSupplier != null) intermediateHolder[0] = intermediatePoseSupplier.get();
                     else Commands.none();
@@ -153,19 +154,33 @@ public class AutoPaths {
                 .until(() -> drive.atPosition(alliancePose(blueTargetPose, redTargetPose).getTranslation()));
     }
 
+    /**
+     * Drives the robot towards a target position until it reaches a certain threshold away
+     * <p> This command requires {@link Drive} and ends when the robot reaches a threshold distance away from the target</p>
+     *
+     * @param blueTargetPose Target position of the robot if on the blue alliance
+     * @param redTargetPose  Target position of the robot if on the red alliance
+     * @param threshold      At what distance away from the target the robot ends the command
+     */
     private Command goToIntermediate(Pose2d blueTargetPose, Pose2d redTargetPose, double threshold) {
         return goToPosition(blueTargetPose, redTargetPose)
                 .until(() -> drive.atPosition(alliancePose(blueTargetPose, redTargetPose).getTranslation(), threshold));
     }
 
+    /**
+     * Deploys and runs the intake
+     * <p> This command requires {@link Intake}</p>
+     */
     private Command intaking() {
         return intake.deployAndIntake();
     }
 
     /**
-     * Runs the shooter in place
+     * Runs the shooter and feeding system
      * <p>
      * This command requires {@link Shooter}, {@link Intake}
+     *
+     * @param pivotAngle The angle the intake should be at while feeding
      */
     private Command shooting(double pivotAngle) {
         return commandFactory.autonomousFeedAndShoot(true, pivotAngle)
@@ -173,6 +188,11 @@ public class AutoPaths {
                 .andThen(shooter.stop());
     }
 
+    /**
+     * This command runs the shooter and feeding system with the intake at a 130 degree angle
+     * <p> This command requires {@link Shooter}, {@link Intake}</p>
+     * <p> This command uese {@link #shooting(double)}</p>
+     */
     private Command shooting() {
         return shooting(Units.degreesToRadians(130.0));
     }
