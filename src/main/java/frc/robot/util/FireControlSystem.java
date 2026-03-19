@@ -56,13 +56,18 @@ public class FireControlSystem {
         DISTANCE_LOOKUP_TABLE_PASS.put(15.0, new LookupEntry(degreesToRadians(18.0), rotationsPerMinuteToRadiansPerSecond(3500.0)));
 
 
-        // TODO: Get Values
+
         // Leading
-        DISTANCE_LOOKUP_TABLE_LEAD.put(2.0, 0.8);
-        DISTANCE_LOOKUP_TABLE_LEAD.put(5.0, 1.25);
+        DISTANCE_LOOKUP_TABLE_LEAD.put(2.0, 1.0);
+        DISTANCE_LOOKUP_TABLE_LEAD.put(2.5, 1.15);
+        DISTANCE_LOOKUP_TABLE_LEAD.put(3.0, 1.3);
+        DISTANCE_LOOKUP_TABLE_LEAD.put(3.5, 1.0);
+        DISTANCE_LOOKUP_TABLE_LEAD.put(4.0, 1.3);
+        DISTANCE_LOOKUP_TABLE_LEAD.put(4.5, 1.25);
+        DISTANCE_LOOKUP_TABLE_LEAD.put(5.0, 1.35);
     }
 
-    private final LoggedNetworkNumber shooterVelocityTrimEntry = new LoggedNetworkNumber("Shooter Velocity Trim", 100.0);
+    private final LoggedNetworkNumber shooterVelocityTrimEntry = new LoggedNetworkNumber("Shooter Velocity Trim", 0.0);
     private final LoggedNetworkNumber turretAngleTrimEntry = new LoggedNetworkNumber("Turret Angle Trim", 0.0);
 
 
