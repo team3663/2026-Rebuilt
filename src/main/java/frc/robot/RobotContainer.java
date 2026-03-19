@@ -113,7 +113,7 @@ public class RobotContainer {
         // Configure the button bindings
         configureButtonBindings();
 
-        shooter.setDefaultCommand(commandFactory.shooterDefault());
+        shooter.setDefaultCommand(commandFactory.shooterDefault(()-> shootingIntoHub));
 
         vision.setDefaultCommand(
                 vision.consumeVisionMeasurements(drive::addVisionMeasurements, () -> {

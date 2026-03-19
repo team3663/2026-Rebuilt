@@ -15,6 +15,7 @@ import frc.robot.util.FireControlSystem;
 import frc.robot.util.FiringSolution;
 import org.littletonrobotics.junction.Logger;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import static edu.wpi.first.wpilibj2.command.Commands.*;
@@ -80,13 +81,14 @@ public class CommandFactory {
                 .finallyDo(() -> firingSolution = null);
     }
 
-    public Command shooterDefault() {
+    public Command shooterDefault(BooleanSupplier shootingIntoHub) {
+        Logger.recordOutput("CommandFactory/shootingIntoHub", shootingIntoHub.getAsBoolean());
         return shooter.follow(() -> 0.0, () -> {
-            Translation2d target = isRedAlliance() ? Constants.Shooter.RED_HUB : Constants.Shooter.BLUE_HUB;
-            Logger.recordOutput("CommandFactory/ShooterTarget", new Pose2d(target, Rotation2d.kZero));
-            double rotation = target.minus(drive.getPose().getTranslation()).getAngle().getRadians();
-            Logger.recordOutput("CommandFactory/TargetTurretPose", new Pose2d(getTurretPose().getTranslation(), Rotation2d.fromRadians(rotation)));
-            return rotation - drive.getRotation().getRadians();
+            Translation2d target = getShooterTarget(drive.getPose(), isRedAlliance(), shootingIntoHub.getAsBoolean());
+            return fireControlSystem.calculate(
+                            drive.getPose(), drive.getFieldOrientedVelocity(),
+                            Rotation2d.fromRadians(shooter.getTurretPosition()), target, shootingIntoHub.getAsBoolean())
+                    .turretAngle();
         }, () -> Constants.Shooter.DEFAULT_VELOCITY);
     }
 
