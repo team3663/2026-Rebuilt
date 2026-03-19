@@ -82,8 +82,8 @@ public class CommandFactory {
     }
 
     public Command shooterDefault(BooleanSupplier shootingIntoHub) {
-        Logger.recordOutput("CommandFactory/shootingIntoHub", shootingIntoHub.getAsBoolean());
         return shooter.follow(() -> 0.0, () -> {
+        Logger.recordOutput("CommandFactory/shootingIntoHub", shootingIntoHub.getAsBoolean());
             Translation2d target = getShooterTarget(drive.getPose(), isRedAlliance(), shootingIntoHub.getAsBoolean());
             return fireControlSystem.calculate(
                             drive.getPose(), drive.getFieldOrientedVelocity(),
