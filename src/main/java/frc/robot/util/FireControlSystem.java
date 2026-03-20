@@ -37,10 +37,10 @@ public class FireControlSystem {
         DISTANCE_LOOKUP_TABLE_HUB.put(2.5, new LookupEntry(degreesToRadians(3.0), rotationsPerMinuteToRadiansPerSecond(2000.0)));
         DISTANCE_LOOKUP_TABLE_HUB.put(3.0, new LookupEntry(degreesToRadians(5.0), rotationsPerMinuteToRadiansPerSecond(2150.0)));
         DISTANCE_LOOKUP_TABLE_HUB.put(3.5, new LookupEntry(degreesToRadians(10.0), rotationsPerMinuteToRadiansPerSecond(2200.0)));
-        DISTANCE_LOOKUP_TABLE_HUB.put(4.0, new LookupEntry(degreesToRadians(10.5), rotationsPerMinuteToRadiansPerSecond(2400.0)));
-        DISTANCE_LOOKUP_TABLE_HUB.put(4.5, new LookupEntry(degreesToRadians(11.0), rotationsPerMinuteToRadiansPerSecond(2500.0)));
-        DISTANCE_LOOKUP_TABLE_HUB.put(5.0, new LookupEntry(degreesToRadians(11.0), rotationsPerMinuteToRadiansPerSecond(2650.0)));
-        DISTANCE_LOOKUP_TABLE_HUB.put(5.5, new LookupEntry(degreesToRadians(14.0), rotationsPerMinuteToRadiansPerSecond(2700.0)));
+        DISTANCE_LOOKUP_TABLE_HUB.put(4.0, new LookupEntry(degreesToRadians(10.5), rotationsPerMinuteToRadiansPerSecond(2300.0)));
+        DISTANCE_LOOKUP_TABLE_HUB.put(4.5, new LookupEntry(degreesToRadians(11.0), rotationsPerMinuteToRadiansPerSecond(2400.0)));
+        DISTANCE_LOOKUP_TABLE_HUB.put(5.0, new LookupEntry(degreesToRadians(11.0), rotationsPerMinuteToRadiansPerSecond(2550.0)));
+        DISTANCE_LOOKUP_TABLE_HUB.put(5.5, new LookupEntry(degreesToRadians(14.0), rotationsPerMinuteToRadiansPerSecond(2600.0)));
 
 
         // Passing
@@ -58,13 +58,13 @@ public class FireControlSystem {
 
 
         // Leading
-        DISTANCE_LOOKUP_TABLE_LEAD.put(2.0, 1.0);
-        DISTANCE_LOOKUP_TABLE_LEAD.put(2.5, 1.15);
-        DISTANCE_LOOKUP_TABLE_LEAD.put(3.0, 1.3);
-        DISTANCE_LOOKUP_TABLE_LEAD.put(3.5, 1.0);
-        DISTANCE_LOOKUP_TABLE_LEAD.put(4.0, 1.3);
-        DISTANCE_LOOKUP_TABLE_LEAD.put(4.5, 1.25);
-        DISTANCE_LOOKUP_TABLE_LEAD.put(5.0, 1.35);
+        DISTANCE_LOOKUP_TABLE_LEAD.put(2.0, 0.9);
+        DISTANCE_LOOKUP_TABLE_LEAD.put(2.5, 1.05);
+        DISTANCE_LOOKUP_TABLE_LEAD.put(3.0, 1.25);
+        DISTANCE_LOOKUP_TABLE_LEAD.put(3.5, 0.95);
+        DISTANCE_LOOKUP_TABLE_LEAD.put(4.0, 1.25);
+        DISTANCE_LOOKUP_TABLE_LEAD.put(4.5, 1.2);
+        DISTANCE_LOOKUP_TABLE_LEAD.put(5.0, 1.3);
     }
 
     private final LoggedNetworkNumber shooterVelocityTrimEntry = new LoggedNetworkNumber("Shooter Velocity Trim", 0.0);
