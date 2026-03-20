@@ -314,6 +314,10 @@ public final class Constants {
 
         // The velocity of the Shooter while not shooting
         public static final double DEFAULT_VELOCITY = Units.rotationsPerMinuteToRadiansPerSecond(1000.0);
+
+        public static final double MANUAL_SHOOTING_HOOD_POSITION = Units.degreesToRadians(7.0);
+        public static final double MANUAL_SHOOTING_SHOOTING_VELOCITY = Units.rotationsPerMinuteToRadiansPerSecond(1900.0);
+        public static final double MANUAL_SHOOTING_TURRET_ANGLE = Units.degreesToRadians(0.0);
     }
 
     public static void RecordOutputs() {
@@ -322,9 +326,5 @@ public final class Constants {
         Logger.recordOutput("Field/BLUE_RIGHT_CENTER_LINE_INTERMEDIATE", RED_RIGHT_CENTER_LINE_INTERMEDIATE);
         Logger.recordOutput("Field/BLUE_RIGHT_ALLIANCE_SIDE_INTERMEDIATE", BLUE_RIGHT_ALLIANCE_SIDE_INTERMEDIATE);
         Logger.recordOutput("Field/RedOutpostCentered", RED_HUB_SHOOTING);
-
-        public static final double MANUAL_SHOOTING_HOOD_POSITION = Units.degreesToRadians(7.0);
-        public static final double MANUAL_SHOOTING_SHOOTING_VELOCITY = Units.rotationsPerMinuteToRadiansPerSecond(1900.0);
-        public static final double MANUAL_SHOOTING_TURRET_ANGLE = Units.degreesToRadians(0.0);
     }
 }

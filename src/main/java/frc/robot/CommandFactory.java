@@ -168,8 +168,8 @@ public class CommandFactory {
      */
     public Command manualShooting(){
         return shooter.follow(
-                ()-> Constants.Shooter.MANUAL_SHOOTING_HOOD_POSITION,
-                ()-> Constants.Shooter.MANUAL_SHOOTING_TURRET_ANGLE,
-                ()-> Constants.Shooter.MANUAL_SHOOTING_SHOOTING_VELOCITY);
+                () -> Constants.Shooter.MANUAL_SHOOTING_HOOD_POSITION,
+                () -> Constants.Shooter.MANUAL_SHOOTING_TURRET_ANGLE,
+                () -> Constants.Shooter.MANUAL_SHOOTING_SHOOTING_VELOCITY);
     }
 }
