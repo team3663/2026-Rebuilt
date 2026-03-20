@@ -33,8 +33,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import static edu.wpi.first.wpilibj.DriverStation.Alliance;
 import static edu.wpi.first.wpilibj.DriverStation.getAlliance;
-import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
-import static edu.wpi.first.wpilibj2.command.Commands.waitSeconds;
+import static edu.wpi.first.wpilibj2.command.Commands.*;
 import static frc.robot.Constants.ENABLE_TEST_FEATURES;
 
 /**
@@ -221,7 +220,7 @@ public class RobotContainer {
         shootTrigger.and(intakeTrigger.negate()).whileTrue(intake.feed());
 
         // Manual positions in case we do not want to use turret alignment code (or more likely it stopped working)
-        manualShootTrigger.whileTrue(commandFactory.manualShooting());
+        manualShootTrigger.whileTrue(parallel(commandFactory.manualShooting(), commandFactory.feedIntoShooter(), intake.feed()));
     }
 
     private void configureTestBindings() {
