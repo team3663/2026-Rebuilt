@@ -8,13 +8,16 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
+import frc.robot.util.PhoenixUtil;
+
+import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
 public class C2026ShooterIO implements ShooterIO {
     private static final Shooter.Constants constants = new Shooter.Constants(
             0.0,
             Units.degreesToRadians(18.0),
-            Units.degreesToRadians(-185.0),
-            Units.degreesToRadians(165.0));
+            Units.degreesToRadians(-155.0),
+            Units.degreesToRadians(170.0));
     private static final double HOOD_GEAR_RATIO = 340.0 / 14.0;
     private static final double SHOOTER_GEAR_RATIO = (15.0 / 18.0);
 
@@ -22,7 +25,7 @@ public class C2026ShooterIO implements ShooterIO {
     private static final double MOTOR_TO_MECHANISM_RATIO = (44.0 / 14.0) * (80.0 / 16.0);
     private static final double MOTOR_TO_SENSOR_RATIO = (44.0 / 14.0) * (62.0 / 18.0) * (60.0 / 24.0);
     private static final double SENSOR_TO_MECHANISM_RATIO = MOTOR_TO_MECHANISM_RATIO / MOTOR_TO_SENSOR_RATIO;
-    private static final double ENCODER_OFFSET = -0.09130859375;
+    private static final double ENCODER_OFFSET = -0.454345703125;
 
     private final TalonFX hoodMotor;
     private final TalonFX turretMotor;
@@ -49,7 +52,7 @@ public class C2026ShooterIO implements ShooterIO {
         canCoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
         canCoderConfig.MagnetSensor.MagnetOffset = ENCODER_OFFSET;
 
-        turretCanCoder.getConfigurator().apply(canCoderConfig);
+        tryUntilOk(5, () -> turretCanCoder.getConfigurator().apply(canCoderConfig, 0.25));
 
         canCoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
 
@@ -71,7 +74,7 @@ public class C2026ShooterIO implements ShooterIO {
         hoodConfig.Slot0.kD = 0.0;
         hoodConfig.Slot0.kS = 0.8;
 
-        hoodMotor.getConfigurator().apply(hoodConfig);
+        tryUntilOk(5, () -> hoodMotor.getConfigurator().apply(hoodConfig, 0.25));
 
         // Turret motor config
         TalonFXConfiguration turretConfig = new TalonFXConfiguration();
@@ -85,14 +88,14 @@ public class C2026ShooterIO implements ShooterIO {
 
         turretConfig.Slot0.kV = 12 / ((7368.0 / 60.0) * MOTOR_TO_MECHANISM_RATIO);
         turretConfig.Slot0.kA = 0.0;
-        turretConfig.Slot0.kP = 100.0;
+        turretConfig.Slot0.kP = 80.0;
         turretConfig.Slot0.kI = 0.0;
         turretConfig.Slot0.kD = 0.0;
 
         turretConfig.MotionMagic.MotionMagicAcceleration = 7.5;
         turretConfig.MotionMagic.MotionMagicCruiseVelocity = 10.0;
 
-        turretMotor.getConfigurator().apply(turretConfig);
+        tryUntilOk(5, () -> turretMotor.getConfigurator().apply(turretConfig, 0.25));
 
         // Shooter motors config
         TalonFXConfiguration shooterConfig = new TalonFXConfiguration();
@@ -112,8 +115,8 @@ public class C2026ShooterIO implements ShooterIO {
 //        shooterConfig.MotionMagic.MotionMagicAcceleration = 5.0;
 //        shooterConfig.MotionMagic.MotionMagicCruiseVelocity = 2.0;
 
-        shooterMotor.getConfigurator().apply(shooterConfig);
-        shooterMotor2.getConfigurator().apply(shooterConfig);
+        tryUntilOk(5, () -> shooterMotor.getConfigurator().apply(shooterConfig, 0.25));
+        tryUntilOk(5, () -> shooterMotor2.getConfigurator().apply(shooterConfig, 0.25));
 
         shooterMotor2.setControl(new Follower(shooterMotor.getDeviceID(), MotorAlignmentValue.Opposed));
     }

@@ -34,12 +34,16 @@ import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.subsystems.vision.VisionMeasurement;
 import frc.robot.util.ControllerHelper;
+import jdk.jshell.execution.Util;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
@@ -48,7 +52,7 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 public class Drive extends SubsystemBase {
-    private static final double DISTANCE_THRESHOLD = Units.inchesToMeters(1.5);
+    private static final double DISTANCE_THRESHOLD = Units.inchesToMeters(3.0);
 
     static final Lock odometryLock = new ReentrantLock();
     private final GyroIO gyroIO;
@@ -75,6 +79,7 @@ public class Drive extends SubsystemBase {
 
     @AutoLogOutput(key = "Drive/TargetPose")
     private Pose2d targetPose = null;
+    private Pose2d previousPose = null;
 
     public Drive(
             GyroIO gyroIO,
@@ -415,7 +420,8 @@ public class Drive extends SubsystemBase {
                                     current.getRotation()
                             );
                         }
-                ));
+                ))
+                .andThen(()-> previousPose = targetPose.get());
     }
 
     public Command goToPosition(Supplier<Pose2d> targetPose, BooleanSupplier slowAccel) {
@@ -423,7 +429,7 @@ public class Drive extends SubsystemBase {
     }
 
     public Command resetOdometry(Supplier<Pose2d> poseSupplier) {
-        return Commands.runOnce(() -> poseEstimator.resetPose(poseSupplier.get()));
+        return Commands.runOnce(() -> poseEstimator.resetPose(poseSupplier.get())).andThen(()-> previousPose = poseSupplier.get());
     }
 
     /**

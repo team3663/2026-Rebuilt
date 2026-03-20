@@ -19,6 +19,7 @@ import frc.robot.subsystems.intake.C2026IntakeIO;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shooter.C2026ShooterIO;
 import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.shooter.ShooterIO;
 import frc.robot.subsystems.vision.LimelightIO;
 import frc.robot.subsystems.vision.Vision;
 
@@ -106,9 +107,23 @@ public class C2026RobotFactory implements RobotFactory {
                 backRotation
         );
 
+        Rotation3d frontRotation = new Rotation3d(
+                Units.degreesToRadians(0.0),
+                Units.degreesToRadians(52.5),
+                Units.degreesToRadians(22.0)
+        );
+
+        Transform3d frontTransform = new Transform3d(
+                -Units.inchesToMeters(26.0/2.0 - 13.75),
+                -Units.inchesToMeters(28.0/2.0 - 5.0),
+                Units.inchesToMeters(20.5),
+                frontRotation
+        );
+
         return new Vision(Constants.FIELD,
                 new LimelightIO("limelight-right", rightTransform, false),
-                new LimelightIO("limelight-back", backTransform, false)
+                new LimelightIO("limelight-back", backTransform, false),
+                new LimelightIO("limelight-front", frontTransform, false)
         );
     }
 

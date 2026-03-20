@@ -6,6 +6,7 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
+import frc.robot.Constants;
 import frc.robot.generated.C2025TunerConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -47,13 +48,13 @@ public class C2025RobotFactory implements RobotFactory {
                 Units.inchesToMeters(27.0 / 2.0 - 5.3), Units.inchesToMeters(8.8125),
                 frontLeftRotation);
 
-        return new Vision (AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded),
-                new LimelightIO("limelight", frontLeftTransform, false)
-        );
-    }
+        Rotation3d backRotation = new Rotation3d(0.0, Units.degreesToRadians(20.0), Units.degreesToRadians(200.0));
+        Transform3d backTransform = new Transform3d(Units.inchesToMeters(27.0 / 2.0 - 4.625), Units.inchesToMeters(27.0 / 2.0 - 5.125),
+                Units.inchesToMeters(8.375), backRotation);
 
-    @Override
-    public Led createLed() {
-        return new Led(new LedCandleIo(new CANdle(1)));
+        return new Vision (AprilTagFieldLayout.loadField(Constants.IS_ANDYMARK ? AprilTagFields.k2026RebuiltAndymark : AprilTagFields.k2026RebuiltWelded),
+                new LimelightIO("limelight", frontLeftTransform, false),
+                new LimelightIO("limelight-back", backTransform, false)
+        );
     }
 }

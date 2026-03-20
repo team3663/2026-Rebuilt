@@ -19,7 +19,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.config.RobotFactory;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.feeder.Feeder;
@@ -32,6 +31,10 @@ import frc.robot.util.FireControlSystem;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
+import static edu.wpi.first.wpilibj.DriverStation.Alliance;
+import static edu.wpi.first.wpilibj.DriverStation.getAlliance;
+import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
+import static edu.wpi.first.wpilibj2.command.Commands.waitSeconds;
 import static frc.robot.Constants.ENABLE_TEST_FEATURES;
 
 /**
@@ -47,6 +50,7 @@ public class RobotContainer {
     private final Hopper hopper;
     private final Intake intake;
     private final Shooter shooter;
+    private final AutoPaths autoPaths;
     private final Vision vision;
     private final Led led;
 
@@ -59,6 +63,8 @@ public class RobotContainer {
 
     // Dashboard inputs
     private final LoggedDashboardChooser<Command> autoChooser;
+
+    private boolean shootingIntoHub = true;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -75,21 +81,54 @@ public class RobotContainer {
         commandFactory = new CommandFactory(drive, feeder, hopper, intake, shooter
 //        , climber
         );
+        this.autoPaths = new AutoPaths(drive, intake, shooter, commandFactory);
+
 
         // Set up auto routines
         autoChooser = new LoggedDashboardChooser<>("Auto Choices", new SendableChooser<>());
 
         // Set up SysId routines
-        autoChooser.addOption(
-                "Drive SysId (Quasistatic Forward)",
-                drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-        autoChooser.addOption(
-                "Drive SysId (Quasistatic Reverse)",
-                drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-        autoChooser.addOption(
-                "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-        autoChooser.addOption(
-                "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+//        autoChooser.addOption(
+//                "Drive SysId (Quasistatic Forward)",
+//                drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+//        autoChooser.addOption(
+//                "Drive SysId (Quasistatic Reverse)",
+//                drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+//        autoChooser.addOption(
+//                "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+//        autoChooser.addOption(
+//                "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+        // Auto Routines
+        autoChooser.addOption("MiddleStarting-ShootInHub", autoPaths.middleStarting_shootIntoHub());
+        autoChooser.addOption("LeftUnderTrench2ft-ShootInHub", autoPaths.leftStarting_shootIntoHub());
+        autoChooser.addOption("RightUnderTrench2ft-ShootIntoHub", autoPaths.rightStarting_shootIntoHub());
+        autoChooser.addOption("RightUnderTrench2t-NeutralZone-Shoot-NeutralZone-Shoot", autoPaths.rightStarting_neutralZone_shoot_neutralZone());
+        autoChooser.addOption("LeftUnderTrench2ft-NeutralZone-Shoot-NeutralZone-Shoot", autoPaths.leftStarting_neutralZone_shoot_neutralZone());
+//        autoChooser.addOption("RightUnderTrench2ft-NeutralZone-Outpost-NeutralZone", autoPaths.rightStarting_neutralZone_outpost());
+//        autoChooser.addOption("LeftUnderTrench2ft-NeutralZone-Shoot-NeutralZone-Shoot", autoPaths.leftStarting_neutralZone_neutralZoneSwoop());
+//        autoChooser.addOption("LeftUnderTrench2ft-NeutralZone-UnderTrench-NeutralZone", autoPaths.leftStarting_neutralZone_neutralZone_fullPasses());
+//        autoChooser.addOption("RightUnderTrench2ft-NeutralZone-UnderTrench-NeutralZone", autoPaths.rightStarting_neutralZone_neutralZone_fullPasses());
+        //        autoChooser.addOption("RightUnderTrench2ft-NeutralZone-Shoot-NeutralZone-Shoot", autoPaths.rightStarting_neutralZone_neutralZone());
+//        autoChooser.addOption("LeftUnderTrench2ft-NeutralZone-Shoot_NeutralZone-Shoot", autoPaths.leftStarting_neutralZone_neutralZone());
+        //        autoChooser.addOption("LeftInFrontOfBump5ft-Depot-LeftClimb", autoPaths.leftSide_depot_leftClimb());
+//        autoChooser.addOption("RightAllianceZone2ft-Outpost-RightClimb", autoPaths.rightSide_outpost_rightClimb());
+//        autoChooser.addOption("LeftUnderTrench2ft-NeutralZone", autoPaths.leftStarting_neutralZone_middleLine());
+//        autoChooser.addOption("RightUnderTrench2ft-NeutralZone", autoPaths.rightStarting_neutralZone_middleLine());
+//        autoChooser.addOption("RightUnderTrench2ft-NeutralZone-LeftClimb", autoPaths.rightStarting_neutralZone_middleLine_leftClimb());
+//        autoChooser.addOption("LeftUnderTrench2ft-NeutralZone-RightClimb", autoPaths.leftStarting_neutralZone_middleLine_rightClimb());
+//        autoChooser.addOption("RightUnderTrench2ft-NeutralZone-UnderTrench-NeutralZone", autoPaths.rightStarting_neutralZone_middleLine_x2());
+//        autoChooser.addOption("LeftInFrontOfBump5ft-Depot-Outpost-RightClimb", autoPaths.leftStarting_depot_outpost_rightClimb());
+//        autoChooser.addOption("RightAllianceZone2ft-Outpost-Depot-LeftClimb", autoPaths.rightStarting_outpost_depot_leftClimb());
+//        autoChooser.addOption("LeftUnderTrench2ft-AllianceSideNeutralZone-RightClimb", autoPaths.leftStarting_neutralZone_AllianceSide_rightClimb());
+//        autoChooser.addOption("RightUnderTrench2ft-AllianceSideNeutralZone-LeftClimb", autoPaths.rightStarting_neutralZone_AllianceSide_leftClimb());
+//        autoChooser.addOption("RightUnderTrench2ft-PickupInNeutralZone-PickupInNeutralZone-Outpost", autoPaths.rightStarting_pickupNeutral_pickupNeutral_Outpost());
+//        autoChooser.addOption("LeftUnderTrench2ftNoShooting-NeutralZone", autoPaths.leftStarting_neutralZone_middleLine());
+//        autoChooser.addOption("RightUnderTrench2ftNoShooting-NeutralZone", autoPaths.rightStarting_neutralZone_middleLine());
+//        autoChooser.addOption("RightUnderTrench2ftNoShooting-NeutralZone-LeftClimb", autoPaths.rightStarting_neutralZone_middleLine_leftClimb());
+//        autoChooser.addOption("LeftUnderTrench2ftNoShooting-NeutralZone-RightClimb", autoPaths.leftStarting_neutralZone_middleLine_rightClimb());
+//        autoChooser.addOption("LeftUnderTrench2ftNoShooting-NeutralZone-UnderTrench-NeutralZone", autoPaths.leftStarting_neutralZone_middleLine_x2());
+//        autoChooser.addOption("RightUnderTrench2ftNoShooting-NeutralZone-UnderTrench-NeutralZone", autoPaths.rightStarting_neutralZone_middleLine_x2());
 
         // Configure the button bindings
         configureButtonBindings();
@@ -97,8 +136,21 @@ public class RobotContainer {
         shooter.setDefaultCommand(commandFactory.shooterDefault());
 
         vision.setDefaultCommand(
-                vision.consumeVisionMeasurements(drive::addVisionMeasurements, drive::getRotation)
+                vision.consumeVisionMeasurements(drive::addVisionMeasurements, () -> {
+                            if (DriverStation.isAutonomous() && DriverStation.isDisabled()) {
+                                if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) ==
+                                        DriverStation.Alliance.Blue) {
+                                    return Rotation2d.fromDegrees(0.0);
+                                } else {
+                                    return Rotation2d.fromDegrees(180.0);
+                                }
+                            } else {
+                                return drive.getRotation();
+                            }
+                        })
                         .ignoringDisable(true));
+
+        intake.setDefaultCommand(intake.pivotDefault());
 
         // Configure the button bindings
         configureButtonBindings();
@@ -135,11 +187,10 @@ public class RobotContainer {
         Trigger intakeTrigger = controller.leftTrigger();
         Trigger stowIntakeTrigger = controller.leftBumper();
 
-        Trigger shootIntoHubTrigger = controller.rightBumper();
-        Trigger shootIntoZoneTrigger = controller.rightTrigger();
-        Trigger shootTrigger = shootIntoHubTrigger.or(shootIntoZoneTrigger);
-        Trigger shooterReadyToFire = shootTrigger.and(commandFactory::isAimingAtTarget)
-                .or(controller.rightTrigger());
+        Trigger shootTrigger = controller.rightTrigger();
+
+        Trigger setPassingMode = controller.a();
+        Trigger setShootingMode = controller.x();
 
         Trigger manualShootTrigger = controller.x();
 
@@ -147,7 +198,7 @@ public class RobotContainer {
         resetFieldOrientedTrigger.onTrue(drive.resetOdometry(() ->
                 new Pose2d(
                         drive.getPose().getTranslation(),
-                        DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == DriverStation.Alliance.Red ?
+                        getAlliance().isPresent() && getAlliance().get() == Alliance.Red ?
                                 Rotation2d.k180deg :
                                 Rotation2d.kZero)));
 
@@ -162,13 +213,14 @@ public class RobotContainer {
         intakeTrigger.whileTrue(intake.deployAndIntake());
         stowIntakeTrigger.whileTrue(intake.stow());
 
-
         // general bindings for the shooter
-        shootIntoHubTrigger.whileTrue(commandFactory.aim(true));
-//        shootIntoZoneTrigger.whileTrue(commandFactory.aim(false));
+        shootTrigger.and(() -> shootingIntoHub).whileTrue(commandFactory.aim(true)
+                .alongWith(waitSeconds(0.2).andThen(commandFactory.feedIntoShooter())));
+        shootTrigger.and(() -> !shootingIntoHub).whileTrue(commandFactory.aim(false)
+                .alongWith(waitSeconds(0.2).andThen(commandFactory.feedIntoShooter())));
 
-        // feed when we are aiming at the target while shooting
-        shooterReadyToFire.whileTrue(commandFactory.feedIntoShooter());
+        setPassingMode.onTrue(runOnce(() -> shootingIntoHub = false));
+        setShootingMode.onTrue(runOnce(() -> shootingIntoHub = true));
 
         // while shooting and not intaking fuel, use the intake to aid in feeding
         shootTrigger.and(intakeTrigger.negate()).whileTrue(intake.feed());
@@ -193,14 +245,12 @@ public class RobotContainer {
         final double[] tuningTurretAngle = new double[]{0.0};
 
         testController.rightBumper().whileTrue(Commands.parallel(
-                shooter.follow(() -> tuningHoodAngle[0], () -> tuningTurretAngle[0], () -> tuningShooterVelocity[0]),
-                Commands.run(() -> {
-                    Logger.recordOutput("Tuning/TargetHoodAngle", tuningHoodAngle[0]);
-                    Logger.recordOutput("Tuning/TargetTurretAngle", tuningTurretAngle[0]);
-                    Logger.recordOutput("Tuning/TargetShooterVelocity", tuningShooterVelocity[0]);
-                }),
+                // TO CHANGE TARGET: Change both the boolean in calibrate shooter and the definition of goalPosition to swap between hub and passing,
+                //                      and to choose which passing corner modify CommandFactory.getShooterTarget()
+                commandFactory.calibrateShooter(() -> tuningHoodAngle[0], () -> tuningShooterVelocity[0], true),
                 Commands.run(() -> {
                     Translation2d goalPosition = CommandFactory.isRedAlliance() ? Constants.Shooter.RED_HUB : Constants.Shooter.BLUE_HUB;
+                    Logger.recordOutput("Tuning/TargetPose", new Pose2d(goalPosition, Rotation2d.kZero));
 
                     Pose2d robotPose = drive.getPose();
                     Rotation2d turretRotation = Rotation2d.fromRotations(shooter.getTurretPosition());
@@ -218,14 +268,14 @@ public class RobotContainer {
 
         testController.rightTrigger().whileTrue(commandFactory.feedIntoShooter());
 
-        testController.povUp().onTrue(Commands.runOnce(() -> tuningHoodAngle[0] += TUNING_HOOD_ANGLE_CHANGE));
-        testController.povDown().onTrue(Commands.runOnce(() -> tuningHoodAngle[0] -= TUNING_HOOD_ANGLE_CHANGE));
+        testController.povUp().onTrue(runOnce(() -> tuningHoodAngle[0] += TUNING_HOOD_ANGLE_CHANGE));
+        testController.povDown().onTrue(runOnce(() -> tuningHoodAngle[0] -= TUNING_HOOD_ANGLE_CHANGE));
 
         testController.x().onTrue(Commands.runOnce(() -> tuningTurretAngle[0] += TUNING_TURRET_ANGLE_CHANGE));
         testController.y().onTrue(Commands.runOnce(() -> tuningTurretAngle[0] -= TUNING_TURRET_ANGLE_CHANGE));
 
-        testController.povRight().onTrue(Commands.runOnce(() -> tuningShooterVelocity[0] += TUNING_SHOOTER_VELOCITY_CHANGE));
-        testController.povLeft().onTrue(Commands.runOnce(() -> tuningShooterVelocity[0] -= TUNING_SHOOTER_VELOCITY_CHANGE));
+        testController.povRight().onTrue(runOnce(() -> tuningShooterVelocity[0] += TUNING_SHOOTER_VELOCITY_CHANGE));
+        testController.povLeft().onTrue(runOnce(() -> tuningShooterVelocity[0] -= TUNING_SHOOTER_VELOCITY_CHANGE));
     }
 
     /**

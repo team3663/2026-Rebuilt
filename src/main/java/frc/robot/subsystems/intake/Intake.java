@@ -14,8 +14,9 @@ public class Intake extends SubsystemBase {
     public static final double POSITION_THRESHOLD = Units.degreesToRadians(2.0);
     public static final double DEPLOY_ANGLE = Units.degreesToRadians(150.0);
     public static final double STOW_ANGLE = Units.degreesToRadians(0.0);
-    public static final double FEED_ANGLE = Units.degreesToRadians(70.0);
-    public static final double INTAKE_VOLTAGE = 6.5;
+    public static final double FEED_ANGLE = Units.degreesToRadians(130.0);
+    public static final double DEFAULT_ANGLE = Units.degreesToRadians(150.0);
+    public static final double INTAKE_VOLTAGE = 7.0;
     public static final double FEED_VOLTAGE = 5.0;
 
     private final IntakeIO io;
@@ -55,6 +56,10 @@ public class Intake extends SubsystemBase {
         return Math.abs(inputs.currentPivot1Position - position) < threshold;
     }
 
+    public boolean isZeroed(){
+        return pivotZeroed;
+    }
+
     public double getValidPivotPosition(double position) {
         return Math.max(constants.minimumPivotAngle, Math.min(constants.maximumPivotAngle, position));
     }
@@ -77,8 +82,7 @@ public class Intake extends SubsystemBase {
      */
     public Command zeroPivot() {
         return runEnd(() -> {
-            // TODO CHANGE THIS VOLTAGE BACK TO 1.5 AFTER TESTING
-            io.setTargetPivotVoltage(-1.0);
+            io.setTargetPivotVoltage(-1.5);
         }, io::stopPivot)
                 .withDeadline(waitUntil(() -> Math.abs(inputs.currentPivot1Velocity) < 0.01)
                         .beforeStarting(waitSeconds(0.25))
@@ -121,6 +125,14 @@ public class Intake extends SubsystemBase {
 
     public Command feed() {
         return intakeAndPivot(FEED_VOLTAGE, FEED_ANGLE);
+    }
+
+    public Command feedWithAngle(double angle) {
+        return intakeAndPivot(FEED_VOLTAGE, angle);
+    }
+
+    public Command pivotDefault(){
+        return intakeAndPivot(0.0, DEFAULT_ANGLE);
     }
 
     public Command stop() {

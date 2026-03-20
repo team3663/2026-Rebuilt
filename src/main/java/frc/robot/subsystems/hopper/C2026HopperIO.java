@@ -51,7 +51,7 @@ public class C2026HopperIO implements HopperIO {
     @Override
     public void updateInputs(HopperInputs inputs) {
         inputs.curentVelocity = hopperMotor.getVelocity().getValueAsDouble();
-        inputs.currentAppliedVoltage = hopperMotor.getSupplyVoltage().getValueAsDouble();
+        inputs.currentAppliedVoltage = hopperMotor.getMotorVoltage().getValueAsDouble();
 
         inputs.motorTemperature = hopperMotor.getDeviceTemp().getValueAsDouble();
         inputs.motorSupplyCurrent = hopperMotor.getSupplyCurrent().getValueAsDouble();
@@ -60,7 +60,7 @@ public class C2026HopperIO implements HopperIO {
     @Override
     public void setTargetVoltage(double corneringVoltage, double hopperVoltage) {
         hopperMotor.setControl(voltageRequest.withOutput(hopperVoltage));
-        corneringMotor.setControl(voltageRequest.withOutput(corneringVoltage));
+        corneringMotor.setControl(voltageRequest.withOutput(corneringVoltage ));
         indexingMotor.setControl(voltageRequest.withOutput(corneringVoltage));
     }
 
