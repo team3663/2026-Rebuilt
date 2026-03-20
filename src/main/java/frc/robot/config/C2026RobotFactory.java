@@ -81,51 +81,51 @@ public class C2026RobotFactory implements RobotFactory {
         ));
     }
 
-    @Override
-    public Vision createVision() {
-        Rotation3d rightRotation = new Rotation3d(
-                Units.degreesToRadians(0.0),
-                Units.degreesToRadians(25.0),
-                -Units.degreesToRadians(72.68)
-        );
-        Transform3d rightTransform = new Transform3d(
-                -Units.inchesToMeters(6.5),
-                -Units.inchesToMeters(12.5),
-                Units.inchesToMeters(15.875),
-                rightRotation
-        );
-
-        Rotation3d backRotation = new Rotation3d(
-                Units.degreesToRadians(0.0),
-                Units.degreesToRadians(25.0),
-                Units.degreesToRadians(180.0)
-        );
-        Transform3d backTransform = new Transform3d(
-                -Units.inchesToMeters(6.0),
-                -Units.inchesToMeters(8.5),
-                Units.inchesToMeters(15.875),
-                backRotation
-        );
-
-        Rotation3d frontRotation = new Rotation3d(
-                Units.degreesToRadians(0.0),
-                Units.degreesToRadians(52.5),
-                Units.degreesToRadians(22.0)
-        );
-
-        Transform3d frontTransform = new Transform3d(
-                -Units.inchesToMeters(26.0/2.0 - 13.75),
-                -Units.inchesToMeters(28.0/2.0 - 5.0),
-                Units.inchesToMeters(19.5),
-                frontRotation
-        );
-
-        return new Vision(Constants.FIELD,
-                new LimelightIO("limelight-right", rightTransform, false),
-                new LimelightIO("limelight-back", backTransform, false),
-                new LimelightIO("limelight-front", frontTransform, false)
-        );
-    }
+//    @Override
+//    public Vision createVision() {
+//        Rotation3d rightRotation = new Rotation3d(
+//                Units.degreesToRadians(0.0),
+//                Units.degreesToRadians(25.0),
+//                -Units.degreesToRadians(72.68)
+//        );
+//        Transform3d rightTransform = new Transform3d(
+//                -Units.inchesToMeters(6.5),
+//                -Units.inchesToMeters(12.5),
+//                Units.inchesToMeters(15.875),
+//                rightRotation
+//        );
+//
+//        Rotation3d backRotation = new Rotation3d(
+//                Units.degreesToRadians(0.0),
+//                Units.degreesToRadians(25.0),
+//                Units.degreesToRadians(180.0)
+//        );
+//        Transform3d backTransform = new Transform3d(
+//                -Units.inchesToMeters(6.0),
+//                -Units.inchesToMeters(8.5),
+//                Units.inchesToMeters(15.875),
+//                backRotation
+//        );
+//
+//        Rotation3d frontRotation = new Rotation3d(
+//                Units.degreesToRadians(0.0),
+//                Units.degreesToRadians(52.5),
+//                Units.degreesToRadians(22.0)
+//        );
+//
+//        Transform3d frontTransform = new Transform3d(
+//                -Units.inchesToMeters(26.0/2.0 - 13.75),
+//                -Units.inchesToMeters(28.0/2.0 - 5.0),
+//                Units.inchesToMeters(19.5),
+//                frontRotation
+//        );
+//
+//        return new Vision(Constants.FIELD,
+//                new LimelightIO("limelight-right", rightTransform, false),
+//                new LimelightIO("limelight-back", backTransform, false),
+//                new LimelightIO("limelight-front", frontTransform, false)
+//        );
+//    }
 
 //    @Override
 //    public Led createLed() {
