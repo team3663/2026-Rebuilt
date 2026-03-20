@@ -73,7 +73,6 @@ public class C2026RobotFactory implements RobotFactory {
     public Shooter createShooter() {
         return new Shooter(new C2026ShooterIO(
                 new TalonFX(16),
-                new TalonFX(17),
                 new TalonFX(18),
                 new TalonFX(19),
                 new CANcoder(7)

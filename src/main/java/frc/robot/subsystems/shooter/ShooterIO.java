@@ -24,17 +24,6 @@ public interface ShooterIO {
     default void setHoodTargetVoltage(double voltage) {
     }
 
-    // Turret
-    default void stopTurret() {
-        setTurretTargetVoltage(0.0);
-    }
-
-    default void setTurretTargetPosition(double position) {
-    }
-
-    default void setTurretTargetVoltage(double voltage) {
-    }
-
     // Shooter Motor
     default void stopShooter() {
         setShooterTargetVoltage(0.0);

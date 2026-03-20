@@ -106,18 +106,6 @@ public class SimShooterIO implements ShooterIO {
     }
 
     @Override
-    public void setTurretTargetPosition(double position) {
-        targetTurretPosition = position;
-        targetTurretVoltage = Double.NaN;
-    }
-
-    @Override
-    public void setTurretTargetVoltage(double voltage) {
-        targetTurretPosition = Double.NaN;
-        targetTurretVoltage = voltage;
-    }
-
-    @Override
     public void setShooterTargetVelocity(double velocity) {
         targetShooterVelocity = velocity;
         targetShooterVoltage = Double.NaN;

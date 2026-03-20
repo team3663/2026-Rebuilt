@@ -15,7 +15,6 @@ import static edu.wpi.first.wpilibj2.command.Commands.waitUntil;
 
 public class Shooter extends SubsystemBase {
     private final static double HOOD_POSITION_THRESHOLD = Units.degreesToRadians(2.0);
-    private final static double TURRET_POSITION_THRESHOLD = Units.degreesToRadians(2.0);
     private final static double SHOOTER_VELOCITY_THRESHOLD = Units.rotationsPerMinuteToRadiansPerSecond(400.0);
 
     private final ShooterIO io;
@@ -24,7 +23,6 @@ public class Shooter extends SubsystemBase {
 
     private boolean hoodZeroed = false;
     private double targetHoodPosition;
-    private double targetTurretPosition;
     private double targetShooterVelocity;
 
     public Shooter(ShooterIO io) {
@@ -41,7 +39,6 @@ public class Shooter extends SubsystemBase {
         io.updateInputs(inputs);
         Logger.recordOutput("Shooter/HoodZeroed", hoodZeroed);
         Logger.recordOutput("Shooter/TargetHoodPosition", targetHoodPosition);
-        Logger.recordOutput("Shooter/TargetTurretPosition", targetTurretPosition);
         Logger.recordOutput("Shooter/TargetShooterVelocity", targetShooterVelocity);
         Logger.processInputs("Shooter/Inputs", inputs);
     }
@@ -49,16 +46,14 @@ public class Shooter extends SubsystemBase {
     public Command stop() {
         return runOnce(() -> {
             targetHoodPosition = 0.0;
-            targetTurretPosition = 0.0;
             targetShooterVelocity = 0.0;
             io.stopHood();
-            io.stopTurret();
             io.stopShooter();
         });
     }
 
     public boolean atTargetPositions() {
-        return this.atHoodTargetPosition() && this.atTurretTargetPosition();
+        return this.atHoodTargetPosition();
     }
 
     public boolean atTargets() {
@@ -66,11 +61,11 @@ public class Shooter extends SubsystemBase {
     }
 
     public boolean atPositions(double hoodPosition, double turretPosition) {
-        return this.hoodAtPosition(hoodPosition) && this.turretAtPosition(turretPosition);
+        return this.hoodAtPosition(hoodPosition);
     }
 
     public boolean isAt(double hoodPosition, double turretPosition, double shooterVelocity) {
-        return this.hoodAtPosition(hoodPosition) && this.turretAtPosition(turretPosition) && this.shooterAtVelocity(shooterVelocity);
+        return this.hoodAtPosition(hoodPosition) && this.shooterAtVelocity(shooterVelocity);
     }
 
     public Command goTo(double hoodPosition, double turretPosition, double shooterVelocity) {
@@ -80,10 +75,6 @@ public class Shooter extends SubsystemBase {
                 targetHoodPosition = getValidHoodPosition(hoodPosition);
                 io.setHoodTargetPosition(targetHoodPosition);
             }
-
-            // Turret
-            targetTurretPosition = getNearestTargetTurretAngle(turretPosition);
-            io.setTurretTargetPosition(targetTurretPosition);
 
             // Shooter
             targetShooterVelocity = shooterVelocity;
@@ -98,10 +89,6 @@ public class Shooter extends SubsystemBase {
                 targetHoodPosition = getValidHoodPosition(hoodPosition.getAsDouble());
                 io.setHoodTargetPosition(targetHoodPosition);
             }
-
-            // Turret
-            targetTurretPosition = getNearestTargetTurretAngle(turretPosition.getAsDouble());
-            io.setTurretTargetPosition(targetTurretPosition);
 
             // Shooter
             targetShooterVelocity = shooterVelocity.getAsDouble();
@@ -155,62 +142,6 @@ public class Shooter extends SubsystemBase {
                             io.resetHoodPosition(constants.minimumHoodPosition);
                             hoodZeroed = true;
                         }));
-    }
-
-    // Turret
-    public double getTurretVelocity() {
-        return inputs.currentTurretVelocity;
-    }
-
-    public double getTurretPosition() {
-        return inputs.currentTurretPosition;
-    }
-
-    public boolean atTurretTargetPosition() {
-        return turretAtPosition(targetTurretPosition, TURRET_POSITION_THRESHOLD);
-    }
-
-    public boolean turretAtPosition(double position) {
-        return turretAtPosition(position, TURRET_POSITION_THRESHOLD);
-    }
-
-    public boolean turretAtPosition(double position, double threshold) {
-        boolean atPosition = Math.abs(getSmallestEquivalentAngle(inputs.currentTurretPosition) - getSmallestEquivalentAngle(position)) < threshold;
-        Logger.recordOutput("Shooter/TurretAtPosition", atPosition);
-        return atPosition;
-    }
-
-    public double getTargetTurretPosition() {
-        return targetTurretPosition;
-    }
-
-    private double getNearestTargetTurretAngle(double target) {
-        target = getSmallestEquivalentAngle(target);
-
-        if (constants.maximumTurretPosition - constants.minimumTurretPosition <= 2 * Math.PI)
-            return getValidTurretPosition(target);
-
-        double current = getValidTurretPosition(inputs.currentTurretPosition);
-        double reducedCurrent = getSmallestEquivalentAngle(current);
-        double fullTarget = target + (current - reducedCurrent);
-
-        if (fullTarget > constants.maximumTurretPosition)
-            return fullTarget - 2 * Math.PI;
-        if (fullTarget < constants.minimumTurretPosition)
-            return fullTarget + 2 * Math.PI;
-        return fullTarget;
-    }
-
-    // Returns the angle reduced to be equivalent and <= Math.PI and > -Math.PI
-    private double getSmallestEquivalentAngle(double angle) {
-        double modded = angle % (2 * Math.PI);
-        if (modded > Math.PI) return modded - 2 * Math.PI;
-        if (modded <= -Math.PI) return modded + 2 * Math.PI;
-        return modded;
-    }
-
-    private double getValidTurretPosition(double position) {
-        return Math.max(constants.minimumTurretPosition, Math.min(constants.maximumTurretPosition, position));
     }
 
     // Shooter
