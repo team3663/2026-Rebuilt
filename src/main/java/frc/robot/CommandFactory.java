@@ -92,22 +92,22 @@ public class CommandFactory {
         }, () -> Constants.Shooter.DEFAULT_VELOCITY);
     }
 
-    public Command calibrateShooter(DoubleSupplier hoodAngleSupplier, DoubleSupplier shooterVelocitySupplier, boolean aimAtHub) {
+    public Command calibrateShooter(DoubleSupplier hoodAngleSupplier, DoubleSupplier shooterVelocitySupplier, BooleanSupplier aimAtHub) {
         return shooter.follow(() -> {
             Pose2d robotPose = drive.getPose();
 
-            Translation2d targetPosition = getShooterTarget(robotPose, isRedAlliance(), aimAtHub);
+            Translation2d targetPosition = getShooterTarget(robotPose, isRedAlliance(), aimAtHub.getAsBoolean());
 
             var firingSolution = fireControlSystem.calculate(
                     drive.getPose(), drive.getFieldOrientedVelocity(),
                     Rotation2d.fromRadians(shooter.getTurretPosition()),
-                    targetPosition, aimAtHub);
+                    targetPosition, aimAtHub.getAsBoolean());
             return new FiringSolution(firingSolution.turretAngle(), hoodAngleSupplier.getAsDouble(),
                     shooterVelocitySupplier.getAsDouble());
         });
     }
 
-    private Translation2d getShooterTarget(Pose2d robot, boolean redAlliance, boolean aimAtHub) {
+    public static Translation2d getShooterTarget(Pose2d robot, boolean redAlliance, boolean aimAtHub) {
         Translation2d target;
         if (aimAtHub)
             target = redAlliance ? Constants.Shooter.RED_HUB : Constants.Shooter.BLUE_HUB;
