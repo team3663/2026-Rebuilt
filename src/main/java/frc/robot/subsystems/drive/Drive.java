@@ -386,14 +386,14 @@ public class Drive extends SubsystemBase {
      * @return follows a pathplanner path command
      */
     public Command goToPosition(Supplier<Pose2d> targetPose, BooleanSupplier slowAccel, Supplier<Double> maxVelocity) {
-        PIDController controller = new PIDController(7.0, 0.0, 1.0);
+        PIDController controller = new PIDController(10.0, 0.0, 1.0);
         PIDController rotationController = new PIDController(10.0, 0.0, 0.0);
         rotationController.enableContinuousInput(-Math.PI, Math.PI);
 
         return runOnce(
                 () -> {
                     controller.reset();
-                    controller.setP(slowAccel.getAsBoolean() ? 5.0 : 6.0);
+                    controller.setP(slowAccel.getAsBoolean() ? 5.0 : 10.0);
                     rotationController.reset();
                     controller.setSetpoint(0.0);
                     rotationController.setSetpoint(targetPose.get().getRotation().getRadians());
