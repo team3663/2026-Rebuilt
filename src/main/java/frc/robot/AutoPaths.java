@@ -346,12 +346,21 @@ public class AutoPaths {
         );
     }
 
-    public Command rightStarting_shootIntoHub() {
-        return Commands.sequence(
+    public AutonomousMode rightStarting_shootIntoHub() {
+        return new AutonomousMode(
+                Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE,
+                Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE,
+                Commands.sequence(
                 resetOdometry(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE),
                 zeroIntakeAndHood(),
                 goToPosition(Constants.BLUE_RIGHT_UNDER_TRENCH_SHOOTING, Constants.RED_RIGHT_UNDER_TRENCH_SHOOTING),
                 shooting(Units.degreesToRadians(40.0)).alongWith(runOnce(drive::stop))
-        );
+        ));
     }
+
+    public record AutonomousMode(
+            Pose2d initialRedPosition,
+            Pose2d initialBluePosition,
+            Command command
+    ) {}
 }
