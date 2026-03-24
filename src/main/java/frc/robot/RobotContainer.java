@@ -62,7 +62,7 @@ public class RobotContainer {
     private final CommandXboxController testController;
 
     // Dashboard inputs
-    private final LoggedDashboardChooser<Command> autoChooser;
+    private final LoggedDashboardChooser<AutoPaths.AutonomousMode> autoChooser;
 
     private boolean shootingIntoHub = true;
 
@@ -118,11 +118,13 @@ public class RobotContainer {
         vision.setDefaultCommand(
                 vision.consumeVisionMeasurements(drive::addVisionMeasurements, () -> {
                             if (DriverStation.isAutonomous() && DriverStation.isDisabled()) {
+                                AutoPaths.AutonomousMode autonomousMode = autoChooser.get();
+
                                 if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) ==
                                         DriverStation.Alliance.Blue) {
-                                    return Rotation2d.fromDegrees(0.0);
+                                    return autonomousMode.blueStartingPosition().getRotation();
                                 } else {
-                                    return Rotation2d.fromDegrees(180.0);
+                                    return autonomousMode.redStartingPosition().getRotation();
                                 }
                             } else {
                                 return drive.getRotation();
@@ -254,6 +256,6 @@ public class RobotContainer {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
-        return autoChooser.get();
+        return autoChooser.get().command();
     }
 }
