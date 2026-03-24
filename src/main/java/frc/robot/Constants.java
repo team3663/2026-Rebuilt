@@ -233,6 +233,10 @@ public final class Constants {
 
         // The velocity of the Shooter while not shooting
         public static final double DEFAULT_VELOCITY = Units.rotationsPerMinuteToRadiansPerSecond(1000.0);
+
+        public static final double MANUAL_SHOOTING_HOOD_POSITION = Units.degreesToRadians(7.0);
+        public static final double MANUAL_SHOOTING_SHOOTING_VELOCITY = Units.rotationsPerMinuteToRadiansPerSecond(1900.0);
+        public static final double MANUAL_SHOOTING_TURRET_ANGLE = Units.degreesToRadians(0.0);
     }
 
     public static void RecordOutputs() {

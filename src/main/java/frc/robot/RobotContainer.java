@@ -33,8 +33,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import static edu.wpi.first.wpilibj.DriverStation.Alliance;
 import static edu.wpi.first.wpilibj.DriverStation.getAlliance;
-import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
-import static edu.wpi.first.wpilibj2.command.Commands.waitSeconds;
+import static edu.wpi.first.wpilibj2.command.Commands.*;
 import static frc.robot.Constants.ENABLE_TEST_FEATURES;
 
 /**
@@ -155,12 +154,7 @@ public class RobotContainer {
                 () -> -controller.getRightX()
         ));
 
-        controller.a().whileTrue(
-                shooter.goTo(0.0, 0.0, Units.rotationsPerMinuteToRadiansPerSecond(2000.0)));
-        controller.b().whileTrue(shooter.goTo(0.0, 0.0, 0.0));
-        controller.x().whileTrue(shooter.goTo(0.0, Units.degreesToRadians(90.0), 0.0));
-        controller.y().whileTrue(shooter.goTo(0.0, Units.degreesToRadians(-90.0), 0.0));
-
+        // Triggers
         Trigger resetFieldOrientedTrigger = controller.back();
         Trigger zeroTrigger = controller.start();
 
@@ -171,6 +165,8 @@ public class RobotContainer {
 
         Trigger setPassingMode = controller.a();
         Trigger setShootingMode = controller.x();
+
+        Trigger manualShootTrigger = controller.y();
 
         // Reset gyro to 0° when B button is pressed
         resetFieldOrientedTrigger.onTrue(drive.resetOdometry(() ->
@@ -187,11 +183,11 @@ public class RobotContainer {
                 )
         );
 
-        // general bindings for the intake
+        // Intake Bindings
         intakeTrigger.whileTrue(intake.deployAndIntake());
         stowIntakeTrigger.whileTrue(intake.stow());
 
-        // general bindings for the shooter
+        // General bindings for shooting
         shootTrigger.and(() -> shootingIntoHub).whileTrue(commandFactory.aim(true)
                 .alongWith(waitSeconds(0.2).andThen(commandFactory.feedIntoShooter())));
         shootTrigger.and(() -> !shootingIntoHub).whileTrue(commandFactory.aim(false)
@@ -200,16 +196,19 @@ public class RobotContainer {
         setPassingMode.onTrue(runOnce(() -> shootingIntoHub = false));
         setShootingMode.onTrue(runOnce(() -> shootingIntoHub = true));
 
-        // while shooting and not intaking fuel, use the intake to aid in feeding
+        // While shooting and not intaking fuel, use the intake to aid in feeding
         shootTrigger.and(intakeTrigger.negate()).whileTrue(intake.feed());
+
+        // Manual positions in case we do not want to use turret alignment code (or more likely it stopped working)
+        manualShootTrigger.whileTrue(parallel(commandFactory.manualShooting(), commandFactory.feedIntoShooter(), intake.feed()));
     }
 
     private void configureTestBindings() {
         // Tuning Buttons:
-        // "A" button toggles tuning mode on and off
+        // Right Bumper button turns tuning mode on while it's held down
+        // Right Trigger feeds into the shooter
         // POV UP/DOWN moves the hood up and down
-        // POV LEFT/RIGHT moves the turret left and right
-        // X/Y increases and decreases the shooters velocity
+        // POV RIGHT/LEFT increases and decreases the shooters velocity
 
         final double TUNING_HOOD_ANGLE_CHANGE = Units.degreesToRadians(0.5);
         final double TUNING_SHOOTER_VELOCITY_CHANGE = Units.rotationsPerMinuteToRadiansPerSecond(50.0);
@@ -237,8 +236,8 @@ public class RobotContainer {
 
                     Logger.recordOutput("Tuning/TargetHoodAngle", tuningHoodAngle[0]);
                     Logger.recordOutput("Tuning/TargetShooterVelocity", tuningShooterVelocity[0]);
-                })
-        ));
+                })));
+
         testController.rightTrigger().whileTrue(commandFactory.feedIntoShooter());
 
         testController.povUp().onTrue(runOnce(() -> tuningHoodAngle[0] += TUNING_HOOD_ANGLE_CHANGE));

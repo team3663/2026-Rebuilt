@@ -164,4 +164,14 @@ public class CommandFactory {
                 .alongWith((feedIntoShooter().onlyWhile(shooter::atShooterTargetVelocity))
                         .beforeStarting(shouldZero ? shooter.zeroHood() : Commands.none()));
     }
+
+    /**
+     * Shoots at constant set points
+     */
+    public Command manualShooting(){
+        return shooter.follow(
+                () -> Constants.Shooter.MANUAL_SHOOTING_HOOD_POSITION,
+                () -> Constants.Shooter.MANUAL_SHOOTING_TURRET_ANGLE,
+                () -> Constants.Shooter.MANUAL_SHOOTING_SHOOTING_VELOCITY);
+    }
 }
