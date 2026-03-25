@@ -110,11 +110,11 @@ public class C2026RobotFactory implements RobotFactory {
         Rotation3d frontRotation = new Rotation3d(
                 Units.degreesToRadians(0.0),
                 Units.degreesToRadians(40.0),
-                Units.degreesToRadians(22.0)
+                Units.degreesToRadians(24.0)
         );
 
         Transform3d frontTransform = new Transform3d(
-                -Units.inchesToMeters(0.25),
+                -Units.inchesToMeters(0.0),
                 -Units.inchesToMeters(5.75),
                 Units.inchesToMeters(19.25),
                 frontRotation
