@@ -146,6 +146,7 @@ public class CommandFactory {
         return aim(aimAtHub)
                 .alongWith(
                         repeatingSequence(
+                                waitSeconds(0.1),
                                 waitUntil(shooter::atShooterTargetVelocity),
                                 feedIntoShooter().onlyWhile(shooter::atShooterTargetVelocity)
                         ), intake.feedWithAngle(pivotAngle));

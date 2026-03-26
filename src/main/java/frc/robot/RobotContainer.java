@@ -33,8 +33,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import static edu.wpi.first.wpilibj.DriverStation.Alliance;
 import static edu.wpi.first.wpilibj.DriverStation.getAlliance;
-import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
-import static edu.wpi.first.wpilibj2.command.Commands.waitSeconds;
+import static edu.wpi.first.wpilibj2.command.Commands.*;
 import static frc.robot.Constants.ENABLE_TEST_FEATURES;
 
 /**
@@ -109,8 +108,6 @@ public class RobotContainer {
         autoChooser.addOption("RightUnderTrench2ft-NeutralZone-Shoot-NeutralZoneLoop-Shoot", autoPaths.rightStarting_neutralZone_shoot_neutralZoneLoop_shoot());
         autoChooser.addOption("RightUnderTrench2ft-Outpost", autoPaths.rightStarting_outpost());
         autoChooser.addOption("MiddleStarting-Depot", autoPaths.middleStarting_depot());
-        autoChooser.addOption("RightUnderTrench2t-NeutralZone-Shoot-NeutralZone-Shoot-BUMP", autoPaths.rightStarting_neutralZone_shoot_neutralZoneBump());
-        autoChooser.addOption("LeftUnderTrench2t-NeutralZone-Shoot-NeutralZone-Shoot-BUMP", autoPaths.leftStarting_neutralZone_shoot_neutralZoneBump());
 
         // Configure the button bindings
         configureButtonBindings();
@@ -196,10 +193,18 @@ public class RobotContainer {
         stowIntakeTrigger.whileTrue(intake.stow());
 
         // general bindings for the shooter
-        shootTrigger.and(() -> shootingIntoHub).whileTrue(commandFactory.aim(true)
-                .alongWith(waitSeconds(0.2).andThen(commandFactory.feedIntoShooter())));
-        shootTrigger.and(() -> !shootingIntoHub).whileTrue(commandFactory.aim(false)
-                .alongWith(waitSeconds(0.2).andThen(commandFactory.feedIntoShooter())));
+        shootTrigger.and(() -> shootingIntoHub).whileTrue(commandFactory.aim(true));
+        shootTrigger.and(() -> !shootingIntoHub).whileTrue(commandFactory.aim(false));
+        shootTrigger.whileTrue(
+                sequence(
+                                waitSeconds(0.1),
+                                waitUntil(shooter::atTargets),
+                                repeatingSequence(
+                                        commandFactory.feedIntoShooter()
+                                                .until(() -> !shooter.atTargetPositions()),
+                                        waitUntil(shooter::atTargetPositions)
+                                )
+                        ));
 
         setPassingMode.onTrue(runOnce(() -> shootingIntoHub = false));
         setShootingMode.onTrue(runOnce(() -> shootingIntoHub = true));
