@@ -45,7 +45,7 @@ public final class Constants {
     private static final double NEUTRAL_ZONE_ALLIANCE_SIDE_INTERMEDIATE_X_OFFSET = 7.0;
     private static final double NEUTRAL_ZONE_INTERMEDIATE_Y_OFFSET = 1.75;
     // X Distance the robot should sit away from the outpost
-    private static final double OUTPOST_OFFSET = Units.inchesToMeters(26.0);
+    private static final double OUTPOST_OFFSET = Units.inchesToMeters(24.0);
     private static final double BUMP_Y_OFFSET_FROM_CENTER = Units.inchesToMeters(62.0);
     private static final double BUMP_X_OFFSET_FROM_TRENCH = Units.inchesToMeters(23.5 + 14.0 + 6.0);
 
@@ -288,7 +288,7 @@ public final class Constants {
                 (FIELD.getTagPose(7).get().getY() + 0.5 + Units.feetToMeters(2.5)));
 
         // The Translation the turret is from the center of the robot
-        public static final Translation2d TURRET_OFF_CENTER = new Translation2d(Units.inchesToMeters(-6), Units.inchesToMeters(7.25));
+        public static final Translation2d TURRET_OFF_CENTER = new Translation2d(Units.inchesToMeters(-5.5), Units.inchesToMeters(7.25));
 
         // The velocity of the Shooter while not shooting
         public static final double DEFAULT_VELOCITY = Units.rotationsPerMinuteToRadiansPerSecond(1000.0);

@@ -102,17 +102,17 @@ public class RobotContainer {
         autoChooser.addOption("MiddleStarting-ShootInHub", autoPaths.middleStarting_shootIntoHub());
         autoChooser.addOption("LeftUnderTrench2ft-ShootInHub", autoPaths.leftStarting_shootIntoHub());
         autoChooser.addOption("RightUnderTrench2ft-ShootIntoHub", autoPaths.rightStarting_shootIntoHub());
-        autoChooser.addOption("RightUnderTrench2t-NeutralZone-Shoot-NeutralZone-Shoot", autoPaths.rightStarting_neutralZone_shoot_neutralZone());
-        autoChooser.addOption("LeftUnderTrench2ft-NeutralZone-Shoot-NeutralZone-Shoot", autoPaths.leftStarting_neutralZone_shoot_neutralZone());
-        autoChooser.addOption("LeftUnderTrench2ft-NeutralZone-Shoot-NeutralZoneToRightTrench-Shoot", autoPaths.leftStarting_neutralZone_shoot_neutralZoneToRightSide());
-        autoChooser.addOption("RightUnderTrench2ft-NeutralZone-Shoot-NeutralZoneLoop-Shoot", autoPaths.rightStarting_neutralZone_shoot_neutralZoneLoop_shoot());
+        autoChooser.addOption("RightUnderTrench2t-NZ-NZ", autoPaths.rightStarting_neutralZone_shoot_neutralZone());
+        autoChooser.addOption("LeftUnderTrench2ft-NZ-NZ", autoPaths.leftStarting_neutralZone_shoot_neutralZone());
+        autoChooser.addOption("LeftUnderTrench2ft-NZ-NZ-RTrench", autoPaths.leftStarting_neutralZone_shoot_neutralZoneToRightSide());
+//        autoChooser.addOption("RightUnderTrench2ft-NZ-Shoot-NeutralZoneLoop-Shoot", autoPaths.rightStarting_neutralZone_shoot_neutralZoneLoop_shoot());
         autoChooser.addOption("RightUnderTrench2ft-Outpost", autoPaths.rightStarting_outpost());
-        autoChooser.addOption("MiddleStarting-Depot", autoPaths.middleStarting_depot());
+//        autoChooser.addOption("MiddleStarting-Depot", autoPaths.middleStarting_depot());
 
         // Configure the button bindings
         configureButtonBindings();
 
-        shooter.setDefaultCommand(commandFactory.shooterDefault(()-> shootingIntoHub));
+        shooter.setDefaultCommand(commandFactory.shooterDefault(() -> shootingIntoHub));
 
         vision.setDefaultCommand(
                 vision.consumeVisionMeasurements(drive::addVisionMeasurements, () -> {
@@ -141,6 +141,7 @@ public class RobotContainer {
             configureTestBindings();
         } else testController = null;
     }
+
 
     /**
      * Use this method to define your button->command mappings. Buttons can be created by
@@ -197,14 +198,14 @@ public class RobotContainer {
         shootTrigger.and(() -> !shootingIntoHub).whileTrue(commandFactory.aim(false));
         shootTrigger.whileTrue(
                 sequence(
-                                waitSeconds(0.1),
-                                waitUntil(shooter::atTargets),
-                                repeatingSequence(
-                                        commandFactory.feedIntoShooter()
-                                                .until(() -> !shooter.atTargetPositions()),
-                                        waitUntil(shooter::atTargetPositions)
-                                )
-                        ));
+                        waitSeconds(0.1),
+                        waitUntil(shooter::atTargets),
+                        repeatingSequence(
+                                commandFactory.feedIntoShooter()
+                                        .until(() -> !shooter.atTargets()),
+                                waitUntil(shooter::atTargets)
+                        )
+                ));
 
         setPassingMode.onTrue(runOnce(() -> shootingIntoHub = false));
         setShootingMode.onTrue(runOnce(() -> shootingIntoHub = true));
@@ -235,7 +236,7 @@ public class RobotContainer {
                     Logger.recordOutput("Tuning/TargetPose", new Pose2d(goalPosition, Rotation2d.kZero));
 
                     Pose2d robotPose = drive.getPose();
-                    Rotation2d turretRotation = Rotation2d.fromRotations(shooter.getTurretPosition());
+                    Rotation2d turretRotation = Rotation2d.fromRadians(shooter.getTurretPosition());
 
                     Pose2d turretPose = FireControlSystem.getTurretPose(robotPose, turretRotation);
 

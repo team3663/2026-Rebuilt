@@ -85,7 +85,7 @@ public class C2026RobotFactory implements RobotFactory {
     public Vision createVision() {
         Rotation3d rightRotation = new Rotation3d(
                 Units.degreesToRadians(0.0),
-                Units.degreesToRadians(22.0),
+                Units.degreesToRadians(17.0),
                 -Units.degreesToRadians(76.0)
         );
         Transform3d rightTransform = new Transform3d(
@@ -97,7 +97,7 @@ public class C2026RobotFactory implements RobotFactory {
 
         Rotation3d backRotation = new Rotation3d(
                 Units.degreesToRadians(0.0),
-                Units.degreesToRadians(25.0),
+                Units.degreesToRadians(16.0),
                 Units.degreesToRadians(180.0)
         );
         Transform3d backTransform = new Transform3d(

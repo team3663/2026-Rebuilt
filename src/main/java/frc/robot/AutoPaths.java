@@ -345,9 +345,11 @@ public class AutoPaths {
                 Commands.sequence(
                         resetOdometry(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE_ROTATED_TOWARDS_DRIVERSTATION, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE_ROTATED_TOWARDS_DRIVERSTATION),
                         goToIntermediate(Constants.BLUE_RIGHT_UNDER_TRENCH_SHOOTING, Constants.RED_RIGHT_UNDER_TRENCH_SHOOTING, DEFAULT_INTERMEDIATE_DISTANCE_THRESHOLD)
-                                .raceWith(zeroIntakeAndHood().andThen(commandFactory.shooterDefault(() -> true))),
+                                .raceWith(zeroIntakeAndHood().andThen(intake.deploy())),
                         goToPosition(Constants.BLUE_OUTPOST_CENTERED, Constants.RED_OUTPOST_CENTERED)
-                                .raceWith(shooting())
+                                .raceWith(commandFactory.shooterDefault(() -> true)),
+                        shooting()
+                                .raceWith(Commands.runOnce(drive::stop))
                 ));
     }
 
