@@ -26,7 +26,7 @@ public class AutoPaths {
     // The distance the robot has to be at before the goToPosition command switches from the
     //     intermediate target to the actual target
     private final double DEFAULT_INTERMEDIATE_DISTANCE_THRESHOLD = Units.feetToMeters(2.0);
-    // Default distance for how close the the trench poses the robot can get before switching targets
+    // Default distance for how close the trench poses the robot can get before switching targets
     private final double DEFAULT_TRENCH_DISTANCE_THRESHOLD = Units.feetToMeters(0.5);
     // How long the robot should sit in place to shoot under the trench
     private final double DEFAULT_SHOOTING_TIME = 6.0;
@@ -62,6 +62,10 @@ public class AutoPaths {
         return Commands.defer(() -> drive.resetOdometry(() -> alliancePose(blueTargetPose, redTargetPose)), Set.of(drive));
     }
 
+    /**
+     * Zeros the pivot on the intake and the hood on the shooter
+     * <p> Requires {@link #intake}, {@link #shooter} subsystems</p>
+     */
     private Command zeroIntakeAndHood() {
         return Commands.parallel(intake.zeroPivot(), shooter.zeroHood());
     }
@@ -107,7 +111,7 @@ public class AutoPaths {
     /**
      * Drives the robot to the target position
      * <p>
-     * This command requires {@link Drive} and does not end
+     * This command requires {@link Drive}
      * </p>
      *
      * @param blueTargetPose target position of the robot if on blue alliance
@@ -118,6 +122,13 @@ public class AutoPaths {
                 .until(() -> drive.atPosition(alliancePose(blueTargetPose, redTargetPose).getTranslation()));
     }
 
+    /**
+     * Drives the robot to the target position using the slow accel drivetrain max linear velocity
+     * <p> This command requires {@link #drive} </p>
+     *
+     * @param blueTargetPose - target position of the robot if on the blue alliance
+     * @param redTargetPose  - target position of the robot if on the red alliance
+     */
     private Command goToPositionSlowAccel(Pose2d blueTargetPose, Pose2d redTargetPose) {
         return goToPosition(() -> alliancePose(blueTargetPose, redTargetPose), () -> null, () -> true)
                 .until(() -> drive.atPosition(alliancePose(blueTargetPose, redTargetPose).getTranslation()));
@@ -171,6 +182,14 @@ public class AutoPaths {
                 .until(() -> drive.atPosition(alliancePose(blueTargetPose, redTargetPose).getTranslation(), threshold));
     }
 
+    /**
+     * Drives the robot towards a target position until it reaches a certain distance away
+     * <p> This command requires {@link #drive} and ends when the robot reaches a threshold distance away from the target</p>
+     *
+     * @param blueTargetPose - target position of the robot if on the blue alliance
+     * @param redTargetPose  - target position of the robot if on the red alliance
+     * @param threshold      - At what distance away from the target the command ends
+     */
     private Command goToIntermediateSlowAccel(Pose2d blueTargetPose, Pose2d redTargetPose, double threshold) {
         return goToPositionSlowAccel(blueTargetPose, redTargetPose)
                 .until(() -> drive.atPosition(alliancePose(blueTargetPose, redTargetPose).getTranslation(), threshold));

@@ -99,14 +99,14 @@ public class RobotContainer {
 //                "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
         // Auto Routines
-        autoChooser.addOption("MiddleStarting-ShootInHub", autoPaths.middleStarting_shootIntoHub());
-        autoChooser.addOption("LeftUnderTrench2ft-ShootInHub", autoPaths.leftStarting_shootIntoHub());
-        autoChooser.addOption("RightUnderTrench2ft-ShootIntoHub", autoPaths.rightStarting_shootIntoHub());
-        autoChooser.addOption("RightUnderTrench2t-NZ-NZ", autoPaths.rightStarting_neutralZone_shoot_neutralZone());
-        autoChooser.addOption("LeftUnderTrench2ft-NZ-NZ", autoPaths.leftStarting_neutralZone_shoot_neutralZone());
-        autoChooser.addOption("LeftUnderTrench2ft-NZ-NZ-RTrench", autoPaths.leftStarting_neutralZone_shoot_neutralZoneToRightSide());
+        autoChooser.addOption("CH-ShootInHub", autoPaths.middleStarting_shootIntoHub());
+        autoChooser.addOption("LT-ShootInHub", autoPaths.leftStarting_shootIntoHub());
+        autoChooser.addOption("RT-ShootIntoHub", autoPaths.rightStarting_shootIntoHub());
+        autoChooser.addOption("RT-NZ-NZ", autoPaths.rightStarting_neutralZone_shoot_neutralZone());
+        autoChooser.addOption("LT-NZ-NZ", autoPaths.leftStarting_neutralZone_shoot_neutralZone());
+        autoChooser.addOption("LT-NZ-NZ-RTrench", autoPaths.leftStarting_neutralZone_shoot_neutralZoneToRightSide());
 //        autoChooser.addOption("RightUnderTrench2ft-NZ-Shoot-NeutralZoneLoop-Shoot", autoPaths.rightStarting_neutralZone_shoot_neutralZoneLoop_shoot());
-        autoChooser.addOption("RightUnderTrench2ft-Outpost", autoPaths.rightStarting_outpost());
+        autoChooser.addOption("RT-Outpost", autoPaths.rightStarting_outpost());
 //        autoChooser.addOption("MiddleStarting-Depot", autoPaths.middleStarting_depot());
 
         // Configure the button bindings

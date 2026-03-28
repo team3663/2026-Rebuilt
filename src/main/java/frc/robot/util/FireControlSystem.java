@@ -35,7 +35,6 @@ public class FireControlSystem {
         // Hub
         DISTANCE_LOOKUP_TABLE_HUB.put(2.0, new LookupEntry(degreesToRadians(1.0), rotationsPerMinuteToRadiansPerSecond(2050.0)));
         DISTANCE_LOOKUP_TABLE_HUB.put(2.5, new LookupEntry(degreesToRadians(3.0), rotationsPerMinuteToRadiansPerSecond(2150.0)));
-        // Look at 3.0 and 3.5 distances
         DISTANCE_LOOKUP_TABLE_HUB.put(3.0, new LookupEntry(degreesToRadians(5.0), rotationsPerMinuteToRadiansPerSecond(2300.0)));
         DISTANCE_LOOKUP_TABLE_HUB.put(3.25, new LookupEntry(degreesToRadians(5.0), rotationsPerMinuteToRadiansPerSecond(2400.0)));
         DISTANCE_LOOKUP_TABLE_HUB.put(3.5, new LookupEntry(degreesToRadians(5.5), rotationsPerMinuteToRadiansPerSecond(2450.0)));

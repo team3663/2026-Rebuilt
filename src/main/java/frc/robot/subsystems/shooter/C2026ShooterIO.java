@@ -46,7 +46,6 @@ public class C2026ShooterIO implements ShooterIO {
         this.shooterMotor = shooterMotor;
         this.shooterMotor2 = shooterMotor2;
 
-        // TODO: get actual values for all the configs
         // CANCoder config
         CANcoderConfiguration canCoderConfig = new CANcoderConfiguration();
         canCoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
