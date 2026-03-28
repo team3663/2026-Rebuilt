@@ -31,6 +31,7 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.FireControlSystem;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
 import static edu.wpi.first.wpilibj.DriverStation.Alliance;
 import static edu.wpi.first.wpilibj.DriverStation.getAlliance;
@@ -67,6 +68,10 @@ public class RobotContainer {
     private boolean shootingIntoHub = true;
 
     private boolean ranAuto = false;
+
+    LoggedNetworkBoolean aimingAtHub = new LoggedNetworkBoolean("aimingAtHub", true);
+    LoggedNetworkBoolean passing = new LoggedNetworkBoolean("passing", false);
+
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -164,12 +169,6 @@ public class RobotContainer {
                 .onTrue(Commands.either(vision.recordAuto(), vision.recordTeleop(), DriverStation::isAutonomous)
                         .ignoringDisable(true));
 
-        controller.a().whileTrue(
-                shooter.goTo(0.0, 0.0, Units.rotationsPerMinuteToRadiansPerSecond(2000.0)));
-        controller.b().whileTrue(shooter.goTo(0.0, 0.0, 0.0));
-        controller.x().whileTrue(shooter.goTo(0.0, Units.degreesToRadians(90.0), 0.0));
-        controller.y().whileTrue(shooter.goTo(0.0, Units.degreesToRadians(-90.0), 0.0));
-
         Trigger resetFieldOrientedTrigger = controller.back();
         Trigger zeroTrigger = controller.start();
 
@@ -214,8 +213,16 @@ public class RobotContainer {
                         )
                 ));
 
-        setPassingMode.onTrue(runOnce(() -> shootingIntoHub = false));
-        setShootingMode.onTrue(runOnce(() -> shootingIntoHub = true));
+        setPassingMode.onTrue(runOnce(() -> {
+            shootingIntoHub = false;
+            aimingAtHub.set(false);
+            passing.set(true);
+        }));
+        setShootingMode.onTrue(runOnce(() -> {
+            shootingIntoHub = true;
+            aimingAtHub.set(true);
+            passing.set(false);
+        }));
 
         // while shooting and not intaking fuel, use the intake to aid in feeding
         shootTrigger.and(intakeTrigger.negate()).whileTrue(intake.feed());
