@@ -90,7 +90,7 @@ public class C2026RobotFactory implements RobotFactory {
         );
         Transform3d rightTransform = new Transform3d(
                 -Units.inchesToMeters(7.0),
-                -Units.inchesToMeters(12.75),
+                -Units.inchesToMeters(13.5),
                 Units.inchesToMeters(16.75),
                 rightRotation
         );
@@ -114,8 +114,8 @@ public class C2026RobotFactory implements RobotFactory {
         );
 
         Transform3d frontTransform = new Transform3d(
-                -Units.inchesToMeters(0.0),
-                -Units.inchesToMeters(5.75),
+                -Units.inchesToMeters(2.5),
+                -Units.inchesToMeters(7.5),
                 Units.inchesToMeters(19.25),
                 frontRotation
         );

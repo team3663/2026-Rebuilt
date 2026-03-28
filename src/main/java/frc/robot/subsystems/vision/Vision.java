@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import org.littletonrobotics.junction.Logger;
@@ -149,4 +150,20 @@ public class Vision extends SubsystemBase {
             }
         });
     }
+
+//    public Command runCameraInAuto(){
+//        return Commands.runOnce(() -> {
+//            for (VisionIO io : ios) {
+//                io.recordOnCameras(20.0);
+//            }
+//        });
+//    }
+//
+//    public Command runCameraInTeleop(){
+//        return Commands.runOnce(()-> {
+//            for (VisionIO io : ios) {
+//                io.recordOnCameras(30.0);
+//            }
+//        });
+//    }
 }

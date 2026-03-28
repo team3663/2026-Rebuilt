@@ -65,6 +65,8 @@ public class RobotContainer {
 
     private boolean shootingIntoHub = true;
 
+    private boolean ranAuto = false;
+
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
@@ -116,7 +118,7 @@ public class RobotContainer {
 
         vision.setDefaultCommand(
                 vision.consumeVisionMeasurements(drive::addVisionMeasurements, () -> {
-                            if (DriverStation.isAutonomous() && DriverStation.isDisabled()) {
+                            if (DriverStation.isAutonomous() && DriverStation.isDisabled() && !ranAuto) {
                                 AutoPaths.AutonomousMode autonomousMode = autoChooser.get();
 
                                 if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) ==
@@ -264,6 +266,7 @@ public class RobotContainer {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
-        return autoChooser.get().command();
+        return autoChooser.get().command()
+                .beforeStarting(() -> ranAuto = true);
     }
 }
