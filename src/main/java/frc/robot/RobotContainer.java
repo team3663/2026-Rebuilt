@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.config.RobotFactory;
 import frc.robot.subsystems.drive.Drive;
@@ -106,7 +107,7 @@ public class RobotContainer {
         autoChooser.addOption("RT-ShootIntoHub", autoPaths.rightStarting_shootIntoHub());
         autoChooser.addOption("RT-NZ-NZ", autoPaths.rightStarting_neutralZone_shoot_neutralZone());
         autoChooser.addOption("LT-NZ-NZ", autoPaths.leftStarting_neutralZone_shoot_neutralZone());
-        autoChooser.addOption("LT-NZ-NZ-RTrench", autoPaths.leftStarting_neutralZone_shoot_neutralZoneToRightSide());
+        autoChooser.addOption("LT-NZ-NZ-RB", autoPaths.leftStarting_neutralZone_shoot_neutralZoneToRightSide());
 //        autoChooser.addOption("RightUnderTrench2ft-NZ-Shoot-NeutralZoneLoop-Shoot", autoPaths.rightStarting_neutralZone_shoot_neutralZoneLoop_shoot());
         autoChooser.addOption("RT-Outpost", autoPaths.rightStarting_outpost());
 //        autoChooser.addOption("MiddleStarting-Depot", autoPaths.middleStarting_depot());
@@ -158,6 +159,10 @@ public class RobotContainer {
                 () -> -controller.getLeftX(),
                 () -> -controller.getRightX()
         ));
+
+        RobotModeTriggers.disabled()
+                .onTrue(Commands.either(vision.recordAuto(), vision.recordTeleop(), DriverStation::isAutonomous)
+                        .ignoringDisable(true));
 
         controller.a().whileTrue(
                 shooter.goTo(0.0, 0.0, Units.rotationsPerMinuteToRadiansPerSecond(2000.0)));

@@ -100,7 +100,7 @@ public class AutoPaths {
                             return goToPositionTarget;
                         },
                         () -> false,
-                        () -> (slowVelocity.getAsBoolean() ? drive.getMaxLinearSpeedMetersPerSec() * 0.5 : drive.getMaxLinearSpeedMetersPerSec()))
+                        () -> (slowVelocity.getAsBoolean() ? drive.getMaxLinearSpeedMetersPerSec() * 0.60 : drive.getMaxLinearSpeedMetersPerSec()))
                 .beforeStarting(() -> {
                     if (intermediatePoseSupplier != null) intermediateHolder[0] = intermediatePoseSupplier.get();
                     else Commands.none();

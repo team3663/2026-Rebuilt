@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
-import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -151,19 +150,19 @@ public class Vision extends SubsystemBase {
         });
     }
 
-//    public Command runCameraInAuto(){
-//        return Commands.runOnce(() -> {
-//            for (VisionIO io : ios) {
-//                io.recordOnCameras(20.0);
-//            }
-//        });
-//    }
-//
-//    public Command runCameraInTeleop(){
-//        return Commands.runOnce(()-> {
-//            for (VisionIO io : ios) {
-//                io.recordOnCameras(30.0);
-//            }
-//        });
-//    }
+    public Command recordAuto(){
+        return Commands.runOnce(() -> {
+            for (VisionIO io : ios) {
+                io.recordOnCameras(20.0);
+            }
+        });
+    }
+
+    public Command recordTeleop(){
+        return Commands.runOnce(()-> {
+            for (VisionIO io : ios) {
+                io.recordOnCameras(165.0);
+            }
+        });
+    }
 }
