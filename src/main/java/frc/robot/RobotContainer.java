@@ -33,8 +33,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import static edu.wpi.first.wpilibj.DriverStation.Alliance;
 import static edu.wpi.first.wpilibj.DriverStation.getAlliance;
-import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
-import static edu.wpi.first.wpilibj2.command.Commands.waitSeconds;
+import static edu.wpi.first.wpilibj2.command.Commands.*;
 import static frc.robot.Constants.ENABLE_TEST_FEATURES;
 
 /**
@@ -62,7 +61,7 @@ public class RobotContainer {
     private final CommandXboxController testController;
 
     // Dashboard inputs
-    private final LoggedDashboardChooser<Command> autoChooser;
+    private final LoggedDashboardChooser<AutoPaths.AutonomousMode> autoChooser;
 
     private boolean shootingIntoHub = true;
 
@@ -100,29 +99,31 @@ public class RobotContainer {
 //                "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
         // Auto Routines
-        autoChooser.addOption("MiddleStarting-ShootInHub", autoPaths.middleStarting_shootIntoHub());
-        autoChooser.addOption("LeftUnderTrench2ft-ShootInHub", autoPaths.leftStarting_shootIntoHub());
-        autoChooser.addOption("RightUnderTrench2ft-ShootIntoHub", autoPaths.rightStarting_shootIntoHub());
-        autoChooser.addOption("RightUnderTrench2t-NeutralZone-Shoot-NeutralZone-Shoot", autoPaths.rightStarting_neutralZone_shoot_neutralZone());
-        autoChooser.addOption("LeftUnderTrench2ft-NeutralZone-Shoot-NeutralZone-Shoot", autoPaths.leftStarting_neutralZone_shoot_neutralZone());
-        autoChooser.addOption("LeftUnderTrench2ft-NeutralZone-Shoot-NeutralZoneToRightTrench-Shoot", autoPaths.leftStarting_neutralZone_shoot_neutralZoneToRightSide());
-        autoChooser.addOption("RightUnderTrench2ft-NeutralZone-Shoot-NeutralZoneLoop-Shoot", autoPaths.rightStarting_neutralZone_shoot_neutralZoneLoop_shoot());
-        autoChooser.addOption("RightUnderTrench2ft-Outpost", autoPaths.rightStarting_outpost());
-        autoChooser.addOption("MiddleStarting-Depot", autoPaths.middleStarting_depot());
+        autoChooser.addOption("CH-ShootInHub", autoPaths.middleStarting_shootIntoHub());
+        autoChooser.addOption("LT-ShootInHub", autoPaths.leftStarting_shootIntoHub());
+        autoChooser.addOption("RT-ShootIntoHub", autoPaths.rightStarting_shootIntoHub());
+        autoChooser.addOption("RT-NZ-NZ", autoPaths.rightStarting_neutralZone_shoot_neutralZone());
+        autoChooser.addOption("LT-NZ-NZ", autoPaths.leftStarting_neutralZone_shoot_neutralZone());
+        autoChooser.addOption("LT-NZ-NZ-RTrench", autoPaths.leftStarting_neutralZone_shoot_neutralZoneToRightSide());
+//        autoChooser.addOption("RightUnderTrench2ft-NZ-Shoot-NeutralZoneLoop-Shoot", autoPaths.rightStarting_neutralZone_shoot_neutralZoneLoop_shoot());
+        autoChooser.addOption("RT-Outpost", autoPaths.rightStarting_outpost());
+//        autoChooser.addOption("MiddleStarting-Depot", autoPaths.middleStarting_depot());
 
         // Configure the button bindings
         configureButtonBindings();
 
-        shooter.setDefaultCommand(commandFactory.shooterDefault(()-> shootingIntoHub));
+        shooter.setDefaultCommand(commandFactory.shooterDefault(() -> shootingIntoHub));
 
         vision.setDefaultCommand(
                 vision.consumeVisionMeasurements(drive::addVisionMeasurements, () -> {
                             if (DriverStation.isAutonomous() && DriverStation.isDisabled()) {
+                                AutoPaths.AutonomousMode autonomousMode = autoChooser.get();
+
                                 if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) ==
                                         DriverStation.Alliance.Blue) {
-                                    return Rotation2d.fromDegrees(0.0);
+                                    return autonomousMode.blueStartingPosition().getRotation();
                                 } else {
-                                    return Rotation2d.fromDegrees(180.0);
+                                    return autonomousMode.redStartingPosition().getRotation();
                                 }
                             } else {
                                 return drive.getRotation();
@@ -140,6 +141,7 @@ public class RobotContainer {
             configureTestBindings();
         } else testController = null;
     }
+
 
     /**
      * Use this method to define your button->command mappings. Buttons can be created by
@@ -192,10 +194,18 @@ public class RobotContainer {
         stowIntakeTrigger.whileTrue(intake.stow());
 
         // general bindings for the shooter
-        shootTrigger.and(() -> shootingIntoHub).whileTrue(commandFactory.aim(true)
-                .alongWith(waitSeconds(0.2).andThen(commandFactory.feedIntoShooter())));
-        shootTrigger.and(() -> !shootingIntoHub).whileTrue(commandFactory.aim(false)
-                .alongWith(waitSeconds(0.2).andThen(commandFactory.feedIntoShooter())));
+        shootTrigger.and(() -> shootingIntoHub).whileTrue(commandFactory.aim(true));
+        shootTrigger.and(() -> !shootingIntoHub).whileTrue(commandFactory.aim(false));
+        shootTrigger.whileTrue(
+                sequence(
+                        waitSeconds(0.1),
+                        waitUntil(shooter::atTargets),
+                        repeatingSequence(
+                                commandFactory.feedIntoShooter()
+                                        .until(() -> !shooter.atTargets()),
+                                waitUntil(shooter::atTargets)
+                        )
+                ));
 
         setPassingMode.onTrue(runOnce(() -> shootingIntoHub = false));
         setShootingMode.onTrue(runOnce(() -> shootingIntoHub = true));
@@ -220,13 +230,13 @@ public class RobotContainer {
         testController.rightBumper().whileTrue(Commands.parallel(
                 // TO CHANGE TARGET: Change both the boolean in calibrate shooter and the definition of goalPosition to swap between hub and passing,
                 //                      and to choose which passing corner modify CommandFactory.getShooterTarget()
-                commandFactory.calibrateShooter(() -> tuningHoodAngle[0], () -> tuningShooterVelocity[0], true),
+                commandFactory.calibrateShooter(() -> tuningHoodAngle[0], () -> tuningShooterVelocity[0], () -> shootingIntoHub),
                 Commands.run(() -> {
-                    Translation2d goalPosition = CommandFactory.isRedAlliance() ? Constants.Shooter.RED_HUB : Constants.Shooter.BLUE_HUB;
+                    Translation2d goalPosition = CommandFactory.getShooterTarget(drive.getPose(), CommandFactory.isRedAlliance(), shootingIntoHub);
                     Logger.recordOutput("Tuning/TargetPose", new Pose2d(goalPosition, Rotation2d.kZero));
 
                     Pose2d robotPose = drive.getPose();
-                    Rotation2d turretRotation = Rotation2d.fromRotations(shooter.getTurretPosition());
+                    Rotation2d turretRotation = Rotation2d.fromRadians(shooter.getTurretPosition());
 
                     Pose2d turretPose = FireControlSystem.getTurretPose(robotPose, turretRotation);
 
@@ -254,6 +264,6 @@ public class RobotContainer {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
-        return autoChooser.get();
+        return autoChooser.get().command();
     }
 }

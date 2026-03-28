@@ -13,6 +13,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
+import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +38,8 @@ public class Vision extends SubsystemBase {
     private final List<VisionMeasurement> acceptedMeasurements = new ArrayList<>();
     private final double[] ioUpdateDurations;
     private final double[] processingDurations;
+
+    private final LoggedNetworkBoolean shouldPowerCycle = new LoggedNetworkBoolean("Limelight IMU Error", false);
 
     static {
         MEASUREMENT_STD_DEV_DISTANCE_MAP.put(0.1, VecBuilder.fill(0.05, 0.05, 10000.0));
@@ -69,9 +73,13 @@ public class Vision extends SubsystemBase {
             ioUpdateDurations[i] = duration;
         }
 
+        boolean imuReadingZero = false;
         for (int i = 0; i < visionInputs.length; i++) {
             Logger.processInputs("Vision/VisionInputs " + i, visionInputs[i]);
+
+            imuReadingZero |= visionInputs[i].IMUYaw == 0;
         }
+        shouldPowerCycle.set(imuReadingZero);
 
         acceptedMeasurements.clear();
         for (int i = 0; i < visionInputs.length; i++) {
@@ -109,6 +117,7 @@ public class Vision extends SubsystemBase {
             processingDurations[i] = duration;
         }
     }
+
 
     /**
      * @return List of updated vision measurements to be passed to drivetrain.
