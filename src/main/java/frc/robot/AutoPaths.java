@@ -14,6 +14,7 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
+import static edu.wpi.first.wpilibj2.command.Commands.waitSeconds;
 
 public class AutoPaths {
     private final Drive drive;
@@ -100,7 +101,7 @@ public class AutoPaths {
                             return goToPositionTarget;
                         },
                         () -> false,
-                        () -> (slowVelocity.getAsBoolean() ? drive.getMaxLinearSpeedMetersPerSec() * 0.60 : drive.getMaxLinearSpeedMetersPerSec()))
+                        () -> (slowVelocity.getAsBoolean() ? drive.getMaxLinearSpeedMetersPerSec() * 0.6 : drive.getMaxLinearSpeedMetersPerSec()))
                 .beforeStarting(() -> {
                     if (intermediatePoseSupplier != null) intermediateHolder[0] = intermediatePoseSupplier.get();
                     else Commands.none();
@@ -283,7 +284,7 @@ public class AutoPaths {
                         goToIntermediate(Constants.BLUE_RIGHT_NEUTRAL_ZONE_TRENCH_OFFSET, Constants.RED_RIGHT_NEUTRAL_ZONE_TRENCH_OFFSET, Units.feetToMeters(1.5)),
                         goToPosition(Constants.BLUE_RIGHT_UNDER_TRENCH_SHOOTING, Constants.RED_RIGHT_UNDER_TRENCH_SHOOTING)
                                 .raceWith(commandFactory.shooterDefault(() -> true)),
-                        Commands.parallel(shooting(Intake.DEPLOY_ANGLE, 5.0), runOnce(drive::stop)),
+                        Commands.parallel(shooting(Intake.DEPLOY_ANGLE, 6.0), runOnce(drive::stop)),
                         goToIntermediate(Constants.BLUE_RIGHT_NEUTRAL_ZONE_TRENCH_OFFSET, Constants.RED_RIGHT_NEUTRAL_ZONE_TRENCH_OFFSET, DEFAULT_INTERMEDIATE_DISTANCE_THRESHOLD),
                         goToIntermediate(Constants.BLUE_RIGHT_ALLIANCE_SIDE_INTERMEDIATE, Constants.RED_RIGHT_ALLIANCE_SIDE_INTERMEDIATE, Units.feetToMeters(4.0)),
                         goToPosition(Constants.BLUE_RIGHT_CENTER_ALLIANCE_SIDE, Constants.RED_RIGHT_CENTER_ALLIANCE_SIDE)
@@ -292,6 +293,7 @@ public class AutoPaths {
                                 .raceWith(intake.intakeAndPivot(0.0, Intake.FEED_ANGLE)),
                         goToIntermediate(Constants.BLUE_RIGHT_BUMP_AS, Constants.RED_RIGHT_BUMP_AS, Units.feetToMeters(1.0))
                                 .raceWith(commandFactory.shooterDefault(() -> true)),
+                        waitSeconds(0.25),
                         goToPosition(Constants.BLUE_RIGHT_BUMP_SHOOTING, Constants.RED_RIGHT_BUMP_SHOOTING)
                                 .raceWith(shooting()),
                         Commands.parallel(shooting(), runOnce(drive::stop))));
@@ -312,7 +314,7 @@ public class AutoPaths {
                         goToIntermediate(Constants.BLUE_LEFT_NEUTRAL_ZONE_TRENCH_OFFSET, Constants.RED_LEFT_NEUTRAL_ZONE_TRENCH_OFFSET, Units.feetToMeters(1.5)),
                         goToPosition(Constants.BLUE_LEFT_UNDER_TRENCH_SHOOTING, Constants.RED_LEFT_UNDER_TRENCH_SHOOTING)
                                 .raceWith(commandFactory.shooterDefault(() -> true)),
-                        Commands.parallel(shooting(Intake.DEPLOY_ANGLE, 5.0), runOnce(drive::stop)),
+                        Commands.parallel(shooting(Intake.DEPLOY_ANGLE, 6.0), runOnce(drive::stop)),
                         goToIntermediate(Constants.BLUE_LEFT_NEUTRAL_ZONE_TRENCH_OFFSET, Constants.RED_LEFT_NEUTRAL_ZONE_TRENCH_OFFSET, DEFAULT_INTERMEDIATE_DISTANCE_THRESHOLD),
                         goToIntermediate(Constants.BLUE_LEFT_ALLIANCE_SIDE_INTERMEDIATE, Constants.RED_LEFT_ALLIANCE_SIDE_INTERMEDIATE, Units.feetToMeters(4.0)),
                         goToPosition(Constants.BLUE_LEFT_ALLIANCE_SIDE, Constants.RED_LEFT_ALLIANCE_SIDE)
@@ -321,6 +323,7 @@ public class AutoPaths {
                                 .raceWith(intake.intakeAndPivot(0.0, Intake.FEED_ANGLE)),
                         goToIntermediate(Constants.BLUE_LEFT_BUMP_AS, Constants.RED_LEFT_BUMP_AS, Units.feetToMeters(1.0))
                                 .raceWith(commandFactory.shooterDefault(() -> true)),
+                        Commands.waitSeconds(0.25),
                         goToPosition(Constants.BLUE_LEFT_BUMP_SHOOTING, Constants.RED_LEFT_BUMP_SHOOTING)
                                 .raceWith(shooting()),
                         Commands.parallel(shooting(), runOnce(drive::stop))));

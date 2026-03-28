@@ -41,8 +41,8 @@ public class FireControlSystem {
         DISTANCE_LOOKUP_TABLE_HUB.put(3.75, new LookupEntry(degreesToRadians(5.5), rotationsPerMinuteToRadiansPerSecond(2450.0+ 60.0)));
         DISTANCE_LOOKUP_TABLE_HUB.put(4.0, new LookupEntry(degreesToRadians(6.5), rotationsPerMinuteToRadiansPerSecond(2500.0+ 63.0)));
         DISTANCE_LOOKUP_TABLE_HUB.put(4.5, new LookupEntry(degreesToRadians(7.0), rotationsPerMinuteToRadiansPerSecond(2625.0+ 67.0)));
-        DISTANCE_LOOKUP_TABLE_HUB.put(5.0, new LookupEntry(degreesToRadians(7.0), rotationsPerMinuteToRadiansPerSecond(2700.0+ 50.0)));
-        DISTANCE_LOOKUP_TABLE_HUB.put(5.5, new LookupEntry(degreesToRadians(7.0), rotationsPerMinuteToRadiansPerSecond(2800.0+ 45.0)));
+        DISTANCE_LOOKUP_TABLE_HUB.put(5.0, new LookupEntry(degreesToRadians(7.0), rotationsPerMinuteToRadiansPerSecond(2700.0+ 60.0)));
+        DISTANCE_LOOKUP_TABLE_HUB.put(5.5, new LookupEntry(degreesToRadians(7.0), rotationsPerMinuteToRadiansPerSecond(2800.0+ 65.0)));
 
         // Passing
         DISTANCE_LOOKUP_TABLE_PASS.put(4.0, new LookupEntry(degreesToRadians(15.0), rotationsPerMinuteToRadiansPerSecond(1950.0)));
