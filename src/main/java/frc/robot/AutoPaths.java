@@ -268,6 +268,36 @@ public class AutoPaths {
                         Commands.parallel(shooting(), runOnce(drive::stop))));
     }
 
+    public AutonomousMode rightStarting_neutralZone_shoot_neutralZoneToLeftSide() {
+        return new AutonomousMode(
+                Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE_ROTATED_LEFT,
+                Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE_ROTATED_LEFT,
+                Commands.sequence(
+                        resetOdometry(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE_ROTATED_LEFT, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE_ROTATED_LEFT),
+                        goToIntermediate(Constants.BLUE_RIGHT_NEUTRAL_ZONE_TRENCH_OFFSET_ROTATED_LEFT, Constants.RED_RIGHT_NEUTRAL_ZONE_TRENCH_OFFSET_ROTATED_LEFT, Units.feetToMeters(3.0))
+                                .raceWith(zeroIntakeAndHood().andThen(intaking())),
+                        goToIntermediate(Constants.BLUE_RIGHT_CENTER_LINE_INTERMEDIATE, Constants.RED_RIGHT_CENTER_LINE_INTERMEDIATE, Units.feetToMeters(4.0))
+                                .raceWith(intaking()),
+                        goToPositionSlowAccel(Constants.BLUE_RIGHT_CENTER_LINE, Constants.RED_RIGHT_CENTER_LINE)
+                                .raceWith(intaking()),
+                        goToIntermediate(Constants.BLUE_RIGHT_NEUTRAL_ZONE_TRENCH_OFFSET, Constants.RED_RIGHT_NEUTRAL_ZONE_TRENCH_OFFSET, Units.feetToMeters(1.5))
+                                .raceWith(commandFactory.shooterDefault(() -> true)),
+                        goToPosition(Constants.BLUE_RIGHT_UNDER_TRENCH_SHOOTING, Constants.RED_RIGHT_UNDER_TRENCH_SHOOTING),
+                        Commands.parallel(shooting(Intake.DEPLOY_ANGLE, 5.0), runOnce(drive::stop)),
+                        goToIntermediate(Constants.BLUE_RIGHT_NEUTRAL_ZONE_TRENCH_OFFSET, Constants.RED_RIGHT_NEUTRAL_ZONE_TRENCH_OFFSET, DEFAULT_INTERMEDIATE_DISTANCE_THRESHOLD),
+                        goToIntermediate(Constants.BLUE_RIGHT_ALLIANCE_SIDE_INTERMEDIATE, Constants.RED_RIGHT_ALLIANCE_SIDE_INTERMEDIATE, Units.feetToMeters(4.0))
+                                .raceWith(intaking()),
+                        goToIntermediateSlowAccel(Constants.BLUE_LEFT_ALLIANCE_SIDE_INTERMEDIATE_ROTATED_LEFT, Constants.RED_LEFT_ALLIANCE_SIDE_INTERMEDIATE_ROTATED_LEFT, Units.feetToMeters(4.0))
+                                .raceWith(intaking()),
+                        goToIntermediate(Constants.BLUE_LEFT_BUMP_NZ, Constants.RED_LEFT_BUMP_NZ, Units.feetToMeters(1.0))
+                                .raceWith(intake.intakeAndPivot(0.0, Intake.FEED_ANGLE)),
+                        goToIntermediate(Constants.BLUE_LEFT_BUMP_AS, Constants.RED_LEFT_BUMP_AS, Units.feetToMeters(1.0))
+                                .raceWith(commandFactory.shooterDefault(() -> true)),
+                        goToPosition(Constants.BLUE_LEFT_BUMP_SHOOTING, Constants.RED_LEFT_BUMP_SHOOTING)
+                                .raceWith(shooting()),
+                        Commands.parallel(shooting(), runOnce(drive::stop))));
+    }
+
     public AutonomousMode rightStarting_neutralZone_shoot_neutralZone() {
         return new AutonomousMode(
                 Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE_ROTATED_LEFT,
@@ -327,6 +357,24 @@ public class AutoPaths {
                         goToPosition(Constants.BLUE_LEFT_BUMP_SHOOTING, Constants.RED_LEFT_BUMP_SHOOTING)
                                 .raceWith(shooting()),
                         Commands.parallel(shooting(), runOnce(drive::stop))));
+    }
+
+    public AutonomousMode middleStarting_shootIntoHub_outpost() {
+        return new AutonomousMode(
+                Constants.BLUE_IN_FRONT_OF_HUB_AUTO_LINE,
+                Constants.RED_IN_FRONT_OF_HUB_AUTO_LINE,
+                Commands.sequence(
+                        resetOdometry(Constants.BLUE_IN_FRONT_OF_HUB_AUTO_LINE, Constants.RED_IN_FRONT_OF_HUB_AUTO_LINE),
+                        goToPosition(Constants.BLUE_HUB_SHOOTING, Constants.RED_HUB_SHOOTING)
+                                .raceWith(zeroIntakeAndHood().andThen(commandFactory.shooterDefault(() -> true))),
+                        Commands.parallel(shooting(Units.degreesToRadians(40.0), 3.0), runOnce(drive::stop)),
+                        goToIntermediate(Constants.BLUE_OUTPOST_INTERMEDIATE, Constants.RED_OUTPOST_INTERMEDIATE, Units.feetToMeters(4.0))
+                                .raceWith(intake.deploy().andThen(commandFactory.shooterDefault(()-> true))),
+                        goToPosition(Constants.BLUE_OUTPOST_CENTERED, Constants.RED_OUTPOST_CENTERED)
+                                .raceWith(commandFactory.shooterDefault(()-> true)),
+                        Commands.parallel(shooting(Units.degreesToRadians(Intake.DEPLOY_ANGLE)), runOnce(drive::stop)
+                        ))
+        );
     }
 
 
