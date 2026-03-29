@@ -182,6 +182,8 @@ public class RobotContainer {
         Trigger setPassingMode = controller.a();
         Trigger setShootingMode = controller.x();
 
+        Trigger reverseIntakeTrigger = controller.y();
+
         // Reset gyro to 0° when B button is pressed
         resetFieldOrientedTrigger.onTrue(drive.resetOdometry(() ->
                 new Pose2d(
@@ -200,6 +202,7 @@ public class RobotContainer {
         // general bindings for the intake
         intakeTrigger.whileTrue(intake.deployAndIntake());
         stowIntakeTrigger.whileTrue(intake.stow());
+        reverseIntakeTrigger.whileTrue(intake.intakeAndPivot(-4.0, Intake.DEPLOY_ANGLE));
 
         // general bindings for the shooter
         shootTrigger.and(() -> shootingIntoHub).whileTrue(commandFactory.aim(true));
