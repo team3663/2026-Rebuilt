@@ -52,6 +52,9 @@ public final class Constants {
     public static final double BLUE_ALLIANCE_LINE_X = IS_ANDYMARK ? Units.inchesToMeters(181.56) : Units.inchesToMeters(182.11);
     public static final double RED_ALLIANCE_LINE_X = IS_ANDYMARK ? Units.inchesToMeters(FIELD.getFieldLength() - 181.56)
             : Units.inchesToMeters(FIELD.getFieldLength() - 182.11);
+    public static final double BEHIND_HUB_X = FIELD.getFieldLength() / 2.0;
+    public static final double BEHIND_HUB_LARGER_Y = FIELD.getFieldWidth() / 2.0 + Units.inchesToMeters(30.0);
+    public static final double BEHIND_HUB_SMALLER_Y = FIELD.getFieldWidth() / 2.0 - Units.inchesToMeters(30.0);
 
     // Rotation2d Constants
     private static final Rotation2d BLUE_ROTATED_LEFT = Rotation2d.fromDegrees(90.0);

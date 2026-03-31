@@ -83,7 +83,7 @@ public class CommandFactory {
 
     public Command shooterDefault(BooleanSupplier shootingIntoHub) {
         return shooter.follow(() -> 0.0, () -> {
-        Logger.recordOutput("CommandFactory/shootingIntoHub", shootingIntoHub.getAsBoolean());
+            Logger.recordOutput("CommandFactory/shootingIntoHub", shootingIntoHub.getAsBoolean());
             Translation2d target = getShooterTarget(drive.getPose(), isRedAlliance(), shootingIntoHub.getAsBoolean());
             return fireControlSystem.calculate(
                             drive.getPose(), drive.getFieldOrientedVelocity(),
@@ -142,13 +142,33 @@ public class CommandFactory {
         );
     }
 
-    public Boolean isHubShootingMode(){
+    public boolean isHubShootingMode() {
         if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) ==
                 DriverStation.Alliance.Blue) {
             return !(drive.getPose().getX() > Constants.BLUE_ALLIANCE_LINE_X);
         } else {
             return !(drive.getPose().getX() < Constants.RED_ALLIANCE_LINE_X);
         }
+    }
+
+    public boolean shouldShoot() {
+        var notPassingBehindHub = true;
+        var poseX = drive.getPose().getX();
+        var poseY = drive.getPose().getY();
+
+        if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) ==
+                DriverStation.Alliance.Blue) {
+            if (poseX < Constants.BEHIND_HUB_X && poseX > Constants.BLUE_ALLIANCE_LINE_X &&
+                    poseY < Constants.BEHIND_HUB_LARGER_Y && poseY > Constants.BEHIND_HUB_SMALLER_Y) {
+                notPassingBehindHub = false;
+            }
+        } else {
+            if (poseX > Constants.BEHIND_HUB_X && poseX < Constants.RED_ALLIANCE_LINE_X &&
+                    poseY < Constants.BEHIND_HUB_LARGER_Y && poseY > Constants.BEHIND_HUB_SMALLER_Y) {
+                notPassingBehindHub = false;
+            }
+        }
+        return (shooter.atTargets() && notPassingBehindHub);
     }
 
     public Command autonomousFeedAndShoot(boolean aimAtHub, double pivotAngle) {

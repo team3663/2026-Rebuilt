@@ -218,11 +218,11 @@ public class RobotContainer {
         shootTrigger.whileTrue(
                 sequence(
                         waitSeconds(0.1),
-                        waitUntil(shooter::atTargets),
+                        waitUntil(commandFactory::shouldShoot),
                         repeatingSequence(
                                 commandFactory.feedIntoShooter()
-                                        .until(() -> !shooter.atTargets()),
-                                waitUntil(shooter::atTargets)
+                                        .until(() -> !commandFactory.shouldShoot()),
+                                waitUntil(commandFactory::shouldShoot)
                         )
                 ));
 
