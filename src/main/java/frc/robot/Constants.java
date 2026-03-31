@@ -118,7 +118,7 @@ public final class Constants {
             FIELD.getFieldWidth() - Units.feetToMeters(TRENCH_STARTING_OFFSET), BLUE_ROTATED_DOWNFIELD);
     public static final Pose2d BLUE_RIGHT_UNDER_TRENCH_SHOOTING = new Pose2d(FIELD.getTagPose(28).get().getX() - Units.inchesToMeters((47.0 / 2) - 13.0) - Units.feetToMeters(0.5),
             Units.feetToMeters(TRENCH_STARTING_OFFSET), BLUE_ROTATED_DOWNFIELD);
-    public static final Pose2d BLUE_RIGHT_BUMP_SHOOTING = new Pose2d(FIELD.getTagPose(28).get().getX() - BUMP_X_OFFSET_FROM_TRENCH - Units.feetToMeters(3.0),
+    public static final Pose2d BLUE_RIGHT_BUMP_SHOOTING = new Pose2d(FIELD.getTagPose(28).get().getX() - BUMP_X_OFFSET_FROM_TRENCH - Units.feetToMeters(1.0),
             (FIELD.getFieldWidth() / 2.0) - BUMP_Y_OFFSET_FROM_CENTER, BLUE_ROTATED_LEFT_45_DEGREES);
     public static final Pose2d BLUE_RIGHT_BUMP_SHOOTING_ROTATED_RIGHT = new Pose2d(FIELD.getTagPose(28).get().getX() - BUMP_X_OFFSET_FROM_TRENCH - Units.feetToMeters(3.0),
             (FIELD.getFieldWidth() / 2.0) - BUMP_Y_OFFSET_FROM_CENTER, BLUE_ROTATED_RIGHT_45_DEGREES);
@@ -182,7 +182,7 @@ public final class Constants {
             Units.feetToMeters(TRENCH_STARTING_OFFSET), RED_ROTATED_DOWNFIELD);
     public static final Pose2d RED_RIGHT_UNDER_TRENCH_SHOOTING = new Pose2d(FIELD.getTagPose(12).get().getX() + Units.inchesToMeters((47.0 / 2) - 13.0) + Units.feetToMeters(0.5),
             FIELD.getFieldWidth() - Units.feetToMeters(TRENCH_STARTING_OFFSET), RED_ROTATED_DOWNFIELD);
-    public static final Pose2d RED_RIGHT_BUMP_SHOOTING = new Pose2d(FIELD.getTagPose(12).get().getX() + BUMP_X_OFFSET_FROM_TRENCH + Units.feetToMeters(3.0),
+    public static final Pose2d RED_RIGHT_BUMP_SHOOTING = new Pose2d(FIELD.getTagPose(12).get().getX() + BUMP_X_OFFSET_FROM_TRENCH + Units.feetToMeters(1.0),
             (FIELD.getFieldWidth() / 2.0) + BUMP_Y_OFFSET_FROM_CENTER, RED_ROTATED_LEFT_45_DEGREES);
     public static final Pose2d RED_RIGHT_BUMP_SHOOTING_ROTATED_RIGHT = new Pose2d(FIELD.getTagPose(12).get().getX() + BUMP_X_OFFSET_FROM_TRENCH + Units.feetToMeters(3.0),
             (FIELD.getFieldWidth() / 2.0) + BUMP_Y_OFFSET_FROM_CENTER, RED_ROTATED_RIGHT_45_DEGREES);
