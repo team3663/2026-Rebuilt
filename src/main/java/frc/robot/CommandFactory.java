@@ -168,7 +168,14 @@ public class CommandFactory {
                 notPassingBehindHub = false;
             }
         }
-        return (shooter.atTargets() && notPassingBehindHub);
+        
+        var linearVelocity = Math.sqrt(Math.pow(drive.getFieldOrientedVelocity().vxMetersPerSecond, 2.0)
+                + Math.pow(drive.getFieldOrientedVelocity().vyMetersPerSecond, 2.0));
+        var rotationalVelocity = drive.getFieldOrientedVelocity().omegaRadiansPerSecond;
+        var velocityBelowShootingMax = (!(linearVelocity > drive.getMaxLinearSpeedMetersPerSec() * 0.6))
+                || (!(rotationalVelocity > drive.getMaxAngularSpeedRadPerSec() * 0.5));
+
+        return (shooter.atTargets() && notPassingBehindHub && velocityBelowShootingMax);
     }
 
     public Command autonomousFeedAndShoot(boolean aimAtHub, double pivotAngle) {
