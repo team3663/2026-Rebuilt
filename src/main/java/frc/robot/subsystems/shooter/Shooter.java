@@ -16,6 +16,7 @@ import static edu.wpi.first.wpilibj2.command.Commands.waitUntil;
 public class Shooter extends SubsystemBase {
     private final static double HOOD_POSITION_THRESHOLD = Units.degreesToRadians(2.0);
     private final static double TURRET_POSITION_THRESHOLD = Units.degreesToRadians(10.0);
+    private final static double TURRET_DEAD_ZONE_POSITION_THRESHOLD = Units.degreesToRadians(2.0);
     private final static double SHOOTER_VELOCITY_THRESHOLD = Units.rotationsPerMinuteToRadiansPerSecond(400.0);
 
     private final ShooterIO io;
@@ -26,6 +27,8 @@ public class Shooter extends SubsystemBase {
     private double targetHoodPosition;
     private double targetTurretPosition;
     private double targetShooterVelocity;
+
+    private boolean turretTargetingDeadZone = false;
 
     public Shooter(ShooterIO io) {
         this.io = io;
@@ -170,14 +173,26 @@ public class Shooter extends SubsystemBase {
         return turretAtPosition(targetTurretPosition, TURRET_POSITION_THRESHOLD);
     }
 
+    public boolean isAimingAtDeadZone() {
+        return turretTargetingDeadZone;
+    }
+
     public boolean turretAtPosition(double position) {
         return turretAtPosition(position, TURRET_POSITION_THRESHOLD);
     }
 
     public boolean turretAtPosition(double position, double threshold) {
+        if (position > (constants.maximumTurretPosition + TURRET_DEAD_ZONE_POSITION_THRESHOLD)
+                || position < (constants.minimumTurretPosition - TURRET_DEAD_ZONE_POSITION_THRESHOLD)) {
+            turretTargetingDeadZone = true;
+        } else {
+            turretTargetingDeadZone = false;
+        }
+        Logger.recordOutput("Shooter/TurretTargetingDeadZone", turretTargetingDeadZone);
         boolean atPosition = Math.abs(getSmallestEquivalentAngle(inputs.currentTurretPosition) - getSmallestEquivalentAngle(position)) < threshold;
         Logger.recordOutput("Shooter/TurretAtPosition", atPosition);
-        return atPosition;
+        if (turretTargetingDeadZone) return false;
+        else return atPosition;
     }
 
     public double getTargetTurretPosition() {
