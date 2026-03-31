@@ -142,6 +142,15 @@ public class CommandFactory {
         );
     }
 
+    public Boolean isHubShootingMode(){
+        if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) ==
+                DriverStation.Alliance.Blue) {
+            return !(drive.getPose().getX() > Constants.BLUE_ALLIANCE_LINE_X);
+        } else {
+            return !(drive.getPose().getX() < Constants.RED_ALLIANCE_LINE_X);
+        }
+    }
+
     public Command autonomousFeedAndShoot(boolean aimAtHub, double pivotAngle) {
         return aim(aimAtHub)
                 .alongWith(

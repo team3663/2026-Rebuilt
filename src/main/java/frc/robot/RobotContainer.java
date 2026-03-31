@@ -64,6 +64,7 @@ public class RobotContainer {
 
     // Dashboard inputs
     private final LoggedDashboardChooser<AutoPaths.AutonomousMode> autoChooser;
+    private final LoggedNetworkBoolean automaticPassingOverride = new LoggedNetworkBoolean("overrideSwitichingToPassing", false);
 
     private boolean shootingIntoHub = true;
 
@@ -205,8 +206,15 @@ public class RobotContainer {
         reverseIntakeTrigger.whileTrue(intake.intakeAndPivot(-4.0, Intake.DEPLOY_ANGLE));
 
         // general bindings for the shooter
-        shootTrigger.and(() -> shootingIntoHub).whileTrue(commandFactory.aim(true));
-        shootTrigger.and(() -> !shootingIntoHub).whileTrue(commandFactory.aim(false));
+        shootTrigger.and(() -> shootingIntoHub).whileTrue(runOnce(() -> {
+            boolean shouldOverride = automaticPassingOverride.getAsBoolean();
+            if (!shouldOverride) {
+                shootingIntoHub = commandFactory.isHubShootingMode();
+                aimingAtHub.set(commandFactory.isHubShootingMode());
+                passing.set(!commandFactory.isHubShootingMode());
+            }
+        })
+                .andThen(commandFactory.aim(shootingIntoHub)));
         shootTrigger.whileTrue(
                 sequence(
                         waitSeconds(0.1),
@@ -222,12 +230,12 @@ public class RobotContainer {
             shootingIntoHub = false;
             aimingAtHub.set(false);
             passing.set(true);
-        }));
+        })).and(automaticPassingOverride);
         setShootingMode.onTrue(runOnce(() -> {
             shootingIntoHub = true;
             aimingAtHub.set(true);
             passing.set(false);
-        }));
+        })).and(automaticPassingOverride);
 
         // while shooting and not intaking fuel, use the intake to aid in feeding
         shootTrigger.and(intakeTrigger.negate()).whileTrue(intake.feed());

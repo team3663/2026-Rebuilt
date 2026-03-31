@@ -49,6 +49,10 @@ public final class Constants {
     private static final double BUMP_Y_OFFSET_FROM_CENTER = Units.inchesToMeters(62.0);
     private static final double BUMP_X_OFFSET_FROM_TRENCH = Units.inchesToMeters(23.5 + 14.0 + 6.0);
 
+    public static final double BLUE_ALLIANCE_LINE_X = IS_ANDYMARK ? Units.inchesToMeters(181.56) : Units.inchesToMeters(182.11);
+    public static final double RED_ALLIANCE_LINE_X = IS_ANDYMARK ? Units.inchesToMeters(FIELD.getFieldLength() - 181.56)
+            : Units.inchesToMeters(FIELD.getFieldLength() - 182.11);
+
     // Rotation2d Constants
     private static final Rotation2d BLUE_ROTATED_LEFT = Rotation2d.fromDegrees(90.0);
     private static final Rotation2d BLUE_ROTATED_DOWNFIELD = Rotation2d.fromDegrees(0.0);
