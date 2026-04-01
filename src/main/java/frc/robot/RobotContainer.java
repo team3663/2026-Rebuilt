@@ -210,7 +210,6 @@ public class RobotContainer {
             var shouldOverride = automaticPassingOverride.getAsBoolean();
             if (!shouldOverride) {
                 shootingIntoHub = commandFactory.isHubShootingMode();
-                System.out.println(commandFactory.isHubShootingMode());
                 aimingAtHub.set(commandFactory.isHubShootingMode());
                 passing.set(!commandFactory.isHubShootingMode());
             }
