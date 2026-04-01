@@ -145,9 +145,9 @@ public class CommandFactory {
     public boolean isHubShootingMode() {
         if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) ==
                 DriverStation.Alliance.Blue) {
-            return !(drive.getPose().getX() > Constants.BLUE_ALLIANCE_LINE_X);
+            return (drive.getPose().getX() < Constants.BLUE_ALLIANCE_LINE_X);
         } else {
-            return !(drive.getPose().getX() < Constants.RED_ALLIANCE_LINE_X);
+            return (drive.getPose().getX() > Constants.RED_ALLIANCE_LINE_X);
         }
     }
 
@@ -168,12 +168,16 @@ public class CommandFactory {
                 notPassingBehindHub = false;
             }
         }
-        
+
         var linearVelocity = Math.sqrt(Math.pow(drive.getFieldOrientedVelocity().vxMetersPerSecond, 2.0)
                 + Math.pow(drive.getFieldOrientedVelocity().vyMetersPerSecond, 2.0));
         var rotationalVelocity = drive.getFieldOrientedVelocity().omegaRadiansPerSecond;
         var velocityBelowShootingMax = (!(linearVelocity > drive.getMaxLinearSpeedMetersPerSec() * 0.6))
                 || (!(rotationalVelocity > drive.getMaxAngularSpeedRadPerSec() * 0.5));
+
+        Logger.recordOutput("CommandFactory/ShooterAtTargets", shooter.atTargets());
+        Logger.recordOutput("CommandFactory/NotPassingBehindHub", notPassingBehindHub);
+        Logger.recordOutput("CommandFactory/VelocityBelowShootingMax", velocityBelowShootingMax);
 
         return (shooter.atTargets() && notPassingBehindHub && velocityBelowShootingMax);
     }
