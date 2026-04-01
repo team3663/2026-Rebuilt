@@ -80,4 +80,9 @@ public class LimelightIO implements VisionIO {
         visionInputs.filterDuration = filterEnd - filterStart;
 
     }
+
+    @Override
+    public void recordOnCameras(double duration) {
+        LimelightHelpers.triggerRewindCapture(cameraName, duration);
+    }
 }

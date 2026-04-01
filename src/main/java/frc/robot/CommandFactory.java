@@ -15,6 +15,7 @@ import frc.robot.util.FireControlSystem;
 import frc.robot.util.FiringSolution;
 import org.littletonrobotics.junction.Logger;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import static edu.wpi.first.wpilibj2.command.Commands.*;
@@ -80,32 +81,33 @@ public class CommandFactory {
                 .finallyDo(() -> firingSolution = null);
     }
 
-    public Command shooterDefault() {
+    public Command shooterDefault(BooleanSupplier shootingIntoHub) {
         return shooter.follow(() -> 0.0, () -> {
-            Translation2d target = isRedAlliance() ? Constants.Shooter.RED_HUB : Constants.Shooter.BLUE_HUB;
-            Logger.recordOutput("CommandFactory/ShooterTarget", new Pose2d(target, Rotation2d.kZero));
-            double rotation = target.minus(drive.getPose().getTranslation()).getAngle().getRadians();
-            Logger.recordOutput("CommandFactory/TargetTurretPose", new Pose2d(getTurretPose().getTranslation(), Rotation2d.fromRadians(rotation)));
-            return rotation - drive.getRotation().getRadians();
+        Logger.recordOutput("CommandFactory/shootingIntoHub", shootingIntoHub.getAsBoolean());
+            Translation2d target = getShooterTarget(drive.getPose(), isRedAlliance(), shootingIntoHub.getAsBoolean());
+            return fireControlSystem.calculate(
+                            drive.getPose(), drive.getFieldOrientedVelocity(),
+                            Rotation2d.fromRadians(shooter.getTurretPosition()), target, shootingIntoHub.getAsBoolean())
+                    .turretAngle();
         }, () -> Constants.Shooter.DEFAULT_VELOCITY);
     }
 
-    public Command calibrateShooter(DoubleSupplier hoodAngleSupplier, DoubleSupplier shooterVelocitySupplier, boolean aimAtHub) {
+    public Command calibrateShooter(DoubleSupplier hoodAngleSupplier, DoubleSupplier shooterVelocitySupplier, BooleanSupplier aimAtHub) {
         return shooter.follow(() -> {
             Pose2d robotPose = drive.getPose();
 
-            Translation2d targetPosition = getShooterTarget(robotPose, isRedAlliance(), aimAtHub);
+            Translation2d targetPosition = getShooterTarget(robotPose, isRedAlliance(), aimAtHub.getAsBoolean());
 
             var firingSolution = fireControlSystem.calculate(
                     drive.getPose(), drive.getFieldOrientedVelocity(),
                     Rotation2d.fromRadians(shooter.getTurretPosition()),
-                    targetPosition, aimAtHub);
+                    targetPosition, aimAtHub.getAsBoolean());
             return new FiringSolution(firingSolution.turretAngle(), hoodAngleSupplier.getAsDouble(),
                     shooterVelocitySupplier.getAsDouble());
         });
     }
 
-    private Translation2d getShooterTarget(Pose2d robot, boolean redAlliance, boolean aimAtHub) {
+    public static Translation2d getShooterTarget(Pose2d robot, boolean redAlliance, boolean aimAtHub) {
         Translation2d target;
         if (aimAtHub)
             target = redAlliance ? Constants.Shooter.RED_HUB : Constants.Shooter.BLUE_HUB;
@@ -135,8 +137,8 @@ public class CommandFactory {
      */
     public Command feedIntoShooter() {
         return parallel(
-                hopper.withVoltage(4.0, 4.0),
-                feeder.withVoltage(4.0)
+                hopper.withVoltage(6.0, 6.0),
+                feeder.withVoltage(6.0)
         );
     }
 
@@ -144,6 +146,7 @@ public class CommandFactory {
         return aim(aimAtHub)
                 .alongWith(
                         repeatingSequence(
+                                waitSeconds(0.1),
                                 waitUntil(shooter::atShooterTargetVelocity),
                                 feedIntoShooter().onlyWhile(shooter::atShooterTargetVelocity)
                         ), intake.feedWithAngle(pivotAngle));

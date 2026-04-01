@@ -35,7 +35,6 @@ public class SimIntakeIO implements IntakeIO {
             INTAKE_LENGTH, CONSTANTS.minimumPivotAngle(), CONSTANTS.maximumPivotAngle(),
             true, Units.degreesToRadians(PIVOT_STARTING_ANGLE));
 
-    // TODO, What do I set these values
     private final ProfiledPIDController intakeController = new ProfiledPIDController(
             100.0, 0.0, 0.0, new TrapezoidProfile.Constraints(
             Units.rotationsPerMinuteToRadiansPerSecond(200.0),
