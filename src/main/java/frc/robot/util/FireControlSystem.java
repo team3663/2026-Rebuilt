@@ -116,7 +116,7 @@ public class FireControlSystem {
 
         for (int i = 0; i < 20; i++) {
             distance = turretPosition.getDistance(leadedTarget);
-            leadedTarget = getSingleLeadingOffset(fieldOrientedVelocity, distance);
+            leadedTarget = targetPosition.plus(getSingleLeadingOffset(fieldOrientedVelocity, distance));
         }
 
         return leadedTarget;
