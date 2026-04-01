@@ -151,18 +151,4 @@ public class CommandFactory {
                                 feedIntoShooter().onlyWhile(shooter::atShooterTargetVelocity)
                         ), intake.feedWithAngle(pivotAngle));
     }
-
-    public Command autonomousFeedShootAndZero(boolean aimAtHub) {
-        return aimAndZeroHood(aimAtHub)
-                .alongWith(feedIntoShooter()
-                        .onlyWhile(shooter::atShooterTargetVelocity))
-                .alongWith(intake.feed()
-                        .beforeStarting(intake::zeroPivot));
-    }
-
-    public Command autonomousFeedAndShootWithoutIntake(boolean aimAtHub, boolean shouldZero) {
-        return aim(aimAtHub)
-                .alongWith((feedIntoShooter().onlyWhile(shooter::atShooterTargetVelocity))
-                        .beforeStarting(shouldZero ? shooter.zeroHood() : Commands.none()));
-    }
 }

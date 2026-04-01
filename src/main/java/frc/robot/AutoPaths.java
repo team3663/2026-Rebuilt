@@ -1,6 +1,8 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -369,9 +371,9 @@ public class AutoPaths {
                                 .raceWith(zeroIntakeAndHood().andThen(commandFactory.shooterDefault(() -> true))),
                         Commands.parallel(shooting(Units.degreesToRadians(40.0), 3.0), runOnce(drive::stop)),
                         goToIntermediate(Constants.BLUE_OUTPOST_INTERMEDIATE, Constants.RED_OUTPOST_INTERMEDIATE, Units.feetToMeters(4.0))
-                                .raceWith(intake.deploy().andThen(commandFactory.shooterDefault(()-> true))),
+                                .raceWith(intake.deploy().andThen(commandFactory.shooterDefault(() -> true))),
                         goToPosition(Constants.BLUE_OUTPOST_CENTERED, Constants.RED_OUTPOST_CENTERED)
-                                .raceWith(commandFactory.shooterDefault(()-> true)),
+                                .raceWith(commandFactory.shooterDefault(() -> true)),
                         Commands.parallel(shooting(Units.degreesToRadians(Intake.DEPLOY_ANGLE)), runOnce(drive::stop)
                         ))
         );
@@ -423,21 +425,29 @@ public class AutoPaths {
                 ));
     }
 
-    public AutonomousMode middleStarting_depot() {
+    public AutonomousMode leftBump2ftFromCenter_depot() {
         return new AutonomousMode(
-                Constants.BLUE_IN_FRONT_OF_HUB_AUTO_LINE,
-                Constants.RED_IN_FRONT_OF_HUB_AUTO_LINE,
+                Constants.BLUE_IN_FRONT_OF_BUMP_AUTO_LINE,
+                Constants.RED_IN_FRONT_OF_BUMP_AUTO_LINE,
                 Commands.sequence(
-                        resetOdometry(Constants.BLUE_IN_FRONT_OF_HUB_AUTO_LINE, Constants.RED_IN_FRONT_OF_HUB_AUTO_LINE),
-                        goToIntermediate(Constants.BLUE_HUB_SHOOTING, Constants.RED_HUB_SHOOTING, DEFAULT_INTERMEDIATE_DISTANCE_THRESHOLD),
+                        resetOdometry(Constants.BLUE_IN_FRONT_OF_BUMP_AUTO_LINE, Constants.RED_IN_FRONT_OF_BUMP_AUTO_LINE),
+                        goToPosition(Constants.BLUE_BEHIND_BUMP_SHOOTING, Constants.RED_BEHIND_BUMP_SHOOTING)
+                                .raceWith(zeroIntakeAndHood().andThen(commandFactory.shooterDefault(() -> true))),
+                        shooting().alongWith(runOnce(drive::stop)),
                         goToIntermediate(Constants.BLUE_DEPOT_INTERMEDIATE, Constants.RED_DEPOT_INTERMEDIATE, DEFAULT_TRENCH_DISTANCE_THRESHOLD)
                                 .raceWith(intaking()),
                         goToPosition(Constants.BLUE_DEPOT, Constants.RED_DEPOT)
                                 .raceWith(intaking()),
-                        shooting()
-                                .raceWith(Commands.runOnce(drive::stop))
+                        shooting().alongWith(runOnce(drive::stop)),
+                        goToIntermediate(Constants.BLUE_DEPOT.plus(new Transform2d(0.0, -Units.feetToMeters(1.5), Rotation2d.kZero)), Constants.RED_DEPOT.plus(new Transform2d(0.0, -Units.feetToMeters(1.5), Rotation2d.kZero)), Units.feetToMeters(0.5))
+                                .raceWith(intake.stow()),
+                        goToIntermediate(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE, DEFAULT_TRENCH_DISTANCE_THRESHOLD),
+                        goToIntermediate(Constants.BLUE_LEFT_NEUTRAL_ZONE_TRENCH_OFFSET_ROTATED_RIGHT, Constants.RED_LEFT_NEUTRAL_ZONE_TRENCH_OFFSET_Y_OFFSET, DEFAULT_TRENCH_DISTANCE_THRESHOLD),
+                        goToPosition(Constants.BLUE_LEFT_CENTER_LINE_INTERMEDIATE, Constants.RED_LEFT_CENTER_LINE_INTERMEDIATE)
+                                .raceWith(intaking())
                 ));
     }
+
 
     public AutonomousMode middleStarting_shootIntoHub() {
         return new AutonomousMode(

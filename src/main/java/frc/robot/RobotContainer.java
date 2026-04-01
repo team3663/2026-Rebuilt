@@ -117,7 +117,7 @@ public class RobotContainer {
 //        autoChooser.addOption("RightUnderTrench2ft-NZ-Shoot-NeutralZoneLoop-Shoot", autoPaths.rightStarting_neutralZone_shoot_neutralZoneLoop_shoot());
         autoChooser.addOption("CH-ShootInHub-Outpost", autoPaths.middleStarting_shootIntoHub_outpost());
         autoChooser.addOption("RT-Outpost", autoPaths.rightStarting_outpost());
-//        autoChooser.addOption("MiddleStarting-Depot", autoPaths.middleStarting_depot());
+        autoChooser.addOption("LB-Depot-NZ", autoPaths.leftBump2ftFromCenter_depot());
 
         // Configure the button bindings
         configureButtonBindings();
