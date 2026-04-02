@@ -76,7 +76,7 @@ public class FireControlSystem {
                                     Translation2d goalPosition, boolean aimAtHub) {
         Pose2d turretPose = getTurretPose(robotPose, turretRotation);
 
-        Translation2d leadTarget = goalPosition.minus(getLeadingOffset(fieldOrientedVelocity, turretPose.getTranslation(), goalPosition));
+        Translation2d leadTarget = getLeadedTarget(fieldOrientedVelocity, turretPose.getTranslation(), goalPosition);
         Logger.recordOutput("CommandFactory/LeadGoalPose", new Pose2d(leadTarget, Rotation2d.kZero));
 
         Translation2d delta = leadTarget.minus(turretPose.getTranslation());
@@ -110,19 +110,19 @@ public class FireControlSystem {
         return turretPose;
     }
 
-    public Translation2d getLeadingOffset(ChassisSpeeds fieldOrientedVelocity, Translation2d turretPosition, Translation2d targetPosition) {
+    public Translation2d getLeadedTarget(ChassisSpeeds fieldOrientedVelocity, Translation2d turretPosition, Translation2d targetPosition) {
         Translation2d leadedTarget = targetPosition;
         double distance;
 
         for (int i = 0; i < 20; i++) {
             distance = turretPosition.getDistance(leadedTarget);
-            leadedTarget = targetPosition.plus(getSingleLeadingOffset(fieldOrientedVelocity, distance));
+            leadedTarget = targetPosition.minus(getLeadingOffset(fieldOrientedVelocity, distance));
         }
 
         return leadedTarget;
     }
 
-    private Translation2d getSingleLeadingOffset(ChassisSpeeds fieldOrientedVelocity, double distance) {
+    private Translation2d getLeadingOffset(ChassisSpeeds fieldOrientedVelocity, double distance) {
         double speedFactor = DISTANCE_LOOKUP_TABLE_LEAD.get(distance);
         return new Translation2d(
                 speedFactor * (fieldOrientedVelocity.vxMetersPerSecond
