@@ -125,13 +125,11 @@ public class FireControlSystem {
     private Translation2d getLeadingOffset(ChassisSpeeds fieldOrientedVelocity, double distance) {
         double speedFactor = DISTANCE_LOOKUP_TABLE_LEAD.get(distance);
         return new Translation2d(
-                speedFactor * (fieldOrientedVelocity.vxMetersPerSecond
-//                        + fieldOrientedVelocity.omegaRadiansPerSecond * Constants.Shooter.TURRET_OFF_CENTER.getNorm() *
-//                        Math.cos(Math.atan2(Constants.Shooter.TURRET_OFF_CENTER.getY(), Constants.Shooter.TURRET_OFF_CENTER.getX()) - Math.PI / 2)
+                speedFactor * (fieldOrientedVelocity.vxMetersPerSecond + fieldOrientedVelocity.omegaRadiansPerSecond * Constants.Shooter.TURRET_OFF_CENTER.getNorm() *
+                        Math.cos(Math.atan2(Constants.Shooter.TURRET_OFF_CENTER.getY(), Constants.Shooter.TURRET_OFF_CENTER.getX()) - Math.PI / 2)
                 ),
-                speedFactor * (fieldOrientedVelocity.vyMetersPerSecond
-//                        + fieldOrientedVelocity.omegaRadiansPerSecond * Constants.Shooter.TURRET_OFF_CENTER.getNorm() *
-//                        Math.sin(Math.atan2(Constants.Shooter.TURRET_OFF_CENTER.getY(), Constants.Shooter.TURRET_OFF_CENTER.getX()) - Math.PI / 2)
+                speedFactor * (fieldOrientedVelocity.vyMetersPerSecond + fieldOrientedVelocity.omegaRadiansPerSecond * Constants.Shooter.TURRET_OFF_CENTER.getNorm() *
+                        Math.sin(Math.atan2(Constants.Shooter.TURRET_OFF_CENTER.getY(), Constants.Shooter.TURRET_OFF_CENTER.getX()) - Math.PI / 2)
                 )
         );
     }

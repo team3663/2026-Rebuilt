@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.FiringSolution;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
@@ -27,6 +28,8 @@ public class Shooter extends SubsystemBase {
     private double targetHoodPosition;
     private double targetTurretPosition;
     private double targetShooterVelocity;
+
+    LoggedNetworkBoolean turretInDeadZone = new LoggedNetworkBoolean("turretInDeadZone", false);
 
     private boolean turretTargetingDeadZone = false;
 
@@ -87,6 +90,7 @@ public class Shooter extends SubsystemBase {
             // Turret
             turretTargetingDeadZone = turretPosition > (constants.maximumTurretPosition)
                     || turretPosition < (constants.minimumTurretPosition);
+            turretInDeadZone.set(turretTargetingDeadZone);
             Logger.recordOutput("Shooter/TurretTargetingDeadZone", turretTargetingDeadZone);
 
             targetTurretPosition = getNearestTargetTurretAngle(turretPosition);
@@ -110,6 +114,7 @@ public class Shooter extends SubsystemBase {
             targetTurretPosition = getSmallestEquivalentAngle(turretPosition.getAsDouble());
             turretTargetingDeadZone = targetTurretPosition > (constants.maximumTurretPosition)
                     || targetTurretPosition < (constants.minimumTurretPosition);
+            turretInDeadZone.set(turretTargetingDeadZone);
             Logger.recordOutput("Shooter/TurretTargetingDeadZone", turretTargetingDeadZone);
             targetTurretPosition = getNearestTargetTurretAngle(turretPosition.getAsDouble());
 
