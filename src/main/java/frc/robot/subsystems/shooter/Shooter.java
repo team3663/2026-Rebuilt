@@ -85,6 +85,10 @@ public class Shooter extends SubsystemBase {
             }
 
             // Turret
+            turretTargetingDeadZone = turretPosition > (constants.maximumTurretPosition)
+                    || turretPosition < (constants.minimumTurretPosition);
+            Logger.recordOutput("Shooter/TurretTargetingDeadZone", turretTargetingDeadZone);
+
             targetTurretPosition = getNearestTargetTurretAngle(turretPosition);
             io.setTurretTargetPosition(targetTurretPosition);
 
@@ -103,7 +107,12 @@ public class Shooter extends SubsystemBase {
             }
 
             // Turret
+            targetTurretPosition = getSmallestEquivalentAngle(turretPosition.getAsDouble());
+            turretTargetingDeadZone = targetTurretPosition > (constants.maximumTurretPosition)
+                    || targetTurretPosition < (constants.minimumTurretPosition);
+            Logger.recordOutput("Shooter/TurretTargetingDeadZone", turretTargetingDeadZone);
             targetTurretPosition = getNearestTargetTurretAngle(turretPosition.getAsDouble());
+
             io.setTurretTargetPosition(targetTurretPosition);
 
             // Shooter
@@ -182,13 +191,6 @@ public class Shooter extends SubsystemBase {
     }
 
     public boolean turretAtPosition(double position, double threshold) {
-        if (position > (constants.maximumTurretPosition + TURRET_DEAD_ZONE_POSITION_THRESHOLD)
-                || position < (constants.minimumTurretPosition - TURRET_DEAD_ZONE_POSITION_THRESHOLD)) {
-            turretTargetingDeadZone = true;
-        } else {
-            turretTargetingDeadZone = false;
-        }
-        Logger.recordOutput("Shooter/TurretTargetingDeadZone", turretTargetingDeadZone);
         boolean atPosition = Math.abs(getSmallestEquivalentAngle(inputs.currentTurretPosition) - getSmallestEquivalentAngle(position)) < threshold;
         Logger.recordOutput("Shooter/TurretAtPosition", atPosition);
         if (turretTargetingDeadZone) return false;

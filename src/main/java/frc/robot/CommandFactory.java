@@ -50,19 +50,23 @@ public class CommandFactory {
         return atTarget;
     }
 
-    public Command aim(boolean aimAtHub) {
+    public Command aim(BooleanSupplier aimAtHub) {
         return shooter.follow(() -> {
                     Pose2d robotPose = drive.getPose();
 
-                    Translation2d targetPosition = getShooterTarget(robotPose, isRedAlliance(), aimAtHub);
+                    Translation2d targetPosition = getShooterTarget(robotPose, isRedAlliance(), aimAtHub.getAsBoolean());
 
                     firingSolution = fireControlSystem.calculate(
                             drive.getPose(), drive.getFieldOrientedVelocity(),
                             Rotation2d.fromRadians(shooter.getTurretPosition()),
-                            targetPosition, aimAtHub);
+                            targetPosition, aimAtHub.getAsBoolean());
                     return firingSolution;
                 })
                 .finallyDo(() -> firingSolution = null);
+    }
+
+    public Command aim(boolean aimAtHub) {
+        return aim(()-> aimAtHub);
     }
 
     public Command aimAndZeroHood(boolean aimAtHub) {
@@ -153,8 +157,8 @@ public class CommandFactory {
 
     public boolean shouldShoot() {
         var notPassingBehindHub = true;
-        var poseX = drive.getPose().getX();
-        var poseY = drive.getPose().getY();
+        var poseX = getTurretPose().getX();
+        var poseY = getTurretPose().getY();
 
         if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) ==
                 DriverStation.Alliance.Blue) {
@@ -172,7 +176,7 @@ public class CommandFactory {
         var linearVelocity = Math.sqrt(Math.pow(drive.getFieldOrientedVelocity().vxMetersPerSecond, 2.0)
                 + Math.pow(drive.getFieldOrientedVelocity().vyMetersPerSecond, 2.0));
         var rotationalVelocity = drive.getFieldOrientedVelocity().omegaRadiansPerSecond;
-        var velocityBelowShootingMax = (!(linearVelocity > drive.getMaxLinearSpeedMetersPerSec() * 0.6))
+        var velocityBelowShootingMax = (!(linearVelocity > drive.getMaxLinearSpeedMetersPerSec() * 0.4))
                 || (!(rotationalVelocity > drive.getMaxAngularSpeedRadPerSec() * 0.5));
 
         Logger.recordOutput("CommandFactory/ShooterAtTargets", shooter.atTargets());

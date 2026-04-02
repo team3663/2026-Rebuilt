@@ -206,16 +206,17 @@ public class RobotContainer {
         reverseIntakeTrigger.whileTrue(intake.intakeAndPivot(-4.0, Intake.DEPLOY_ANGLE));
 
         // general bindings for the shooter
-        shootTrigger.whileTrue(run(() -> {
-            var shouldOverride = automaticPassingOverride.getAsBoolean();
-            if (!shouldOverride) {
-                shootingIntoHub = commandFactory.isHubShootingMode();
-                aimingAtHub.set(commandFactory.isHubShootingMode());
-                passing.set(!commandFactory.isHubShootingMode());
-            }
-        })).and(() -> shootingIntoHub).whileTrue(
-                commandFactory.aim(shootingIntoHub)
-        );
+        shootTrigger.whileTrue(parallel(
+                run(() -> {
+                    var shouldOverride = automaticPassingOverride.getAsBoolean();
+                    if (!shouldOverride) {
+                        shootingIntoHub = commandFactory.isHubShootingMode();
+                        aimingAtHub.set(commandFactory.isHubShootingMode());
+                        passing.set(!commandFactory.isHubShootingMode());
+                    }
+                }),
+                commandFactory.aim(() -> shootingIntoHub)
+        ));
 
         shootTrigger.whileTrue(
                 sequence(
