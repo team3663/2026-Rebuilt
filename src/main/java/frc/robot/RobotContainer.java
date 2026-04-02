@@ -64,14 +64,14 @@ public class RobotContainer {
 
     // Dashboard inputs
     private final LoggedDashboardChooser<AutoPaths.AutonomousMode> autoChooser;
-    private final LoggedNetworkBoolean automaticPassingOverride = new LoggedNetworkBoolean("overrideSwitichingToPassing", false);
 
     private boolean shootingIntoHub = true;
+    private boolean autoAiming = true;
 
     private boolean ranAuto = false;
 
     LoggedNetworkBoolean aimingAtHub = new LoggedNetworkBoolean("aimingAtHub", true);
-    LoggedNetworkBoolean passing = new LoggedNetworkBoolean("passing", false);
+    LoggedNetworkBoolean passing = new LoggedNetworkBoolean("passing", true);
 
 
     /**
@@ -123,7 +123,7 @@ public class RobotContainer {
         // Configure the button bindings
         configureButtonBindings();
 
-        shooter.setDefaultCommand(commandFactory.shooterDefault(() -> shootingIntoHub));
+        shooter.setDefaultCommand(commandFactory.shooterDefault(() -> (autoAiming && commandFactory.isHubShootingMode()) || (!autoAiming && shootingIntoHub)));
 
         vision.setDefaultCommand(
                 vision.consumeVisionMeasurements(drive::addVisionMeasurements, () -> {
@@ -184,6 +184,7 @@ public class RobotContainer {
         Trigger setShootingMode = controller.x();
 
         Trigger reverseIntakeTrigger = controller.y();
+        Trigger autoAim = controller.b();
 
         // Reset gyro to 0° when B button is pressed
         resetFieldOrientedTrigger.onTrue(drive.resetOdometry(() ->
@@ -206,17 +207,8 @@ public class RobotContainer {
         reverseIntakeTrigger.whileTrue(intake.intakeAndPivot(-4.0, Intake.DEPLOY_ANGLE));
 
         // general bindings for the shooter
-        shootTrigger.whileTrue(parallel(
-                run(() -> {
-                    var shouldOverride = automaticPassingOverride.getAsBoolean();
-                    if (!shouldOverride) {
-                        shootingIntoHub = commandFactory.isHubShootingMode();
-                        aimingAtHub.set(commandFactory.isHubShootingMode());
-                        passing.set(!commandFactory.isHubShootingMode());
-                    }
-                }),
-                commandFactory.aim(() -> shootingIntoHub)
-        ));
+        shootTrigger.whileTrue(
+                commandFactory.aim(() -> (autoAiming && commandFactory.isHubShootingMode()) || (!autoAiming && shootingIntoHub)));
 
         shootTrigger.whileTrue(
                 sequence(
@@ -231,14 +223,21 @@ public class RobotContainer {
 
         setPassingMode.onTrue(runOnce(() -> {
             shootingIntoHub = false;
+            autoAiming = false;
             aimingAtHub.set(false);
             passing.set(true);
-        })).and(automaticPassingOverride);
+        }));
         setShootingMode.onTrue(runOnce(() -> {
             shootingIntoHub = true;
+            autoAiming = false;
             aimingAtHub.set(true);
             passing.set(false);
-        })).and(automaticPassingOverride);
+        }));
+        autoAim.onTrue(runOnce(()-> {
+            autoAiming = true;
+            aimingAtHub.set(true);
+            passing.set(true);
+        }));
 
         // while shooting and not intaking fuel, use the intake to aid in feeding
         shootTrigger.and(intakeTrigger.negate()).whileTrue(intake.feed());
