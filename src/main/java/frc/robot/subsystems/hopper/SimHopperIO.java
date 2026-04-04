@@ -20,7 +20,7 @@ public class SimHopperIO implements HopperIO {
     public void updateInputs(HopperInputs inputs) {
         sim.update(Robot.defaultPeriodSecs);
 
-        inputs.curentHopperVelocity = sim.getAngularVelocityRadPerSec();
+        inputs.currentHopperVelocity = sim.getAngularVelocityRadPerSec();
         inputs.currentHopperAppliedVoltage = sim.getInputVoltage();
 
         inputs.hopperSupplyCurrent = sim.getCurrentDrawAmps();
