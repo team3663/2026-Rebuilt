@@ -82,11 +82,11 @@ public class C2026HopperIO implements HopperIO {
     }
 
     @Override
-    public void setTargetVoltage(double tunnelVoltage, double hopperVoltage) {
+    public void setTargetVoltage(double tunnelVoltage, double hopperVoltage, double rollerVoltage) {
         hopperMotor.setControl(voltageRequest.withOutput(hopperVoltage));
         upperTunnelMotor.setControl(voltageRequest.withOutput(tunnelVoltage));
         lowerTunnelMotor.setControl(voltageRequest.withOutput(tunnelVoltage));
-        topRollerMotor.setControl(voltageRequest.withOutput(tunnelVoltage));
+        topRollerMotor.setControl(voltageRequest.withOutput(rollerVoltage));
     }
 
     @Override
