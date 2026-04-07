@@ -16,8 +16,8 @@ public class C2026ShooterIO implements ShooterIO {
     private static final Shooter.Constants constants = new Shooter.Constants(
             0.0,
             Units.degreesToRadians(18.0),
-            Units.degreesToRadians(-160.0),
-            Units.degreesToRadians(150.0));
+            Units.degreesToRadians(-175.0),
+            Units.degreesToRadians(190.0));
     private static final double HOOD_GEAR_RATIO = 340.0 / 14.0;
     private static final double SHOOTER_GEAR_RATIO = (15.0 / 18.0);
 
@@ -25,7 +25,7 @@ public class C2026ShooterIO implements ShooterIO {
     private static final double MOTOR_TO_MECHANISM_RATIO = (44.0 / 14.0) * (80.0 / 16.0);
     private static final double MOTOR_TO_SENSOR_RATIO = (42.0 / 14.0) * (46.0 / 16.0) * (60.0 / 24.0);
     private static final double SENSOR_TO_MECHANISM_RATIO = MOTOR_TO_MECHANISM_RATIO / MOTOR_TO_SENSOR_RATIO;
-    private static final double ENCODER_OFFSET = 0.3662109375;
+    private static final double ENCODER_OFFSET = 0.172607421875;
 
     private final TalonFX hoodMotor;
     private final TalonFX turretMotor;
@@ -48,12 +48,10 @@ public class C2026ShooterIO implements ShooterIO {
 
         // CANCoder config
         CANcoderConfiguration canCoderConfig = new CANcoderConfiguration();
-        canCoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
+        canCoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
         canCoderConfig.MagnetSensor.MagnetOffset = ENCODER_OFFSET;
 
         tryUntilOk(5, () -> turretCanCoder.getConfigurator().apply(canCoderConfig, 0.25));
-
-        canCoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
 
         // Hood motor config
         TalonFXConfiguration hoodConfig = new TalonFXConfiguration();

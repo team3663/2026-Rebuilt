@@ -141,7 +141,7 @@ public class CommandFactory {
      */
     public Command feedIntoShooter() {
         return parallel(
-                hopper.withVoltage(6.0, 6.0, 6.0),
+                hopper.withVoltage(7.0, 7.0, 8.0),
                 feeder.withVoltage(6.0)
         );
     }
