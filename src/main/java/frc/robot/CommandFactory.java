@@ -50,19 +50,23 @@ public class CommandFactory {
         return atTarget;
     }
 
-    public Command aim(boolean aimAtHub) {
+    public Command aim(BooleanSupplier aimAtHub) {
         return shooter.follow(() -> {
                     Pose2d robotPose = drive.getPose();
 
-                    Translation2d targetPosition = getShooterTarget(robotPose, isRedAlliance(), aimAtHub);
+                    Translation2d targetPosition = getShooterTarget(robotPose, isRedAlliance(), aimAtHub.getAsBoolean());
 
                     firingSolution = fireControlSystem.calculate(
                             drive.getPose(), drive.getFieldOrientedVelocity(),
                             Rotation2d.fromRadians(shooter.getTurretPosition()),
-                            targetPosition, aimAtHub);
+                            targetPosition, aimAtHub.getAsBoolean());
                     return firingSolution;
                 })
                 .finallyDo(() -> firingSolution = null);
+    }
+
+    public Command aim(boolean aimAtHub) {
+        return aim(()-> aimAtHub);
     }
 
     public Command aimAndZeroHood(boolean aimAtHub) {
@@ -83,7 +87,7 @@ public class CommandFactory {
 
     public Command shooterDefault(BooleanSupplier shootingIntoHub) {
         return shooter.follow(() -> 0.0, () -> {
-        Logger.recordOutput("CommandFactory/shootingIntoHub", shootingIntoHub.getAsBoolean());
+            Logger.recordOutput("CommandFactory/shootingIntoHub", shootingIntoHub.getAsBoolean());
             Translation2d target = getShooterTarget(drive.getPose(), isRedAlliance(), shootingIntoHub.getAsBoolean());
             return fireControlSystem.calculate(
                             drive.getPose(), drive.getFieldOrientedVelocity(),
@@ -140,6 +144,46 @@ public class CommandFactory {
                 hopper.withVoltage(6.0, 6.0),
                 feeder.withVoltage(6.0)
         );
+    }
+
+    public boolean isHubShootingMode() {
+        if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) ==
+                DriverStation.Alliance.Blue) {
+            return (drive.getPose().getX() < Constants.BLUE_ALLIANCE_LINE_X);
+        } else {
+            return (drive.getPose().getX() > Constants.RED_ALLIANCE_LINE_X);
+        }
+    }
+
+    public boolean shouldShoot() {
+        var notPassingBehindHub = true;
+        var poseX = getTurretPose().getX();
+        var poseY = getTurretPose().getY();
+
+        if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) ==
+                DriverStation.Alliance.Blue) {
+            if (poseX < Constants.BEHIND_HUB_X && poseX > Constants.BLUE_ALLIANCE_LINE_X &&
+                    poseY < Constants.BEHIND_HUB_LARGER_Y && poseY > Constants.BEHIND_HUB_SMALLER_Y) {
+                notPassingBehindHub = false;
+            }
+        } else {
+            if (poseX > Constants.BEHIND_HUB_X && poseX < Constants.RED_ALLIANCE_LINE_X &&
+                    poseY < Constants.BEHIND_HUB_LARGER_Y && poseY > Constants.BEHIND_HUB_SMALLER_Y) {
+                notPassingBehindHub = false;
+            }
+        }
+
+        var linearVelocity = Math.sqrt(Math.pow(drive.getFieldOrientedVelocity().vxMetersPerSecond, 2.0)
+                + Math.pow(drive.getFieldOrientedVelocity().vyMetersPerSecond, 2.0));
+        var rotationalVelocity = drive.getFieldOrientedVelocity().omegaRadiansPerSecond;
+        var velocityBelowShootingMax = (!(linearVelocity > drive.getMaxLinearSpeedMetersPerSec() * 0.4))
+                || (!(rotationalVelocity > drive.getMaxAngularSpeedRadPerSec() * 0.5));
+
+        Logger.recordOutput("CommandFactory/ShooterAtTargets", shooter.atTargets());
+        Logger.recordOutput("CommandFactory/NotPassingBehindHub", notPassingBehindHub);
+        Logger.recordOutput("CommandFactory/VelocityBelowShootingMax", velocityBelowShootingMax);
+
+        return (shooter.atTargets() && notPassingBehindHub && velocityBelowShootingMax);
     }
 
     public Command autonomousFeedAndShoot(boolean aimAtHub, double pivotAngle) {

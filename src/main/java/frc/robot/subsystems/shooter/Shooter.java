@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.FiringSolution;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
@@ -16,6 +17,7 @@ import static edu.wpi.first.wpilibj2.command.Commands.waitUntil;
 public class Shooter extends SubsystemBase {
     private final static double HOOD_POSITION_THRESHOLD = Units.degreesToRadians(2.0);
     private final static double TURRET_POSITION_THRESHOLD = Units.degreesToRadians(10.0);
+    private final static double TURRET_DEAD_ZONE_POSITION_THRESHOLD = Units.degreesToRadians(2.0);
     private final static double SHOOTER_VELOCITY_THRESHOLD = Units.rotationsPerMinuteToRadiansPerSecond(400.0);
 
     private final ShooterIO io;
@@ -26,6 +28,10 @@ public class Shooter extends SubsystemBase {
     private double targetHoodPosition;
     private double targetTurretPosition;
     private double targetShooterVelocity;
+
+    LoggedNetworkBoolean turretInDeadZone = new LoggedNetworkBoolean("turretInDeadZone", false);
+
+    private boolean turretTargetingDeadZone = false;
 
     public Shooter(ShooterIO io) {
         this.io = io;
@@ -82,6 +88,11 @@ public class Shooter extends SubsystemBase {
             }
 
             // Turret
+            turretTargetingDeadZone = turretPosition > (constants.maximumTurretPosition)
+                    || turretPosition < (constants.minimumTurretPosition);
+            turretInDeadZone.set(turretTargetingDeadZone);
+            Logger.recordOutput("Shooter/TurretTargetingDeadZone", turretTargetingDeadZone);
+
             targetTurretPosition = getNearestTargetTurretAngle(turretPosition);
             io.setTurretTargetPosition(targetTurretPosition);
 
@@ -100,7 +111,13 @@ public class Shooter extends SubsystemBase {
             }
 
             // Turret
+            targetTurretPosition = getSmallestEquivalentAngle(turretPosition.getAsDouble());
+            turretTargetingDeadZone = targetTurretPosition > (constants.maximumTurretPosition)
+                    || targetTurretPosition < (constants.minimumTurretPosition);
+            turretInDeadZone.set(turretTargetingDeadZone);
+            Logger.recordOutput("Shooter/TurretTargetingDeadZone", turretTargetingDeadZone);
             targetTurretPosition = getNearestTargetTurretAngle(turretPosition.getAsDouble());
+
             io.setTurretTargetPosition(targetTurretPosition);
 
             // Shooter
@@ -170,6 +187,10 @@ public class Shooter extends SubsystemBase {
         return turretAtPosition(targetTurretPosition, TURRET_POSITION_THRESHOLD);
     }
 
+    public boolean isAimingAtDeadZone() {
+        return turretTargetingDeadZone;
+    }
+
     public boolean turretAtPosition(double position) {
         return turretAtPosition(position, TURRET_POSITION_THRESHOLD);
     }
@@ -177,7 +198,8 @@ public class Shooter extends SubsystemBase {
     public boolean turretAtPosition(double position, double threshold) {
         boolean atPosition = Math.abs(getSmallestEquivalentAngle(inputs.currentTurretPosition) - getSmallestEquivalentAngle(position)) < threshold;
         Logger.recordOutput("Shooter/TurretAtPosition", atPosition);
-        return atPosition;
+        if (turretTargetingDeadZone) return false;
+        else return atPosition;
     }
 
     public double getTargetTurretPosition() {
