@@ -244,15 +244,12 @@ public class RobotContainer {
             passing.set(true);
         }));
 
-        // While shooting and not intaking fuel, use the intake to aid in feeding
-        shootTrigger.and(intakeTrigger.negate()).whileTrue(intake.feed());
-
         // Manual positions in case we do not want to use turret alignment code (or more likely it stopped working)
         manualShootTrigger.whileTrue(sequence(waitUntil(shooter::atTargets), parallel(commandFactory.manualShooting(), commandFactory.feedIntoShooter(), intake.feed())));
 
         shootTrigger.and(intakeTrigger.negate()).whileTrue(repeatingSequence(
-                intake.intakeAndPivot(Intake.INTAKE_VOLTAGE, Intake.DEPLOY_ANGLE).withTimeout(0.25),
-                intake.intakeAndPivot(Intake.FEED_VOLTAGE, Intake.FEED_ANGLE).withTimeout(0.25)
+                intake.intakeAndPivot(Intake.INTAKE_VOLTAGE, Intake.DEPLOY_ANGLE).withTimeout(0.5),
+                intake.intakeAndPivot(Intake.FEED_VOLTAGE, Intake.FEED_ANGLE).withTimeout(0.5)
         ));
     }
 
