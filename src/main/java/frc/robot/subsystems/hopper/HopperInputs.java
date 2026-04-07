@@ -8,23 +8,23 @@ public class HopperInputs {
     public double currentHopperAppliedVoltage;
 
     public double hopperTemperature;
-    public double hopperSupplyCurrent;
+    public double hopperCurrentDraw;
 
     public double currentUpperTunnelVelocity;
     public double currentUpperTunnelAppliedVoltage;
 
     public double upperTunnelTemperature;
-    public double upperTunnelSupplyCurrent;
+    public double upperTunnelCurrentDraw;
 
     public double currentLowerTunnelVelocity;
     public double currentLowerTunnelAppliedVoltage;
 
     public double lowerTunnelTemperature;
-    public double lowerTunnelSupplyCurrent;
+    public double lowerTunnelCurrentDraw;
 
     public double currentTopRollerVelocity;
     public double currentTopRollerAppliedVoltage;
 
     public double topRollerTemperature;
-    public double topRollerSupplyCurrent;
+    public double topRollerCurrentDraw;
 }

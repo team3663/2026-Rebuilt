@@ -34,14 +34,14 @@ public class C2026HopperIO implements HopperIO {
         TalonFXConfiguration upperTunnelConfig = new TalonFXConfiguration();
         upperTunnelConfig.Feedback.SensorToMechanismRatio = TUNNEL_GEAR_RATIO;
         upperTunnelConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-        upperTunnelConfig.CurrentLimits.SupplyCurrentLimit = 20;
+        upperTunnelConfig.CurrentLimits.SupplyCurrentLimit = 30;
         upperTunnelConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         upperTunnelConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
         TalonFXConfiguration lowerTunnelConfig = new TalonFXConfiguration();
         lowerTunnelConfig.Feedback.SensorToMechanismRatio = TUNNEL_GEAR_RATIO;
         lowerTunnelConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-        lowerTunnelConfig.CurrentLimits.SupplyCurrentLimit = 20;
+        lowerTunnelConfig.CurrentLimits.SupplyCurrentLimit = 30;
         lowerTunnelConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         lowerTunnelConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
@@ -63,22 +63,22 @@ public class C2026HopperIO implements HopperIO {
         inputs.currentHopperVelocity = hopperMotor.getVelocity().getValueAsDouble();
         inputs.currentHopperAppliedVoltage = hopperMotor.getMotorVoltage().getValueAsDouble();
         inputs.hopperTemperature = hopperMotor.getDeviceTemp().getValueAsDouble();
-        inputs.hopperSupplyCurrent = hopperMotor.getSupplyCurrent().getValueAsDouble();
+        inputs.hopperCurrentDraw = hopperMotor.getSupplyCurrent().getValueAsDouble();
 
         inputs.currentUpperTunnelVelocity = upperTunnelMotor.getVelocity().getValueAsDouble();
         inputs.currentUpperTunnelAppliedVoltage = upperTunnelMotor.getMotorVoltage().getValueAsDouble();
         inputs.upperTunnelTemperature = upperTunnelMotor.getDeviceTemp().getValueAsDouble();
-        inputs.upperTunnelSupplyCurrent = upperTunnelMotor.getSupplyCurrent().getValueAsDouble();
+        inputs.upperTunnelCurrentDraw = upperTunnelMotor.getSupplyCurrent().getValueAsDouble();
 
         inputs.currentLowerTunnelVelocity = lowerTunnelMotor.getVelocity().getValueAsDouble();
         inputs.currentLowerTunnelAppliedVoltage = lowerTunnelMotor.getMotorVoltage().getValueAsDouble();
         inputs.lowerTunnelTemperature = lowerTunnelMotor.getDeviceTemp().getValueAsDouble();
-        inputs.lowerTunnelSupplyCurrent = lowerTunnelMotor.getSupplyCurrent().getValueAsDouble();
+        inputs.lowerTunnelCurrentDraw = lowerTunnelMotor.getSupplyCurrent().getValueAsDouble();
 
         inputs.currentTopRollerVelocity = topRollerMotor.getVelocity().getValueAsDouble();
         inputs.currentTopRollerAppliedVoltage = topRollerMotor.getMotorVoltage().getValueAsDouble();
         inputs.topRollerTemperature = topRollerMotor.getDeviceTemp().getValueAsDouble();
-        inputs.topRollerSupplyCurrent = topRollerMotor.getSupplyCurrent().getValueAsDouble();
+        inputs.topRollerCurrentDraw = topRollerMotor.getSupplyCurrent().getValueAsDouble();
     }
 
     @Override

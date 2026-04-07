@@ -34,8 +34,8 @@ public class C2026FeederIO implements FeederIO {
     public void updateInputs(FeederInputs inputs) {
         inputs.currentVelocity = motor.getVelocity().getValueAsDouble();
         inputs.currentAppliedVoltage = motor.getMotorVoltage().getValueAsDouble();
-        inputs.motorCurrentDraw = motor.getSupplyCurrent().getValueAsDouble();
-        inputs.motorTemperature = motor.getDeviceTemp().getValueAsDouble();
+        inputs.feederCurrentDraw = motor.getSupplyCurrent().getValueAsDouble();
+        inputs.feederTemperature = motor.getDeviceTemp().getValueAsDouble();
     }
 
     @Override

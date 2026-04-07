@@ -302,7 +302,7 @@ public final class Constants {
         public static final Translation2d TURRET_OFF_CENTER = new Translation2d(Units.inchesToMeters(-6.5), Units.inchesToMeters(7.5));
 
         // The velocity of the Shooter while not shooting
-        public static final double DEFAULT_VELOCITY = Units.rotationsPerMinuteToRadiansPerSecond(1000.0);
+        public static final double DEFAULT_VELOCITY = Units.rotationsPerMinuteToRadiansPerSecond(1800.0);
     }
 
     public static void RecordOutputs() {

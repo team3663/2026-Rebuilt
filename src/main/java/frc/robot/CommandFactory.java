@@ -66,7 +66,7 @@ public class CommandFactory {
     }
 
     public Command aim(boolean aimAtHub) {
-        return aim(()-> aimAtHub);
+        return aim(() -> aimAtHub);
     }
 
     public Command aimAndZeroHood(boolean aimAtHub) {
@@ -141,7 +141,12 @@ public class CommandFactory {
      */
     public Command feedIntoShooter() {
         return parallel(
-                hopper.withVoltage(7.0, 7.0, 8.0),
+//                hopper.withVoltage(9.0, 8.0, 4.0),
+                repeatingSequence(
+                        hopper.withVoltage(9.0, 8.0, 4.0)
+                                .until(() -> hopper.getAverageTopRollerCurrentDraw() >= 7.5),
+                        hopper.withVoltage(9.0, 8.0, -4.0)
+                                .withTimeout(0.125)),
                 feeder.withVoltage(6.0)
         );
     }
