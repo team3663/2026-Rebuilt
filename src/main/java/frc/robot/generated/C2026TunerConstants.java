@@ -10,6 +10,8 @@ import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerFeedbackType;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstantsFactory;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.*;
 
 import static edu.wpi.first.units.Units.*;
@@ -32,6 +34,7 @@ public class C2026TunerConstants {
                     .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
     // When using closed-loop control, the drive motor uses the control
     // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
+    // TODO should tune the KP
     private static final Slot0Configs driveGains =
             new Slot0Configs().withKP(0.5).withKI(0).withKD(0).withKS(0).withKV(0.124);
 
@@ -71,21 +74,21 @@ public class C2026TunerConstants {
                                     .withStatorCurrentLimitEnable(true));
     private static final CANcoderConfiguration encoderInitialConfigs = new CANcoderConfiguration();
     // Configs for the Pigeon 2; leave this null to skip applying Pigeon 2 configs
-    private static final Pigeon2Configuration pigeonConfigs = null;
+    private static final Pigeon2Configuration pigeonConfigs = new Pigeon2Configuration();
+
 
     // CAN bus that the devices are located on;
     // All swerve devices must share the same CAN bus
     public static final CANBus kCANBus = new CANBus("3663", "./logs/example.hoot");
-
-    // Theoretical free speed (m/s) at 12 V applied output;
-    // This needs to be tuned to your individual robot
-    public static final LinearVelocity kSpeedAt12Volts = MetersPerSecond.of(5.302);
 
     // Every 1 rotation of the azimuth results in kCoupleRatio drive motor turns;
     // This may need to be tuned to your individual robot
     private static final double kCoupleRatio = 0;
 
     private static final double kDriveGearRatio = (54.0 / 16.0) * (25.0/32.0) * (30.0 / 15.0);
+    // Theoretical free speed (m/s) at 12 V applied output;
+    // This needs to be tuned to your individual robot
+    public static final LinearVelocity kSpeedAt12Volts = MetersPerSecond.of(DCMotor.getKrakenX60(1).freeSpeedRadPerSec / kDriveGearRatio * Units.inchesToMeters(2.0));
     private static final double kSteerGearRatio = 26.0;
     private static final Distance kWheelRadius = Inches.of(2);
 
@@ -105,7 +108,7 @@ public class C2026TunerConstants {
             new SwerveDrivetrainConstants()
                     .withCANBusName(kCANBus.getName())
                     .withPigeon2Id(kPigeonId)
-                    .withPigeon2Configs(pigeonConfigs);
+                    .withPigeon2Configs(pigeonConfigs.withMountPose(new MountPoseConfigs().withMountPoseYaw(180.0)));
 
     private static final SwerveModuleConstantsFactory<
             TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>

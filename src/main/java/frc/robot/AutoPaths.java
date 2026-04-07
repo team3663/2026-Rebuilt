@@ -355,6 +355,7 @@ public class AutoPaths {
                         Commands.parallel(shooting(), runOnce(drive::stop)),
                         goToIntermediate(Constants.BLUE_RIGHT_UNDER_TRENCH_SHOOTING, Constants.RED_RIGHT_UNDER_TRENCH_SHOOTING, DEFAULT_TRENCH_DISTANCE_THRESHOLD),
                         goToIntermediate(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE, DEFAULT_TRENCH_DISTANCE_THRESHOLD),
+                        Commands.parallel(shooting(Intake.DEPLOY_ANGLE, 6.0), runOnce(drive::stop)),
                         goToIntermediate(Constants.BLUE_RIGHT_NEUTRAL_ZONE_TRENCH_OFFSET, Constants.RED_RIGHT_NEUTRAL_ZONE_TRENCH_OFFSET, DEFAULT_INTERMEDIATE_DISTANCE_THRESHOLD),
                         goToIntermediate(Constants.BLUE_RIGHT_ALLIANCE_SIDE_INTERMEDIATE, Constants.RED_RIGHT_ALLIANCE_SIDE_INTERMEDIATE, Units.feetToMeters(4.0)),
                         goToPosition(Constants.BLUE_RIGHT_CENTER_ALLIANCE_SIDE, Constants.RED_RIGHT_CENTER_ALLIANCE_SIDE)
@@ -490,10 +491,8 @@ public class AutoPaths {
                 Constants.BLUE_IN_FRONT_OF_BUMP_AUTO_LINE,
                 Constants.RED_IN_FRONT_OF_BUMP_AUTO_LINE,
                 Commands.sequence(
-                        resetOdometry(Constants.BLUE_IN_FRONT_OF_BUMP_AUTO_LINE, Constants.RED_IN_FRONT_OF_BUMP_AUTO_LINE),
-                        goToPosition(Constants.BLUE_BEHIND_BUMP_SHOOTING, Constants.RED_BEHIND_BUMP_SHOOTING)
-                                .raceWith(zeroIntakeAndHood().andThen(commandFactory.shooterDefault(() -> true))),
-                        shooting(Intake.DEPLOY_ANGLE, 2.0).alongWith(runOnce(drive::stop)),
+                        resetOdometry(Constants.BLUE_IN_FRONT_OF_HUB_AUTO_LINE, Constants.RED_IN_FRONT_OF_HUB_AUTO_LINE),
+                        goToIntermediate(Constants.BLUE_HUB_SHOOTING, Constants.RED_HUB_SHOOTING, DEFAULT_INTERMEDIATE_DISTANCE_THRESHOLD),
                         goToIntermediate(Constants.BLUE_DEPOT_INTERMEDIATE, Constants.RED_DEPOT_INTERMEDIATE, DEFAULT_TRENCH_DISTANCE_THRESHOLD)
                                 .raceWith(intaking()),
                         goToPosition(Constants.BLUE_DEPOT, Constants.RED_DEPOT).withTimeout(2.0)
