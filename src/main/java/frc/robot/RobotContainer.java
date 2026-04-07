@@ -66,11 +66,12 @@ public class RobotContainer {
     private final LoggedDashboardChooser<AutoPaths.AutonomousMode> autoChooser;
 
     private boolean shootingIntoHub = true;
+    private boolean autoAiming = true;
 
     private boolean ranAuto = false;
 
     LoggedNetworkBoolean aimingAtHub = new LoggedNetworkBoolean("aimingAtHub", true);
-    LoggedNetworkBoolean passing = new LoggedNetworkBoolean("passing", false);
+    LoggedNetworkBoolean passing = new LoggedNetworkBoolean("passing", true);
 
 
     /**
@@ -122,7 +123,7 @@ public class RobotContainer {
         // Configure the button bindings
         configureButtonBindings();
 
-        shooter.setDefaultCommand(commandFactory.shooterDefault(() -> shootingIntoHub));
+        shooter.setDefaultCommand(commandFactory.shooterDefault(() -> (autoAiming && commandFactory.isHubShootingMode()) || (!autoAiming && shootingIntoHub)));
 
         vision.setDefaultCommand(
                 vision.consumeVisionMeasurements(drive::addVisionMeasurements, () -> {
@@ -183,9 +184,10 @@ public class RobotContainer {
         Trigger setPassingMode = controller.a();
         Trigger setShootingMode = controller.x();
 
-        Trigger reverseIntakeTrigger = controller.b();
+        Trigger reverseIntakeTrigger = controller.y();
+        Trigger autoAim = controller.b();
 
-        Trigger manualShootTrigger = controller.y();
+        Trigger manualShootTrigger = controller.rightBumper();
 
         // Reset gyro to 0° when B button is pressed
         resetFieldOrientedTrigger.onTrue(drive.resetOdometry(() ->
@@ -207,29 +209,37 @@ public class RobotContainer {
         stowIntakeTrigger.whileTrue(intake.stow());
         reverseIntakeTrigger.whileTrue(intake.intakeAndPivot(-4.0, Intake.DEPLOY_ANGLE));
 
-        // General bindings for shooting
-        shootTrigger.and(() -> shootingIntoHub).whileTrue(commandFactory.aim(true));
-        shootTrigger.and(() -> !shootingIntoHub).whileTrue(commandFactory.aim(false));
+        // general bindings for the shooter
+        shootTrigger.whileTrue(
+                commandFactory.aim(() -> (autoAiming && commandFactory.isHubShootingMode()) || (!autoAiming && shootingIntoHub)));
+
         shootTrigger.whileTrue(
                 sequence(
                         waitSeconds(0.1),
-                        waitUntil(shooter::atTargets),
+                        waitUntil(commandFactory::shouldShoot),
                         repeatingSequence(
                                 commandFactory.feedIntoShooter()
-                                        .until(() -> !shooter.atTargets()),
-                                waitUntil(shooter::atTargets)
+                                        .until(() -> !commandFactory.shouldShoot()),
+                                waitUntil(commandFactory::shouldShoot)
                         )
                 ));
 
         setPassingMode.onTrue(runOnce(() -> {
             shootingIntoHub = false;
+            autoAiming = false;
             aimingAtHub.set(false);
             passing.set(true);
         }));
         setShootingMode.onTrue(runOnce(() -> {
             shootingIntoHub = true;
+            autoAiming = false;
             aimingAtHub.set(true);
             passing.set(false);
+        }));
+        autoAim.onTrue(runOnce(()-> {
+            autoAiming = true;
+            aimingAtHub.set(true);
+            passing.set(true);
         }));
 
         // While shooting and not intaking fuel, use the intake to aid in feeding

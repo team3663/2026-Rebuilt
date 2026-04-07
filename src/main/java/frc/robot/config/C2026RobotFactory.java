@@ -19,7 +19,6 @@ import frc.robot.subsystems.intake.C2026IntakeIO;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shooter.C2026ShooterIO;
 import frc.robot.subsystems.shooter.Shooter;
-import frc.robot.subsystems.shooter.ShooterIO;
 import frc.robot.subsystems.vision.LimelightIO;
 import frc.robot.subsystems.vision.Vision;
 
@@ -59,7 +58,8 @@ public class C2026RobotFactory implements RobotFactory {
         return new Hopper(new C2026HopperIO(
                 new TalonFX(10),
                 new TalonFX(13),
-                new TalonFX(9)));
+                new TalonFX(9),
+                new TalonFX(20)));
     }
 
     @Override
@@ -85,13 +85,13 @@ public class C2026RobotFactory implements RobotFactory {
     public Vision createVision() {
         Rotation3d rightRotation = new Rotation3d(
                 Units.degreesToRadians(0.0),
-                Units.degreesToRadians(19.0),
-                -Units.degreesToRadians(76.0)
+                Units.degreesToRadians(20.0),
+                -Units.degreesToRadians(73.0)
         );
         Transform3d rightTransform = new Transform3d(
-                -Units.inchesToMeters(6.0),
-                -Units.inchesToMeters(13.5),
-                Units.inchesToMeters(16.75),
+                -Units.inchesToMeters(9.0),
+                -Units.inchesToMeters(12.25),
+                Units.inchesToMeters(18.0),
                 rightRotation
         );
 
@@ -101,22 +101,21 @@ public class C2026RobotFactory implements RobotFactory {
                 Units.degreesToRadians(180.0)
         );
         Transform3d backTransform = new Transform3d(
-                -Units.inchesToMeters(6.5),
-                -Units.inchesToMeters(8.75),
-                Units.inchesToMeters(17.125),
+                -Units.inchesToMeters(12.5),
+                -Units.inchesToMeters(8.625),
+                Units.inchesToMeters(17.75),
                 backRotation
         );
 
         Rotation3d frontRotation = new Rotation3d(
                 Units.degreesToRadians(0.0),
-                Units.degreesToRadians(39.0),
-                Units.degreesToRadians(28.0)
+                Units.degreesToRadians(30.0),
+                Units.degreesToRadians(22.0)
         );
-
         Transform3d frontTransform = new Transform3d(
-                -Units.inchesToMeters(2.5),
-                -Units.inchesToMeters(7.5),
-                Units.inchesToMeters(19.25),
+                -Units.inchesToMeters(6.5),
+                -Units.inchesToMeters(7.875),
+                Units.inchesToMeters(20.25),
                 frontRotation
         );
 
