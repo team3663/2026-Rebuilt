@@ -16,7 +16,7 @@ public class Intake extends SubsystemBase {
     public static final double STOW_ANGLE = Units.degreesToRadians(0.0);
     public static final double FEED_ANGLE = Units.degreesToRadians(125.0);
     public static final double DEFAULT_ANGLE = Units.degreesToRadians(164.0);
-    public static final double INTAKE_VOLTAGE = 7.0;
+    public static final double INTAKE_VOLTAGE = 9.0;
     public static final double FEED_VOLTAGE = 5.0;
 
     private final IntakeIO io;

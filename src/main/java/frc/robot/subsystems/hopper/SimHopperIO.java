@@ -23,7 +23,7 @@ public class SimHopperIO implements HopperIO {
         inputs.currentHopperVelocity = sim.getAngularVelocityRadPerSec();
         inputs.currentHopperAppliedVoltage = sim.getInputVoltage();
 
-        inputs.hopperSupplyCurrent = sim.getCurrentDrawAmps();
+        inputs.hopperCurrentDraw = sim.getCurrentDrawAmps();
     }
 
     @Override

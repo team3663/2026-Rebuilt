@@ -74,7 +74,8 @@ public class C2026TunerConstants {
                                     .withStatorCurrentLimitEnable(true));
     private static final CANcoderConfiguration encoderInitialConfigs = new CANcoderConfiguration();
     // Configs for the Pigeon 2; leave this null to skip applying Pigeon 2 configs
-    private static final Pigeon2Configuration pigeonConfigs = null;
+    private static final Pigeon2Configuration pigeonConfigs = new Pigeon2Configuration();
+
 
     // CAN bus that the devices are located on;
     // All swerve devices must share the same CAN bus
@@ -107,7 +108,7 @@ public class C2026TunerConstants {
             new SwerveDrivetrainConstants()
                     .withCANBusName(kCANBus.getName())
                     .withPigeon2Id(kPigeonId)
-                    .withPigeon2Configs(pigeonConfigs);
+                    .withPigeon2Configs(pigeonConfigs.withMountPose(new MountPoseConfigs().withMountPoseYaw(180.0)));
 
     private static final SwerveModuleConstantsFactory<
             TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
