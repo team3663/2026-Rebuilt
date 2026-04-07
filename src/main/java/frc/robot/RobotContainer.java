@@ -236,7 +236,7 @@ public class RobotContainer {
             aimingAtHub.set(true);
             passing.set(false);
         }));
-        autoAim.onTrue(runOnce(()-> {
+        autoAim.onTrue(runOnce(() -> {
             autoAiming = true;
             aimingAtHub.set(true);
             passing.set(true);
@@ -246,7 +246,7 @@ public class RobotContainer {
         shootTrigger.and(intakeTrigger.negate()).whileTrue(intake.feed());
 
         // Manual positions in case we do not want to use turret alignment code (or more likely it stopped working)
-        manualShootTrigger.whileTrue(parallel(commandFactory.manualShooting(), commandFactory.feedIntoShooter(), intake.feed()));
+        manualShootTrigger.whileTrue(sequence(waitUntil(shooter::atTargets), parallel(commandFactory.manualShooting(), commandFactory.feedIntoShooter(), intake.feed())));
     }
 
     private void configureTestBindings() {

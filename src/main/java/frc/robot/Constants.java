@@ -29,7 +29,7 @@ public final class Constants {
             IS_ANDYMARK ? AprilTagFields.k2026RebuiltAndymark : AprilTagFields.k2026RebuiltWelded
     );
 
-    public static final boolean ENABLE_TEST_FEATURES = false;
+    public static final boolean ENABLE_TEST_FEATURES = true;
 
     public static final Mode simMode = Mode.SIM;
     public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
@@ -304,9 +304,9 @@ public final class Constants {
         // The velocity of the Shooter while not shooting
         public static final double DEFAULT_VELOCITY = Units.rotationsPerMinuteToRadiansPerSecond(1800.0);
 
-        public static final double MANUAL_SHOOTING_HOOD_POSITION = Units.degreesToRadians(7.0);
-        public static final double MANUAL_SHOOTING_SHOOTING_VELOCITY = Units.rotationsPerMinuteToRadiansPerSecond(1900.0);
-        public static final double MANUAL_SHOOTING_TURRET_ANGLE = Units.degreesToRadians(0.0);
+        public static final double MANUAL_SHOOTING_HOOD_POSITION = Units.degreesToRadians(6.0);
+        public static final double MANUAL_SHOOTING_SHOOTING_VELOCITY = Units.rotationsPerMinuteToRadiansPerSecond(2450.0);
+        public static final double MANUAL_SHOOTING_TURRET_ANGLE = Units.degreesToRadians(-5.0);
     }
 
     public static void RecordOutputs() {
