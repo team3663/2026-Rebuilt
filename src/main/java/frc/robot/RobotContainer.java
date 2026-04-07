@@ -172,6 +172,7 @@ public class RobotContainer {
                 .onTrue(Commands.either(vision.recordAuto(), vision.recordTeleop(), DriverStation::isAutonomous)
                         .ignoringDisable(true));
 
+        // Triggers
         Trigger resetFieldOrientedTrigger = controller.back();
         Trigger zeroTrigger = controller.start();
 
@@ -185,6 +186,8 @@ public class RobotContainer {
 
         Trigger reverseIntakeTrigger = controller.y();
         Trigger autoAim = controller.b();
+
+        Trigger manualShootTrigger = controller.rightBumper();
 
         // Reset gyro to 0° when B button is pressed
         resetFieldOrientedTrigger.onTrue(drive.resetOdometry(() ->
@@ -201,7 +204,7 @@ public class RobotContainer {
                 )
         );
 
-        // general bindings for the intake
+        // Intake Bindings
         intakeTrigger.whileTrue(intake.deployAndIntake());
         stowIntakeTrigger.whileTrue(intake.stow());
         reverseIntakeTrigger.whileTrue(intake.intakeAndPivot(-4.0, Intake.DEPLOY_ANGLE));
@@ -220,6 +223,7 @@ public class RobotContainer {
                                 waitUntil(commandFactory::shouldShoot)
                         )
                 ));
+
         intakeTrigger.negate().and(shootTrigger.negate()).whileTrue(intake.deploy());
 
         setPassingMode.onTrue(runOnce(() -> {
@@ -234,14 +238,17 @@ public class RobotContainer {
             aimingAtHub.set(true);
             passing.set(false);
         }));
-        autoAim.onTrue(runOnce(()-> {
+        autoAim.onTrue(runOnce(() -> {
             autoAiming = true;
             aimingAtHub.set(true);
             passing.set(true);
         }));
 
-        // while shooting and not intaking fuel, use the intake to aid in feeding
+        // While shooting and not intaking fuel, use the intake to aid in feeding
         shootTrigger.and(intakeTrigger.negate()).whileTrue(intake.feed());
+
+        // Manual positions in case we do not want to use turret alignment code (or more likely it stopped working)
+        manualShootTrigger.whileTrue(sequence(waitUntil(shooter::atTargets), parallel(commandFactory.manualShooting(), commandFactory.feedIntoShooter(), intake.feed())));
 
         shootTrigger.and(intakeTrigger.negate()).whileTrue(repeatingSequence(
                 intake.intakeAndPivot(Intake.INTAKE_VOLTAGE, Intake.DEPLOY_ANGLE).withTimeout(0.25),
@@ -251,10 +258,10 @@ public class RobotContainer {
 
     private void configureTestBindings() {
         // Tuning Buttons:
-        // "A" button toggles tuning mode on and off
+        // Right Bumper button turns tuning mode on while it's held down
+        // Right Trigger feeds into the shooter
         // POV UP/DOWN moves the hood up and down
-        // POV LEFT/RIGHT moves the turret left and right
-        // X/Y increases and decreases the shooters velocity
+        // POV RIGHT/LEFT increases and decreases the shooters velocity
 
         final double TUNING_HOOD_ANGLE_CHANGE = Units.degreesToRadians(0.5);
         final double TUNING_SHOOTER_VELOCITY_CHANGE = Units.rotationsPerMinuteToRadiansPerSecond(50.0);
@@ -282,8 +289,8 @@ public class RobotContainer {
 
                     Logger.recordOutput("Tuning/TargetHoodAngle", tuningHoodAngle[0]);
                     Logger.recordOutput("Tuning/TargetShooterVelocity", tuningShooterVelocity[0]);
-                })
-        ));
+                })));
+
         testController.rightTrigger().whileTrue(commandFactory.feedIntoShooter());
 
         testController.povUp().onTrue(runOnce(() -> tuningHoodAngle[0] += TUNING_HOOD_ANGLE_CHANGE));

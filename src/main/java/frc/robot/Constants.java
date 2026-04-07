@@ -29,7 +29,7 @@ public final class Constants {
             IS_ANDYMARK ? AprilTagFields.k2026RebuiltAndymark : AprilTagFields.k2026RebuiltWelded
     );
 
-    public static final boolean ENABLE_TEST_FEATURES = false;
+    public static final boolean ENABLE_TEST_FEATURES = true;
 
     public static final Mode simMode = Mode.SIM;
     public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
@@ -303,10 +303,14 @@ public final class Constants {
                 (FIELD.getTagPose(7).get().getY() + 0.5 + Units.feetToMeters(2.5)));
 
         // The Translation the turret is from the center of the robot
-        public static final Translation2d TURRET_OFF_CENTER = new Translation2d(Units.inchesToMeters(-5.5), Units.inchesToMeters(7.25));
+        public static final Translation2d TURRET_OFF_CENTER = new Translation2d(Units.inchesToMeters(-6.5), Units.inchesToMeters(7.5));
 
         // The velocity of the Shooter while not shooting
-        public static final double DEFAULT_VELOCITY = Units.rotationsPerMinuteToRadiansPerSecond(1000.0);
+        public static final double DEFAULT_VELOCITY = Units.rotationsPerMinuteToRadiansPerSecond(1800.0);
+
+        public static final double MANUAL_SHOOTING_HOOD_POSITION = Units.degreesToRadians(6.0);
+        public static final double MANUAL_SHOOTING_SHOOTING_VELOCITY = Units.rotationsPerMinuteToRadiansPerSecond(2450.0);
+        public static final double MANUAL_SHOOTING_TURRET_ANGLE = Units.degreesToRadians(-5.0);
     }
 
     public static void RecordOutputs() {

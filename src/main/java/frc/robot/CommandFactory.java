@@ -66,7 +66,7 @@ public class CommandFactory {
     }
 
     public Command aim(boolean aimAtHub) {
-        return aim(()-> aimAtHub);
+        return aim(() -> aimAtHub);
     }
 
     public Command aimAndZeroHood(boolean aimAtHub) {
@@ -141,7 +141,12 @@ public class CommandFactory {
      */
     public Command feedIntoShooter() {
         return parallel(
-                hopper.withVoltage(6.0, 6.0),
+                repeatingSequence(
+                        hopper.withVoltage(9.0, 8.0, 4.0)
+                                .until(() -> hopper.getAverageRollerCurrentDraw() >= 7.5),
+                        runOnce(hopper::clearTopRollerAverageCurrentDraw),
+                        hopper.withVoltage(9.0, 8.0, -4.0)
+                                .withTimeout(0.125)),
                 feeder.withVoltage(6.0)
         );
     }
@@ -222,5 +227,15 @@ public class CommandFactory {
         return aim(aimAtHub)
                 .alongWith((feedIntoShooter().onlyWhile(shooter::atShooterTargetVelocity))
                         .beforeStarting(shouldZero ? shooter.zeroHood() : Commands.none()));
+    }
+
+    /**
+     * Shoots at constant set points
+     */
+    public Command manualShooting(){
+        return shooter.follow(
+                () -> Constants.Shooter.MANUAL_SHOOTING_HOOD_POSITION,
+                () -> Constants.Shooter.MANUAL_SHOOTING_TURRET_ANGLE,
+                () -> Constants.Shooter.MANUAL_SHOOTING_SHOOTING_VELOCITY);
     }
 }

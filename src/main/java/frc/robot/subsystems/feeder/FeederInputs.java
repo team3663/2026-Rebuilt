@@ -7,6 +7,6 @@ public class FeederInputs {
     public double currentVelocity;
     public double currentAppliedVoltage;
 
-    public double motorTemperature;
-    public double motorCurrentDraw;
+    public double feederTemperature;
+    public double feederCurrentDraw;
 }
