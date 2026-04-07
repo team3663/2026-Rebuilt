@@ -8,7 +8,7 @@ public class Hopper extends SubsystemBase {
     private final HopperIO io;
     private final HopperInputsAutoLogged inputs = new HopperInputsAutoLogged();
     private double targetHopperVoltage;
-    private double targetCorneringVoltage;
+    private double targetTunnelVoltage;
     private double targetRollerVoltage;
 
     public Hopper(HopperIO io) {
@@ -19,7 +19,7 @@ public class Hopper extends SubsystemBase {
         io.updateInputs(inputs);
         Logger.processInputs("Hopper/Inputs", inputs);
         Logger.recordOutput("Hopper/TargetVoltage", targetHopperVoltage);
-        Logger.recordOutput("Hopper/CorneringTargetVoltage", targetCorneringVoltage);
+        Logger.recordOutput("Hopper/TunnelTargetVoltage", targetTunnelVoltage);
         Logger.recordOutput("Hopper/RollerTargetVoltage", targetRollerVoltage);
     }
 
@@ -27,19 +27,19 @@ public class Hopper extends SubsystemBase {
         return targetHopperVoltage;
     }
 
-    public Command withVoltage(double corneringVoltage, double hopperVoltage, double rollerVoltage) {
+    public Command withVoltage(double tunnelVoltage, double hopperVoltage, double rollerVoltage) {
         return runEnd(() -> {
             targetHopperVoltage = hopperVoltage;
-            targetCorneringVoltage = corneringVoltage;
+            targetTunnelVoltage = tunnelVoltage;
             targetRollerVoltage = rollerVoltage;
-            io.setTargetVoltage(corneringVoltage, hopperVoltage, rollerVoltage);
+            io.setTargetVoltage(tunnelVoltage, hopperVoltage, rollerVoltage);
         }, io::stop);
     }
 
     public Command stop() {
         return runOnce(() -> {
             targetHopperVoltage = 0.0;
-            targetCorneringVoltage = 0.0;
+            targetTunnelVoltage = 0.0;
             io.stop();
         });
     }

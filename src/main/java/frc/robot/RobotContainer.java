@@ -231,12 +231,6 @@ public class RobotContainer {
 
         // while shooting and not intaking fuel, use the intake to aid in feeding
         shootTrigger.and(intakeTrigger.negate()).whileTrue(intake.feed());
-
-//        //test tunnel bindings
-//        controller.a().whileTrue(hopper.withVoltage(7,7,7));
-//        controller.a().whileTrue(feeder.withVoltage(9));
-//        controller.rightBumper().onTrue(shooter.shooterVoltage(6));
-//        controller.leftBumper().onTrue(shooter.shooterVoltage(0));
     }
 
     private void configureTestBindings() {
