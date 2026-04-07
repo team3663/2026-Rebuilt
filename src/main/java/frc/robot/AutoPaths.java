@@ -417,6 +417,28 @@ public class AutoPaths {
         );
     }
 
+    public AutonomousMode middleStarting_outpost_depot(){
+        return new AutonomousMode(
+                Constants.BLUE_IN_FRONT_OF_HUB_AUTO_LINE,
+                Constants.RED_IN_FRONT_OF_HUB_AUTO_LINE,
+                Commands.sequence(
+                        resetOdometry(Constants.BLUE_IN_FRONT_OF_HUB_AUTO_LINE, Constants.RED_IN_FRONT_OF_HUB_AUTO_LINE),
+                        goToIntermediate(Constants.BLUE_HUB_SHOOTING, Constants.RED_HUB_SHOOTING, DEFAULT_INTERMEDIATE_DISTANCE_THRESHOLD)
+                                .raceWith(commandFactory.shooterDefault(()-> true)),
+                        goToIntermediate(Constants.BLUE_OUTPOST_INTERMEDIATE, Constants.RED_OUTPOST_INTERMEDIATE, DEFAULT_INTERMEDIATE_DISTANCE_THRESHOLD)
+                                .raceWith(zeroIntakeAndHood().andThen(shooting())),
+                        goToPosition(Constants.BLUE_OUTPOST_CENTERED, Constants.RED_OUTPOST_CENTERED)
+                                .raceWith(shooting(Intake.DEPLOY_ANGLE)),
+                        goToIntermediate(Constants.BLUE_OUTPOST_INTERMEDIATE, Constants.RED_OUTPOST_INTERMEDIATE, DEFAULT_INTERMEDIATE_DISTANCE_THRESHOLD),
+                        goToIntermediate(Constants.BLUE_DEPOT_INTERMEDIATE_X_OFFSET, Constants.RED_DEPOT_INTERMEDIATE_X_OFFSET, Units.feetToMeters(3.0)),
+                        goToIntermediate(Constants.BLUE_DEPOT_INTERMEDIATE, Constants.RED_DEPOT_INTERMEDIATE, DEFAULT_INTERMEDIATE_DISTANCE_THRESHOLD)
+                                .raceWith(intaking()),
+                        goToPosition(Constants.BLUE_DEPOT, Constants.RED_DEPOT)
+                                .raceWith(intaking(), commandFactory.shooterDefault(()-> true)),
+                        shooting().raceWith(runOnce(drive::stop))
+                ));
+    }
+
 
     public AutonomousMode rightStarting_neutralZone_shoot_neutralZoneLoop_shoot() {
         return new AutonomousMode(

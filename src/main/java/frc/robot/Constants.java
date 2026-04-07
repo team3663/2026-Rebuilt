@@ -264,8 +264,12 @@ public final class Constants {
             FIELD.getFieldWidth() / 2.0 - DEPOT_Y_OFFSET_FROM_CENTER, RED_ROTATED_DOWNFIELD);
     public static final Pose2d BLUE_DEPOT_INTERMEDIATE = new Pose2d(DEPOT_X_OFFSET,
             FIELD.getFieldWidth() / 2.0 + DEPOT_Y_OFFSET_FROM_CENTER, BLUE_ROTATED_LEFT);
+    public static final Pose2d BLUE_DEPOT_INTERMEDIATE_X_OFFSET = new Pose2d(DEPOT_X_OFFSET + Units.feetToMeters(5.0),
+            FIELD.getFieldWidth() / 2.0 + DEPOT_Y_OFFSET_FROM_CENTER + Units.feetToMeters(3.0), BLUE_ROTATED_LEFT);
     public static final Pose2d RED_DEPOT_INTERMEDIATE = new Pose2d(FIELD.getFieldLength() - DEPOT_X_OFFSET,
             FIELD.getFieldWidth() / 2.0 - DEPOT_Y_OFFSET_FROM_CENTER, RED_ROTATED_LEFT);
+    public static final Pose2d RED_DEPOT_INTERMEDIATE_X_OFFSET = new Pose2d(FIELD.getFieldLength() - DEPOT_X_OFFSET - Units.feetToMeters(5.0),
+            FIELD.getFieldWidth() / 2.0 - DEPOT_Y_OFFSET_FROM_CENTER - Units.feetToMeters(3.0), RED_ROTATED_LEFT);
     public static final Pose2d BLUE_DEPOT = new Pose2d(DEPOT_X_OFFSET,
             FIELD.getFieldWidth() / 2.0 + DEPOT_Y_OFFSET_FROM_CENTER + Units.inchesToMeters(42.0), BLUE_ROTATED_LEFT);
     public static final Pose2d RED_DEPOT = new Pose2d(FIELD.getFieldLength() - DEPOT_X_OFFSET,
