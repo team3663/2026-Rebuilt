@@ -12,17 +12,20 @@ public class Hopper extends SubsystemBase {
     private double targetTunnelVoltage;
     private double targetRollerVoltage;
 
+    private final DoubleCircularBuffer rollerCurrentDrawBuffer = new DoubleCircularBuffer(35);
+
     public Hopper(HopperIO io) {
         this.io = io;
     }
 
     public void periodic() {
         io.updateInputs(inputs);
-        currentDraw.addFirst(inputs.topRollerCurrentDraw);
+        rollerCurrentDrawBuffer.addFirst(inputs.topRollerCurrentDraw);
         Logger.processInputs("Hopper/Inputs", inputs);
         Logger.recordOutput("Hopper/TargetVoltage", targetHopperVoltage);
         Logger.recordOutput("Hopper/TunnelTargetVoltage", targetTunnelVoltage);
         Logger.recordOutput("Hopper/RollerTargetVoltage", targetRollerVoltage);
+        Logger.recordOutput("Hopper/AverageRollerCurrentDraw", getAverageRollerCurrentDraw());
     }
 
     public double getTargetHopperVoltage() {
@@ -46,17 +49,16 @@ public class Hopper extends SubsystemBase {
         });
     }
 
-    DoubleCircularBuffer currentDraw = new DoubleCircularBuffer(35);
+    public double getAverageRollerCurrentDraw() {
+        double sumOfNumbers = 0;
 
-    public double getAverageTopRollerCurrentDraw() {
-        var sumOfNumbers = 0;
-
-        for (int i = 0; i < currentDraw.size(); i++) {
-            sumOfNumbers += currentDraw.get(i);
+        for (int i = 0; i < rollerCurrentDrawBuffer.size(); i++) {
+            sumOfNumbers += rollerCurrentDrawBuffer.get(i);
         }
-        var average = sumOfNumbers / currentDraw.size();
-        Logger.recordOutput("Hopper/currentDrawAverage", average);
+        return sumOfNumbers / rollerCurrentDrawBuffer.size();
+    }
 
-        return average;
+    public void clearTopRollerAverageCurrentDraw() {
+        rollerCurrentDrawBuffer.clear();
     }
 }

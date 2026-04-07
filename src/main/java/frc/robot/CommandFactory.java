@@ -141,10 +141,10 @@ public class CommandFactory {
      */
     public Command feedIntoShooter() {
         return parallel(
-//                hopper.withVoltage(9.0, 8.0, 4.0),
                 repeatingSequence(
                         hopper.withVoltage(9.0, 8.0, 4.0)
-                                .until(() -> hopper.getAverageTopRollerCurrentDraw() >= 7.5),
+                                .until(() -> hopper.getAverageRollerCurrentDraw() >= 7.5),
+                        runOnce(hopper::clearTopRollerAverageCurrentDraw),
                         hopper.withVoltage(9.0, 8.0, -4.0)
                                 .withTimeout(0.125)),
                 feeder.withVoltage(6.0)
