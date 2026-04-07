@@ -49,6 +49,17 @@ public final class Constants {
     private static final double BUMP_Y_OFFSET_FROM_CENTER = Units.inchesToMeters(62.0);
     private static final double BUMP_X_OFFSET_FROM_TRENCH = Units.inchesToMeters(23.5 + 14.0 + 6.0);
 
+    public static final double BLUE_ALLIANCE_LINE_X = IS_ANDYMARK ? Units.inchesToMeters(181.56) : Units.inchesToMeters(182.11);
+    public static final double RED_ALLIANCE_LINE_X = IS_ANDYMARK ? FIELD.getFieldLength() - Units.inchesToMeters(181.56)
+            : FIELD.getFieldLength() - Units.inchesToMeters(182.11);
+    public static final double BEHIND_HUB_X = FIELD.getFieldLength() / 2.0;
+    public static final double BEHIND_HUB_LARGER_Y = FIELD.getTagPose(21).get().getY() - Units.feetToMeters(1.0);
+    public static final double BEHIND_HUB_SMALLER_Y = FIELD.getTagPose(18).get().getY() + Units.feetToMeters(1.0);
+    public static final double UNDER_TOWER_SMALLER_Y = FIELD.getTagPose(15).get().getY() - Units.inchesToMeters(23.5);
+    public static final double UNDER_TOWER_LARGER_Y = FIELD.getTagPose(15).get().getY() + Units.inchesToMeters(23.5);
+    public static final double BLUE_UNDER_TOWER_X = Units.inchesToMeters(43.510);
+    public static final double RED_UNDER_TOWER_X = FIELD.getFieldLength() - BLUE_UNDER_TOWER_X;
+
     // Rotation2d Constants
     private static final Rotation2d BLUE_ROTATED_LEFT = Rotation2d.fromDegrees(90.0);
     private static final Rotation2d BLUE_ROTATED_DOWNFIELD = Rotation2d.fromDegrees(0.0);
@@ -299,8 +310,8 @@ public final class Constants {
     }
 
     public static void RecordOutputs() {
-        Logger.recordOutput("Field/BLUE_LEFT_CENTER_LINE_INTERMEDIATE", RED_LEFT_CENTER_LINE_INTERMEDIATE);
-        Logger.recordOutput("Field/BLUE_LEFT_ALLIANCE_SIDE_INTERMEDIATE", RED_LEFT_ALLIANCE_SIDE_INTERMEDIATE);
+        Logger.recordOutput("Field/BLUE X LINE", new Pose2d(BLUE_ALLIANCE_LINE_X, 0.0, Rotation2d.kZero));
+        Logger.recordOutput("Field/RED X LINE", new Pose2d(RED_ALLIANCE_LINE_X, 0.0, Rotation2d.kZero));
         Logger.recordOutput("Field/BLUE_RIGHT_CENTER_LINE_INTERMEDIATE", RED_RIGHT_CENTER_LINE_INTERMEDIATE);
         Logger.recordOutput("Field/BLUE_RIGHT_ALLIANCE_SIDE_INTERMEDIATE", BLUE_RIGHT_ALLIANCE_SIDE_INTERMEDIATE);
         Logger.recordOutput("Field/RedOutpostCentered", RED_HUB_SHOOTING);

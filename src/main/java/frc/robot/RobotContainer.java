@@ -217,6 +217,7 @@ public class RobotContainer {
                                 waitUntil(shooter::atTargets)
                         )
                 ));
+//        intakeTrigger.negate().and(shootTrigger.negate()).whileTrue(intake.deploy());
 
         setPassingMode.onTrue(runOnce(() -> {
             shootingIntoHub = false;
@@ -231,6 +232,13 @@ public class RobotContainer {
 
         // while shooting and not intaking fuel, use the intake to aid in feeding
         shootTrigger.and(intakeTrigger.negate()).whileTrue(intake.feed());
+
+//        shootTrigger.and(intakeTrigger.negate()).whileTrue(repeatingSequence(
+//                intake.intakeAndPivot(Intake.INTAKE_VOLTAGE, Intake.DEPLOY_ANGLE),
+//                waitSeconds(0.25),
+//                intake.intakeAndPivot(Intake.FEED_VOLTAGE, Intake.FEED_ANGLE),
+//                waitSeconds(0.25)
+//        ));
     }
 
     private void configureTestBindings() {
