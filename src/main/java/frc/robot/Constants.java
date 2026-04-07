@@ -52,7 +52,7 @@ public final class Constants {
     public static final double BLUE_ALLIANCE_LINE_X = IS_ANDYMARK ? Units.inchesToMeters(181.56) : Units.inchesToMeters(182.11);
     public static final double RED_ALLIANCE_LINE_X = IS_ANDYMARK ? FIELD.getFieldLength() - Units.inchesToMeters(181.56)
             : FIELD.getFieldLength() - Units.inchesToMeters(182.11);
-    public static final double BEHIND_HUB_X = FIELD.getFieldLength() / 2.0;
+    public static final double BEHIND_HUB_X = FIELD.getFieldLength() / 2.0 - Units.feetToMeters(5.0);
     public static final double BEHIND_HUB_LARGER_Y = FIELD.getTagPose(21).get().getY() - Units.feetToMeters(1.0);
     public static final double BEHIND_HUB_SMALLER_Y = FIELD.getTagPose(18).get().getY() + Units.feetToMeters(1.0);
     public static final double UNDER_TOWER_SMALLER_Y = FIELD.getTagPose(15).get().getY() - Units.inchesToMeters(23.5);
