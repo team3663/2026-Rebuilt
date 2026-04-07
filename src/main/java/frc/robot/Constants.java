@@ -310,8 +310,8 @@ public final class Constants {
     }
 
     public static void RecordOutputs() {
-        Logger.recordOutput("Field/BLUE X LINE", new Pose2d(BLUE_ALLIANCE_LINE_X, 0.0, Rotation2d.kZero));
-        Logger.recordOutput("Field/RED X LINE", new Pose2d(RED_ALLIANCE_LINE_X, 0.0, Rotation2d.kZero));
+        Logger.recordOutput("Field/BLUE_LEFT_CENTER_LINE_INTERMEDIATE", RED_LEFT_CENTER_LINE_INTERMEDIATE);
+        Logger.recordOutput("Field/BLUE_LEFT_ALLIANCE_SIDE_INTERMEDIATE", RED_LEFT_ALLIANCE_SIDE_INTERMEDIATE);
         Logger.recordOutput("Field/BLUE_RIGHT_CENTER_LINE_INTERMEDIATE", RED_RIGHT_CENTER_LINE_INTERMEDIATE);
         Logger.recordOutput("Field/BLUE_RIGHT_ALLIANCE_SIDE_INTERMEDIATE", BLUE_RIGHT_ALLIANCE_SIDE_INTERMEDIATE);
         Logger.recordOutput("Field/RedOutpostCentered", RED_HUB_SHOOTING);
