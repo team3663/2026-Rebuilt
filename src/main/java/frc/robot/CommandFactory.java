@@ -195,9 +195,10 @@ public class CommandFactory {
         var linearVelocity = Math.sqrt(Math.pow(drive.getFieldOrientedVelocity().vxMetersPerSecond, 2.0)
                 + Math.pow(drive.getFieldOrientedVelocity().vyMetersPerSecond, 2.0));
         var rotationalVelocity = drive.getFieldOrientedVelocity().omegaRadiansPerSecond;
-        var velocityBelowShootingMax = (!(linearVelocity > drive.getMaxLinearSpeedMetersPerSec() * 0.4))
-                || (!(rotationalVelocity > drive.getMaxAngularSpeedRadPerSec() * 0.5));
+        var velocityBelowShootingMax = (!(Math.abs(linearVelocity) >= 2.0))
+                && (!(Math.abs(rotationalVelocity) >= 1.5));
 
+        Logger.recordOutput("CommandFactory/LinearVelocity", linearVelocity);
         Logger.recordOutput("CommandFactory/ShooterAtTargets", shooter.atTargets());
         Logger.recordOutput("CommandFactory/NotPassingBehindHub", notPassingBehindHub);
         Logger.recordOutput("CommandFactory/VelocityBelowShootingMax", velocityBelowShootingMax);
