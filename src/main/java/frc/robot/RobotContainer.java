@@ -111,16 +111,16 @@ public class RobotContainer {
         autoChooser.addOption("CH-ShootInHub", autoPaths.middleStarting_shootIntoHub());
         autoChooser.addOption("LT-ShootInHub", autoPaths.leftStarting_shootIntoHub());
         autoChooser.addOption("RT-ShootIntoHub", autoPaths.rightStarting_shootIntoHub());
-        autoChooser.addOption("RT-NZ-NZ", autoPaths.rightStarting_neutralZone_shoot_neutralZone());
-        autoChooser.addOption("LT-NZ-NZ", autoPaths.leftStarting_neutralZone_shoot_neutralZone());
+        autoChooser.addOption("RT-NZ-NZ-RB", autoPaths.rightStarting_neutralZone_shoot_neutralZone());
+        autoChooser.addOption("LT-NZ-NZ-LB", autoPaths.leftStarting_neutralZone_shoot_neutralZone());
         autoChooser.addOption("LT-NZ-NZ-NZ-LB", autoPaths.leftStarting_neutralZone_shoot_neutralZone_shoot_neutralZone());
         autoChooser.addOption("LT-NZ-LB-LT-NZ-LB", autoPaths.leftStarting_neutralZone_trench_shoot_neutralZone());
         autoChooser.addOption("LT-NZ-NZ-RB", autoPaths.leftStarting_neutralZone_shoot_neutralZoneToRightSide());
         autoChooser.addOption("RT-NZ-NZ-LB", autoPaths.rightStarting_neutralZone_shoot_neutralZoneToLeftSide());
 //        autoChooser.addOption("CH-ShootInHub-Outpost", autoPaths.middleStarting_shootIntoHub_outpost());
 //        autoChooser.addOption("RT-Outpost", autoPaths.rightStarting_outpost());
-        autoChooser.addOption("LB-Depot-NZ", autoPaths.leftBump2ftFromCenter_depot());
-        autoChooser.addOption("RT-NZ-RB-RT-NZ-RB", autoPaths.rightStarting_neutralZone_bump_neutralZone_bump());
+        autoChooser.addOption("LB-D-NZ", autoPaths.leftBump2ftFromCenter_depot());
+//        autoChooser.addOption("RT-NZ-RB-RT-NZ-RB", autoPaths.rightStarting_neutralZone_bump_neutralZone_bump());
 
         // Configure the button bindings
         configureButtonBindings();
