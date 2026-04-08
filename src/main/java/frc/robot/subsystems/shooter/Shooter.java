@@ -17,8 +17,7 @@ import static edu.wpi.first.wpilibj2.command.Commands.waitUntil;
 public class Shooter extends SubsystemBase {
     private final static double HOOD_POSITION_THRESHOLD = Units.degreesToRadians(2.0);
     private final static double TURRET_POSITION_THRESHOLD = Units.degreesToRadians(10.0);
-    private final static double TURRET_DEAD_ZONE_POSITION_THRESHOLD = Units.degreesToRadians(2.0);
-    private final static double SHOOTER_VELOCITY_THRESHOLD = Units.rotationsPerMinuteToRadiansPerSecond(300.0);
+    private final static double SHOOTER_VELOCITY_THRESHOLD = Units.rotationsPerMinuteToRadiansPerSecond(250.0);
 
     private final ShooterIO io;
     private final ShooterInputsAutoLogged inputs = new ShooterInputsAutoLogged();

@@ -336,16 +336,16 @@ public final class Constants {
 
 
         public static final Translation2d PASS_DEPOT_BLUE = new Translation2d(
-                (FIELD.getTagPose(29).get().getX() + 0.5),
+                (FIELD.getTagPose(29).get().getX() + 1.5),
                 (FIELD.getTagPose(23).get().getY() - 0.5 - Units.feetToMeters(2.5)));
         public static final Translation2d PASS_OUTPOST_BLUE = new Translation2d(
-                (FIELD.getTagPose(29).get().getX() + 0.5),
+                (FIELD.getTagPose(29).get().getX() + 1.5),
                 (FIELD.getTagPose(29).get().getY() + 0.5 + Units.feetToMeters(2.5)));
         public static final Translation2d PASS_OUTPOST_RED = new Translation2d(
-                (FIELD.getTagPose(13).get().getX() - 0.5),
+                (FIELD.getTagPose(13).get().getX() - 1.5),
                 (FIELD.getTagPose(13).get().getY() - 0.5 - Units.feetToMeters(2.5)));
         public static final Translation2d PASS_DEPOT_RED = new Translation2d(
-                (FIELD.getTagPose(13).get().getX() - 0.5),
+                (FIELD.getTagPose(13).get().getX() - 1.5),
                 (FIELD.getTagPose(7).get().getY() + 0.5 + Units.feetToMeters(2.5)));
 
         // The Translation the turret is from the center of the robot
@@ -357,6 +357,8 @@ public final class Constants {
         public static final double MANUAL_SHOOTING_HOOD_POSITION = Units.degreesToRadians(6.0);
         public static final double MANUAL_SHOOTING_SHOOTING_VELOCITY = Units.rotationsPerMinuteToRadiansPerSecond(2450.0);
         public static final double MANUAL_SHOOTING_TURRET_ANGLE = Units.degreesToRadians(-5.0);
+
+        public static final Translation2d TUNING_CORNER_TARGET = new Translation2d(FIELD.getFieldLength(), 0.0);
     }
 
     public static void RecordOutputs() {

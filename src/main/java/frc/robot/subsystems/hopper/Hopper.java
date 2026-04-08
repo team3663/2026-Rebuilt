@@ -38,13 +38,19 @@ public class Hopper extends SubsystemBase {
             targetTunnelVoltage = tunnelVoltage;
             targetRollerVoltage = rollerVoltage;
             io.setTargetVoltage(tunnelVoltage, hopperVoltage, rollerVoltage);
-        }, io::stop);
+        }, () -> {
+            targetHopperVoltage = 0.0;
+            targetRollerVoltage = 0.0;
+            targetTunnelVoltage = 0.0;
+            io.stop();
+        });
     }
 
     public Command stop() {
         return runOnce(() -> {
             targetHopperVoltage = 0.0;
             targetTunnelVoltage = 0.0;
+            targetRollerVoltage = 0.0;
             io.stop();
         });
     }
