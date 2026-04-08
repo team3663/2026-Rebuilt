@@ -182,8 +182,7 @@ public class RobotContainer {
         Trigger setPassingMode = controller.a();
         Trigger setShootingMode = controller.x();
 
-//        Trigger reverseIntakeTrigger = controller.y();
-        controller.y().whileTrue(hopper.withVoltage(0.0,0.0, 8.0));
+        Trigger reverseIntakeTrigger = controller.y();
         Trigger autoAim = controller.b();
 
         Trigger manualShootTrigger = controller.rightBumper();
@@ -206,7 +205,7 @@ public class RobotContainer {
         // Intake Bindings
         intakeTrigger.whileTrue(intake.deployAndIntake());
         stowIntakeTrigger.whileTrue(intake.stow());
-//        reverseIntakeTrigger.whileTrue(intake.intakeAndPivot(-4.0, Intake.DEPLOY_ANGLE));
+        reverseIntakeTrigger.whileTrue(intake.intakeAndPivot(-4.0, Intake.DEPLOY_ANGLE));
 
         // general bindings for the shooter
         shootTrigger.whileTrue(
@@ -266,8 +265,6 @@ public class RobotContainer {
         final double[] tuningShooterVelocity = new double[]{0.0};
 
         testController.rightBumper().whileTrue(Commands.parallel(
-                // TO CHANGE TARGET: Change both the boolean in calibrate shooter and the definition of goalPosition to swap between hub and passing,
-                //                      and to choose which passing corner modify CommandFactory.getShooterTarget()
                 commandFactory.calibrateShooter(() -> tuningHoodAngle[0], () -> tuningShooterVelocity[0], () -> shootingIntoHub),
                 Commands.run(() -> {
                     Translation2d goalPosition = CommandFactory.getShooterTarget(drive.getPose(), CommandFactory.isRedAlliance(), shootingIntoHub);

@@ -8,7 +8,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
-import frc.robot.util.PhoenixUtil;
 
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
@@ -104,7 +103,7 @@ public class C2026ShooterIO implements ShooterIO {
 
         shooterConfig.Slot0.kV = 12 / ((7758.0 / 60.0) * SHOOTER_GEAR_RATIO);
         shooterConfig.Slot0.kA = 0.0;
-        shooterConfig.Slot0.kP = 0.4;
+        shooterConfig.Slot0.kP = 0.5;
         shooterConfig.Slot0.kI = 0.0;
         shooterConfig.Slot0.kD = 0.0;
 
