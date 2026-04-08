@@ -29,7 +29,7 @@ public final class Constants {
             IS_ANDYMARK ? AprilTagFields.k2026RebuiltAndymark : AprilTagFields.k2026RebuiltWelded
     );
 
-    public static final boolean ENABLE_TEST_FEATURES = true;
+    public static final boolean ENABLE_TEST_FEATURES = false;
 
     public static final Mode simMode = Mode.SIM;
     public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
