@@ -5,7 +5,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.hopper.Hopper;
@@ -216,24 +215,24 @@ public class CommandFactory {
                         ), intake.feedWithAngle(pivotAngle));
     }
 
-    public Command autonomousFeedShootAndZero(boolean aimAtHub) {
-        return aimAndZeroHood(aimAtHub)
-                .alongWith(feedIntoShooter()
-                        .onlyWhile(shooter::atShooterTargetVelocity))
-                .alongWith(intake.feed()
-                        .beforeStarting(intake::zeroPivot));
-    }
-
-    public Command autonomousFeedAndShootWithoutIntake(boolean aimAtHub, boolean shouldZero) {
-        return aim(aimAtHub)
-                .alongWith((feedIntoShooter().onlyWhile(shooter::atShooterTargetVelocity))
-                        .beforeStarting(shouldZero ? shooter.zeroHood() : Commands.none()));
+    public Command autonomousFeedAndShootWithPivoting() {
+        return aim(() -> true)
+                .alongWith(
+                        repeatingSequence(
+                                waitSeconds(0.1),
+                                waitUntil(shooter::atShooterTargetVelocity),
+                                feedIntoShooter().onlyWhile(shooter::atShooterTargetVelocity)
+                        ),
+                        repeatingSequence(
+                                intake.intakeAndPivot(Intake.FEED_VOLTAGE, Intake.FEED_ANGLE).withTimeout(0.5),
+                                intake.intakeAndPivot(Intake.INTAKE_VOLTAGE, Intake.DEPLOY_ANGLE).withTimeout(0.5)
+                        ));
     }
 
     /**
      * Shoots at constant set points
      */
-    public Command manualShooting(){
+    public Command manualShooting() {
         return shooter.follow(
                 () -> Constants.Shooter.MANUAL_SHOOTING_HOOD_POSITION,
                 () -> Constants.Shooter.MANUAL_SHOOTING_TURRET_ANGLE,
