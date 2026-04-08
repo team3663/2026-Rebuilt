@@ -111,14 +111,17 @@ public class RobotContainer {
         autoChooser.addOption("CH-ShootInHub", autoPaths.middleStarting_shootIntoHub());
         autoChooser.addOption("LT-ShootInHub", autoPaths.leftStarting_shootIntoHub());
         autoChooser.addOption("RT-ShootIntoHub", autoPaths.rightStarting_shootIntoHub());
-        autoChooser.addOption("RT-NZ-NZ", autoPaths.rightStarting_neutralZone_shoot_neutralZone());
-        autoChooser.addOption("LT-NZ-NZ", autoPaths.leftStarting_neutralZone_shoot_neutralZone());
+        autoChooser.addOption("RT-NZ-NZ-RB", autoPaths.rightStarting_neutralZone_shoot_neutralZone());
+        autoChooser.addOption("LT-NZ-NZ-LB", autoPaths.leftStarting_neutralZone_shoot_neutralZone());
+//        autoChooser.addOption("LT-NZ-NZ-NZ-LB", autoPaths.leftStarting_neutralZone_shoot_neutralZone_shoot_neutralZone());
+        autoChooser.addOption("LT-NZ-LB-LT-NZ-LB", autoPaths.leftStarting_neutralZone_trench_shoot_neutralZone());
         autoChooser.addOption("LT-NZ-NZ-RB", autoPaths.leftStarting_neutralZone_shoot_neutralZoneToRightSide());
         autoChooser.addOption("RT-NZ-NZ-LB", autoPaths.rightStarting_neutralZone_shoot_neutralZoneToLeftSide());
-//        autoChooser.addOption("RightUnderTrench2ft-NZ-Shoot-NeutralZoneLoop-Shoot", autoPaths.rightStarting_neutralZone_shoot_neutralZoneLoop_shoot());
-        autoChooser.addOption("CH-ShootInHub-Outpost", autoPaths.middleStarting_shootIntoHub_outpost());
-        autoChooser.addOption("RT-Outpost", autoPaths.rightStarting_outpost());
-//        autoChooser.addOption("MiddleStarting-Depot", autoPaths.middleStarting_depot());
+//        autoChooser.addOption("CH-ShootInHub-Outpost", autoPaths.middleStarting_shootIntoHub_outpost());
+//        autoChooser.addOption("RT-Outpost", autoPaths.rightStarting_outpost());
+        autoChooser.addOption("LB-D-NZ", autoPaths.leftBump2ftFromCenter_depot_neutralZone());
+        autoChooser.addOption("LB-D", autoPaths.leftBump2ftFromCenter_depot());
+//        autoChooser.addOption("RT-NZ-RB-RT-NZ-RB", autoPaths.rightStarting_neutralZone_bump_neutralZone_bump());
 
         // Configure the button bindings
         configureButtonBindings();
@@ -172,6 +175,7 @@ public class RobotContainer {
                 .onTrue(Commands.either(vision.recordAuto(), vision.recordTeleop(), DriverStation::isAutonomous)
                         .ignoringDisable(true));
 
+        // Triggers
         Trigger resetFieldOrientedTrigger = controller.back();
         Trigger zeroTrigger = controller.start();
 
@@ -185,6 +189,8 @@ public class RobotContainer {
 
         Trigger reverseIntakeTrigger = controller.y();
         Trigger autoAim = controller.b();
+
+        Trigger manualShootTrigger = controller.rightBumper();
 
         // Reset gyro to 0° when B button is pressed
         resetFieldOrientedTrigger.onTrue(drive.resetOdometry(() ->
@@ -201,7 +207,7 @@ public class RobotContainer {
                 )
         );
 
-        // general bindings for the intake
+        // Intake Bindings
         intakeTrigger.whileTrue(intake.deployAndIntake());
         stowIntakeTrigger.whileTrue(intake.stow());
         reverseIntakeTrigger.whileTrue(intake.intakeAndPivot(-4.0, Intake.DEPLOY_ANGLE));
@@ -221,6 +227,8 @@ public class RobotContainer {
                         )
                 ));
 
+        intakeTrigger.negate().and(shootTrigger.negate()).whileTrue(intake.deploy());
+
         setPassingMode.onTrue(runOnce(() -> {
             shootingIntoHub = false;
             autoAiming = false;
@@ -233,22 +241,27 @@ public class RobotContainer {
             aimingAtHub.set(true);
             passing.set(false);
         }));
-        autoAim.onTrue(runOnce(()-> {
+        autoAim.onTrue(runOnce(() -> {
             autoAiming = true;
             aimingAtHub.set(true);
             passing.set(true);
         }));
 
-        // while shooting and not intaking fuel, use the intake to aid in feeding
-        shootTrigger.and(intakeTrigger.negate()).whileTrue(intake.feed());
+        // Manual positions in case we do not want to use turret alignment code (or more likely it stopped working)
+        manualShootTrigger.whileTrue(sequence(waitUntil(shooter::atTargets), parallel(commandFactory.manualShooting(), commandFactory.feedIntoShooter(), intake.feed())));
+
+        shootTrigger.and(intakeTrigger.negate()).whileTrue(repeatingSequence(
+                intake.intakeAndPivot(Intake.FEED_VOLTAGE, Intake.FEED_ANGLE).withTimeout(0.5),
+                intake.intakeAndPivot(Intake.INTAKE_VOLTAGE, Intake.DEPLOY_ANGLE).withTimeout(0.5)
+        ));
     }
 
     private void configureTestBindings() {
         // Tuning Buttons:
-        // "A" button toggles tuning mode on and off
+        // Right Bumper button turns tuning mode on while it's held down
+        // Right Trigger feeds into the shooter
         // POV UP/DOWN moves the hood up and down
-        // POV LEFT/RIGHT moves the turret left and right
-        // X/Y increases and decreases the shooters velocity
+        // POV RIGHT/LEFT increases and decreases the shooters velocity
 
         final double TUNING_HOOD_ANGLE_CHANGE = Units.degreesToRadians(0.5);
         final double TUNING_SHOOTER_VELOCITY_CHANGE = Units.rotationsPerMinuteToRadiansPerSecond(50.0);
@@ -257,8 +270,6 @@ public class RobotContainer {
         final double[] tuningShooterVelocity = new double[]{0.0};
 
         testController.rightBumper().whileTrue(Commands.parallel(
-                // TO CHANGE TARGET: Change both the boolean in calibrate shooter and the definition of goalPosition to swap between hub and passing,
-                //                      and to choose which passing corner modify CommandFactory.getShooterTarget()
                 commandFactory.calibrateShooter(() -> tuningHoodAngle[0], () -> tuningShooterVelocity[0], () -> shootingIntoHub),
                 Commands.run(() -> {
                     Translation2d goalPosition = CommandFactory.getShooterTarget(drive.getPose(), CommandFactory.isRedAlliance(), shootingIntoHub);
@@ -276,8 +287,8 @@ public class RobotContainer {
 
                     Logger.recordOutput("Tuning/TargetHoodAngle", tuningHoodAngle[0]);
                     Logger.recordOutput("Tuning/TargetShooterVelocity", tuningShooterVelocity[0]);
-                })
-        ));
+                })));
+
         testController.rightTrigger().whileTrue(commandFactory.feedIntoShooter());
 
         testController.povUp().onTrue(runOnce(() -> tuningHoodAngle[0] += TUNING_HOOD_ANGLE_CHANGE));

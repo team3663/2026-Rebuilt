@@ -8,7 +8,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
-import frc.robot.util.PhoenixUtil;
 
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
@@ -19,13 +18,13 @@ public class C2026ShooterIO implements ShooterIO {
             Units.degreesToRadians(-175.0),
             Units.degreesToRadians(190.0));
     private static final double HOOD_GEAR_RATIO = 340.0 / 14.0;
-    private static final double SHOOTER_GEAR_RATIO = (15.0 / 18.0);
+    private static final double SHOOTER_GEAR_RATIO = (18.0 / 15.0);
 
     // Gear Ratios
-    private static final double MOTOR_TO_MECHANISM_RATIO = (44.0 / 14.0) * (80.0 / 16.0);
-    private static final double MOTOR_TO_SENSOR_RATIO = (42.0 / 14.0) * (46.0 / 16.0) * (60.0 / 24.0);
+    private static final double MOTOR_TO_MECHANISM_RATIO = (42.0 / 18.0) * (80.0 / 16.0);
+    private static final double MOTOR_TO_SENSOR_RATIO = (42.0 / 18.0) * (46.0 / 16.0) * (60.0 / 24.0);
     private static final double SENSOR_TO_MECHANISM_RATIO = MOTOR_TO_MECHANISM_RATIO / MOTOR_TO_SENSOR_RATIO;
-    private static final double ENCODER_OFFSET = 0.172607421875;
+    private static final double ENCODER_OFFSET = 0.1796875;
 
     private final TalonFX hoodMotor;
     private final TalonFX turretMotor;
@@ -100,11 +99,11 @@ public class C2026ShooterIO implements ShooterIO {
         shooterConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         shooterConfig.Feedback.RotorToSensorRatio = SHOOTER_GEAR_RATIO;
         shooterConfig.CurrentLimits.SupplyCurrentLimit = 60;
-        shooterConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+        shooterConfig.CurrentLimits.SupplyCurrentLimitEnable = false;
 
-        shooterConfig.Slot0.kV = 12 / ((7368.0 / 60.0) * SHOOTER_GEAR_RATIO);
+        shooterConfig.Slot0.kV = 12 / ((7758.0 / 60.0) * SHOOTER_GEAR_RATIO);
         shooterConfig.Slot0.kA = 0.0;
-        shooterConfig.Slot0.kP = 0.1;
+        shooterConfig.Slot0.kP = 0.5;
         shooterConfig.Slot0.kI = 0.0;
         shooterConfig.Slot0.kD = 0.0;
 

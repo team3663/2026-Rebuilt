@@ -5,7 +5,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.hopper.Hopper;
@@ -142,10 +141,10 @@ public class CommandFactory {
     public Command feedIntoShooter() {
         return parallel(
                 repeatingSequence(
-                        hopper.withVoltage(9.0, 8.0, 4.0)
-                                .until(() -> hopper.getAverageRollerCurrentDraw() >= 7.5),
+                        hopper.withVoltage(8.0, 7.0, 8.0)
+                                .until(() -> hopper.getAverageRollerCurrentDraw() >= 15.0),
                         runOnce(hopper::clearTopRollerAverageCurrentDraw),
-                        hopper.withVoltage(9.0, 8.0, -4.0)
+                        hopper.withVoltage(8.0, 7.0, -4.0)
                                 .withTimeout(0.125)),
                 feeder.withVoltage(6.0)
         );
@@ -162,6 +161,7 @@ public class CommandFactory {
 
     public boolean shouldShoot() {
         var notPassingBehindHub = true;
+        var notShootingUnderTower = true;
         var poseX = getTurretPose().getX();
         var poseY = getTurretPose().getY();
 
@@ -178,17 +178,31 @@ public class CommandFactory {
             }
         }
 
+        if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) ==
+                DriverStation.Alliance.Blue) {
+            if (poseX < Constants.BLUE_UNDER_TOWER_X && poseX > 0.0 &&
+                    poseY < Constants.UNDER_TOWER_LARGER_Y && poseY > Constants.UNDER_TOWER_SMALLER_Y) {
+                notShootingUnderTower = false;
+            }
+        } else {
+            if (poseX > Constants.RED_UNDER_TOWER_X && poseX < Constants.FIELD.getFieldLength() &&
+                    poseY < Constants.UNDER_TOWER_LARGER_Y && poseY > Constants.UNDER_TOWER_SMALLER_Y) {
+                notShootingUnderTower = false;
+            }
+        }
+
         var linearVelocity = Math.sqrt(Math.pow(drive.getFieldOrientedVelocity().vxMetersPerSecond, 2.0)
                 + Math.pow(drive.getFieldOrientedVelocity().vyMetersPerSecond, 2.0));
         var rotationalVelocity = drive.getFieldOrientedVelocity().omegaRadiansPerSecond;
-        var velocityBelowShootingMax = (!(linearVelocity > drive.getMaxLinearSpeedMetersPerSec() * 0.4))
-                || (!(rotationalVelocity > drive.getMaxAngularSpeedRadPerSec() * 0.5));
+        var velocityBelowShootingMax = (!(Math.abs(linearVelocity) >= 2.0))
+                && (!(Math.abs(rotationalVelocity) >= 1.5));
 
+        Logger.recordOutput("CommandFactory/LinearVelocity", linearVelocity);
         Logger.recordOutput("CommandFactory/ShooterAtTargets", shooter.atTargets());
         Logger.recordOutput("CommandFactory/NotPassingBehindHub", notPassingBehindHub);
         Logger.recordOutput("CommandFactory/VelocityBelowShootingMax", velocityBelowShootingMax);
 
-        return (shooter.atTargets() && notPassingBehindHub && velocityBelowShootingMax);
+        return (shooter.atTargets() && notPassingBehindHub && velocityBelowShootingMax && notShootingUnderTower);
     }
 
     public Command autonomousFeedAndShoot(boolean aimAtHub, double pivotAngle) {
@@ -201,17 +215,27 @@ public class CommandFactory {
                         ), intake.feedWithAngle(pivotAngle));
     }
 
-    public Command autonomousFeedShootAndZero(boolean aimAtHub) {
-        return aimAndZeroHood(aimAtHub)
-                .alongWith(feedIntoShooter()
-                        .onlyWhile(shooter::atShooterTargetVelocity))
-                .alongWith(intake.feed()
-                        .beforeStarting(intake::zeroPivot));
+    public Command autonomousFeedAndShootWithPivoting() {
+        return aim(() -> true)
+                .alongWith(
+                        repeatingSequence(
+                                waitSeconds(0.1),
+                                waitUntil(shooter::atShooterTargetVelocity),
+                                feedIntoShooter().onlyWhile(shooter::atShooterTargetVelocity)
+                        ),
+                        repeatingSequence(
+                                intake.intakeAndPivot(Intake.FEED_VOLTAGE, Intake.FEED_ANGLE).withTimeout(0.5),
+                                intake.intakeAndPivot(Intake.INTAKE_VOLTAGE, Intake.DEPLOY_ANGLE).withTimeout(0.5)
+                        ));
     }
 
-    public Command autonomousFeedAndShootWithoutIntake(boolean aimAtHub, boolean shouldZero) {
-        return aim(aimAtHub)
-                .alongWith((feedIntoShooter().onlyWhile(shooter::atShooterTargetVelocity))
-                        .beforeStarting(shouldZero ? shooter.zeroHood() : Commands.none()));
+    /**
+     * Shoots at constant set points
+     */
+    public Command manualShooting() {
+        return shooter.follow(
+                () -> Constants.Shooter.MANUAL_SHOOTING_HOOD_POSITION,
+                () -> Constants.Shooter.MANUAL_SHOOTING_TURRET_ANGLE,
+                () -> Constants.Shooter.MANUAL_SHOOTING_SHOOTING_VELOCITY);
     }
 }
