@@ -363,7 +363,7 @@ public final class Constants {
         public static final double DEFAULT_VELOCITY = Units.rotationsPerMinuteToRadiansPerSecond(1800.0);
 
         public static final double MANUAL_SHOOTING_HOOD_POSITION = Units.degreesToRadians(6.0);
-        public static final double MANUAL_SHOOTING_SHOOTING_VELOCITY = Units.rotationsPerMinuteToRadiansPerSecond(2450.0);
+        public static final double MANUAL_SHOOTING_SHOOTING_VELOCITY = Units.rotationsPerMinuteToRadiansPerSecond(2950.0);
         public static final double MANUAL_SHOOTING_TURRET_ANGLE = Units.degreesToRadians(-5.0);
 
         public static final Translation2d TUNING_CORNER_TARGET = new Translation2d(FIELD.getFieldLength(), 0.0);
