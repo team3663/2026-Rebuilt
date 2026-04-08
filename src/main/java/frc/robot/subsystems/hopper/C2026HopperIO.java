@@ -48,7 +48,7 @@ public class C2026HopperIO implements HopperIO {
         TalonFXConfiguration topRollerConfig = new TalonFXConfiguration();
         topRollerConfig.Feedback.SensorToMechanismRatio = TUNNEL_GEAR_RATIO;
         topRollerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-        topRollerConfig.CurrentLimits.SupplyCurrentLimit = 20;
+        topRollerConfig.CurrentLimits.SupplyCurrentLimit = 40;
         topRollerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         topRollerConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
@@ -56,6 +56,10 @@ public class C2026HopperIO implements HopperIO {
         upperTunnelMotor.getConfigurator().apply(upperTunnelConfig);
         lowerTunnelMotor.getConfigurator().apply(lowerTunnelConfig);
         topRollerMotor.getConfigurator().apply(topRollerConfig);
+
+
+        topRollerMotor.getSupplyCurrent()
+                .setUpdateFrequency(50.0);
     }
 
     @Override

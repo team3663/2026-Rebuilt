@@ -115,10 +115,8 @@ public class RobotContainer {
         autoChooser.addOption("LT-NZ-NZ", autoPaths.leftStarting_neutralZone_shoot_neutralZone());
         autoChooser.addOption("LT-NZ-NZ-RB", autoPaths.leftStarting_neutralZone_shoot_neutralZoneToRightSide());
         autoChooser.addOption("RT-NZ-NZ-LB", autoPaths.rightStarting_neutralZone_shoot_neutralZoneToLeftSide());
-//        autoChooser.addOption("RightUnderTrench2ft-NZ-Shoot-NeutralZoneLoop-Shoot", autoPaths.rightStarting_neutralZone_shoot_neutralZoneLoop_shoot());
         autoChooser.addOption("CH-ShootInHub-Outpost", autoPaths.middleStarting_shootIntoHub_outpost());
         autoChooser.addOption("RT-Outpost", autoPaths.rightStarting_outpost());
-//        autoChooser.addOption("MiddleStarting-Depot", autoPaths.middleStarting_depot());
 
         // Configure the button bindings
         configureButtonBindings();
@@ -184,7 +182,8 @@ public class RobotContainer {
         Trigger setPassingMode = controller.a();
         Trigger setShootingMode = controller.x();
 
-        Trigger reverseIntakeTrigger = controller.y();
+//        Trigger reverseIntakeTrigger = controller.y();
+        controller.y().whileTrue(hopper.withVoltage(0.0,0.0, 8.0));
         Trigger autoAim = controller.b();
 
         Trigger manualShootTrigger = controller.rightBumper();
@@ -207,7 +206,7 @@ public class RobotContainer {
         // Intake Bindings
         intakeTrigger.whileTrue(intake.deployAndIntake());
         stowIntakeTrigger.whileTrue(intake.stow());
-        reverseIntakeTrigger.whileTrue(intake.intakeAndPivot(-4.0, Intake.DEPLOY_ANGLE));
+//        reverseIntakeTrigger.whileTrue(intake.intakeAndPivot(-4.0, Intake.DEPLOY_ANGLE));
 
         // general bindings for the shooter
         shootTrigger.whileTrue(
