@@ -162,6 +162,7 @@ public class CommandFactory {
     public boolean shouldShoot() {
         var notPassingBehindHub = true;
         var notShootingUnderTower = true;
+        var notShootingUnderTrench = true;
         var poseX = getTurretPose().getX();
         var poseY = getTurretPose().getY();
 
@@ -191,6 +192,13 @@ public class CommandFactory {
             }
         }
 
+        if (!DriverStation.isAutonomous()) {
+            if (((poseX >= Constants.BLUE_ALLIANCE_SIDE_TRENCH_X && poseX <= Constants.BLUE_NZ_SIDE_TRENCH_X)
+                    || (poseX >= Constants.RED_NZ_SIDE_TRENCH_X && poseX <= Constants.RED_ALLIANCE_SIDE_TRENCH_X))
+                    && (poseY <= Constants.RIGHT_TRENCH_LEFT_Y || poseY >= Constants.LEFT_TRENCH_RIGHT_Y))
+                    notShootingUnderTrench = false;
+        }
+
         var linearVelocity = Math.sqrt(Math.pow(drive.getFieldOrientedVelocity().vxMetersPerSecond, 2.0)
                 + Math.pow(drive.getFieldOrientedVelocity().vyMetersPerSecond, 2.0));
         var rotationalVelocity = drive.getFieldOrientedVelocity().omegaRadiansPerSecond;
@@ -201,8 +209,9 @@ public class CommandFactory {
         Logger.recordOutput("CommandFactory/ShooterAtTargets", shooter.atTargets());
         Logger.recordOutput("CommandFactory/NotPassingBehindHub", notPassingBehindHub);
         Logger.recordOutput("CommandFactory/VelocityBelowShootingMax", velocityBelowShootingMax);
+        Logger.recordOutput("CommandFactory/NotShootingUnderTrench", notShootingUnderTrench);
 
-        return (shooter.atTargets() && notPassingBehindHub && velocityBelowShootingMax && notShootingUnderTower);
+        return (shooter.atTargets() && notPassingBehindHub && velocityBelowShootingMax && notShootingUnderTower && notShootingUnderTrench);
     }
 
     public Command autonomousFeedAndShoot(boolean aimAtHub, double pivotAngle) {

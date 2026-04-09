@@ -10,6 +10,7 @@ import edu.wpi.first.math.interpolation.Interpolator;
 import edu.wpi.first.math.interpolation.InverseInterpolator;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
@@ -94,9 +95,22 @@ public class FireControlSystem {
         double shooterVelocityTrim = Units.rotationsPerMinuteToRadiansPerSecond(shooterVelocityTrimEntry.getAsDouble());
         double turretAngleTrim = Units.degreesToRadians(turretAngleTrimEntry.getAsDouble());
 
+        var notShootingUnderTrench = true;
+        var poseX = turretPose.getX();
+        var poseY = turretPose.getY();
+
+        if (!DriverStation.isAutonomous()) {
+            if (((poseX >= Constants.BLUE_ALLIANCE_SIDE_TRENCH_X && poseX <= Constants.BLUE_NZ_SIDE_TRENCH_X)
+                    || (poseX >= Constants.RED_NZ_SIDE_TRENCH_X && poseX <= Constants.RED_ALLIANCE_SIDE_TRENCH_X))
+                    && (poseY <= Constants.RIGHT_TRENCH_LEFT_Y || poseY >= Constants.LEFT_TRENCH_RIGHT_Y))
+                notShootingUnderTrench = false;
+        }
+
+        Logger.recordOutput("CommandFactory/NotShootingUnderTrench-FCS", notShootingUnderTrench);
+
         // Add a slight offset when we are shooting at an angle
         return new FiringSolution((rotation.getRadians() - robotPose.getRotation().getRadians() + turretAngleTrim),
-                entry.hoodAngle, entry.shooterVelocity + shooterVelocityTrim);
+                notShootingUnderTrench ?  entry.hoodAngle : 0.0, entry.shooterVelocity + shooterVelocityTrim);
     }
 
     public static Pose2d getTurretPose(Pose2d robotPose, Rotation2d turretRotation) {

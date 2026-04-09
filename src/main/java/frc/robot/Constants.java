@@ -61,6 +61,12 @@ public final class Constants {
     public static final double UNDER_TOWER_LARGER_Y = FIELD.getTagPose(15).get().getY() + Units.inchesToMeters(23.5);
     public static final double BLUE_UNDER_TOWER_X = Units.inchesToMeters(43.510);
     public static final double RED_UNDER_TOWER_X = FIELD.getFieldLength() - BLUE_UNDER_TOWER_X;
+    public static final double BLUE_ALLIANCE_SIDE_TRENCH_X = FIELD.getTagPose(23).get().getX() - Units.feetToMeters(2.0);
+    public static final double BLUE_NZ_SIDE_TRENCH_X = FIELD.getTagPose(22).get().getX() +  Units.feetToMeters(2.0);
+    public static final double RED_ALLIANCE_SIDE_TRENCH_X = FIELD.getTagPose(7).get().getX() + Units.feetToMeters(2.0);
+    public static final double RED_NZ_SIDE_TRENCH_X = FIELD.getTagPose(6).get().getX() - Units.feetToMeters(2.0);
+    public static final double RIGHT_TRENCH_LEFT_Y = FIELD.getTagPose(7).get().getY() + Units.inchesToMeters(24.97);
+    public static final double LEFT_TRENCH_RIGHT_Y = FIELD.getTagPose(12).get().getY() - Units.inchesToMeters(24.97);
 
     // Rotation2d Constants
     private static final Rotation2d BLUE_ROTATED_LEFT = Rotation2d.fromDegrees(90.0);
