@@ -210,8 +210,8 @@ public class CommandFactory {
                 .alongWith(
                         repeatingSequence(
                                 waitSeconds(0.1),
-                                waitUntil(shooter::atShooterTargetVelocity),
-                                feedIntoShooter().onlyWhile(shooter::atShooterTargetVelocity)
+                                waitUntil(()-> !this.shouldShoot()),
+                                feedIntoShooter().onlyWhile(this::shouldShoot)
                         ), intake.feedWithAngle(pivotAngle));
     }
 
@@ -220,8 +220,12 @@ public class CommandFactory {
                 .alongWith(
                         repeatingSequence(
                                 waitSeconds(0.1),
-                                waitUntil(shooter::atShooterTargetVelocity),
-                                feedIntoShooter().onlyWhile(shooter::atShooterTargetVelocity)
+                                waitUntil(this::shouldShoot),
+                                repeatingSequence(
+                                        this.feedIntoShooter()
+                                                .until(() -> !this.shouldShoot()),
+                                        waitUntil(this::shouldShoot)
+                                )
                         ),
                         repeatingSequence(
                                 intake.intakeAndPivot(Intake.FEED_VOLTAGE, Intake.FEED_ANGLE).withTimeout(0.5),
