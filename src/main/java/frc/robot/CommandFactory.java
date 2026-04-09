@@ -30,6 +30,11 @@ public class CommandFactory {
 
     private FiringSolution firingSolution = null;
 
+    private static final double SHOOTING_LINEAR_VELOCITY_MAX = 2.0;
+    private static final double SHOOTING_ANGULAR_VELOCITY_MAX = 1.5;
+    private static final double PASSING_LINEAR_VELOCITY_MAX = 3.5;
+    private static final double PASSING_ANGULAR_VELOCITY_MAX = 1.5;
+
     public CommandFactory(Drive drive, Feeder feeder, Hopper hopper, Intake intake, Shooter shooter) {
         this.drive = drive;
         this.feeder = feeder;
@@ -198,14 +203,20 @@ public class CommandFactory {
                     && (poseY <= Constants.RIGHT_TRENCH_LEFT_Y || poseY >= Constants.LEFT_TRENCH_RIGHT_Y))
                     notShootingUnderTrench = false;
         }
+         boolean velocityBelowShootingMax = true;
+//        var linearVelocity = Math.sqrt(Math.pow(drive.getFieldOrientedVelocity().vxMetersPerSecond, 2.0)
+//                + Math.pow(drive.getFieldOrientedVelocity().vyMetersPerSecond, 2.0));
+//        var rotationalVelocity = drive.getFieldOrientedVelocity().omegaRadiansPerSecond;
+//        if (this.isHubShootingMode()) {
+//            velocityBelowShootingMax = (!(Math.abs(linearVelocity) >= MAX))
+//                    && (!(Math.abs(rotationalVelocity) >= 1.5));
+//        }
+//        else {
+//            velocityBelowShootingMax = (!(Math.abs(linearVelocity) >= 2.0))
+//                    && (!(Math.abs(rotationalVelocity) >= 1.5));
+//        }
 
-        var linearVelocity = Math.sqrt(Math.pow(drive.getFieldOrientedVelocity().vxMetersPerSecond, 2.0)
-                + Math.pow(drive.getFieldOrientedVelocity().vyMetersPerSecond, 2.0));
-        var rotationalVelocity = drive.getFieldOrientedVelocity().omegaRadiansPerSecond;
-        var velocityBelowShootingMax = (!(Math.abs(linearVelocity) >= 2.0))
-                && (!(Math.abs(rotationalVelocity) >= 1.5));
-
-        Logger.recordOutput("CommandFactory/LinearVelocity", linearVelocity);
+//        Logger.recordOutput("CommandFactory/LinearVelocity", linearVelocity);
         Logger.recordOutput("CommandFactory/ShooterAtTargets", shooter.atTargets());
         Logger.recordOutput("CommandFactory/NotPassingBehindHub", notPassingBehindHub);
         Logger.recordOutput("CommandFactory/VelocityBelowShootingMax", velocityBelowShootingMax);
