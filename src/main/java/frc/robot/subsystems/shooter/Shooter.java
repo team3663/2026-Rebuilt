@@ -18,9 +18,9 @@ import static edu.wpi.first.wpilibj2.command.Commands.waitUntil;
 public class Shooter extends SubsystemBase {
     private final static double HOOD_POSITION_THRESHOLD = Units.degreesToRadians(2.0);
     private final static double TURRET_POSITION_THRESHOLD = Units.degreesToRadians(10.0);
-    LoggedNetworkNumber SHOOTER_VELOCITY_THRESHOLD = new LoggedNetworkNumber("Shooter Velocity Threshold", 250);
+    LoggedNetworkNumber SHOOTER_VELOCITY_THRESHOLD = new LoggedNetworkNumber("Shooter Velocity Threshold", 300);
 
-    LoggedNetworkNumber shooter12VThreshold = new LoggedNetworkNumber("Shooter 12V Threshold", 200);
+    LoggedNetworkNumber shooter12VThreshold = new LoggedNetworkNumber("Shooter 12V Threshold", 100);
 
     private final ShooterIO io;
     private final ShooterInputsAutoLogged inputs = new ShooterInputsAutoLogged();
