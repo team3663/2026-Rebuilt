@@ -625,9 +625,10 @@ public class AutoPaths {
                 Commands.sequence(
                         resetOdometry(Constants.BLUE_IN_FRONT_OF_BUMP_AUTO_LINE, Constants.RED_IN_FRONT_OF_BUMP_AUTO_LINE)
                                 .raceWith(commandFactory.shooterDefault(() -> true)),
-                        goToIntermediate(Constants.BLUE_IN_FRONT_OF_BUMP_AUTO_LINE_INTERMEDIATE, Constants.RED_IN_FRONT_OF_BUMP_AUTO_LINE_INTERMEDIATE, DEFAULT_INTERMEDIATE_DISTANCE_THRESHOLD),
+                        goToIntermediate(Constants.BLUE_IN_FRONT_OF_BUMP_AUTO_LINE_INTERMEDIATE, Constants.RED_IN_FRONT_OF_BUMP_AUTO_LINE_INTERMEDIATE, DEFAULT_INTERMEDIATE_DISTANCE_THRESHOLD)
+                                .raceWith(zeroIntakeAndHood().andThen(shooting(Intake.FEED_ANGLE))),
                         goToIntermediateSlowAccel(Constants.BLUE_DEPOT_INTERMEDIATE, Constants.RED_DEPOT_INTERMEDIATE, DEFAULT_TRENCH_DISTANCE_THRESHOLD)
-                                .raceWith(zeroIntakeAndHood().andThen(shooting(Intake.DEPLOY_ANGLE))),
+                                .raceWith(shooting(Intake.DEPLOY_ANGLE)),
                         goToPositionSlowAccel(Constants.BLUE_DEPOT, Constants.RED_DEPOT).withTimeout(2.0)
                                 .raceWith(intaking()),
                         shooting(Intake.DEPLOY_ANGLE, 3.0).alongWith(runOnce(drive::stop)),
@@ -648,9 +649,10 @@ public class AutoPaths {
                 Commands.sequence(
                         resetOdometry(Constants.BLUE_IN_FRONT_OF_BUMP_AUTO_LINE, Constants.RED_IN_FRONT_OF_BUMP_AUTO_LINE)
                                 .raceWith(commandFactory.shooterDefault(() -> true)),
-                        goToIntermediate(Constants.BLUE_IN_FRONT_OF_BUMP_AUTO_LINE_INTERMEDIATE, Constants.RED_IN_FRONT_OF_BUMP_AUTO_LINE_INTERMEDIATE, DEFAULT_INTERMEDIATE_DISTANCE_THRESHOLD),
+                        goToIntermediate(Constants.BLUE_IN_FRONT_OF_BUMP_AUTO_LINE_INTERMEDIATE, Constants.RED_IN_FRONT_OF_BUMP_AUTO_LINE_INTERMEDIATE, DEFAULT_INTERMEDIATE_DISTANCE_THRESHOLD)
+                                .raceWith(zeroIntakeAndHood().andThen(shooting(Intake.FEED_ANGLE))),
                         goToIntermediateSlowAccel(Constants.BLUE_DEPOT_INTERMEDIATE, Constants.RED_DEPOT_INTERMEDIATE, DEFAULT_TRENCH_DISTANCE_THRESHOLD)
-                                .raceWith(zeroIntakeAndHood().andThen(shooting(Intake.DEPLOY_ANGLE))),
+                                .raceWith(shooting(Intake.DEPLOY_ANGLE)),
                         goToPositionSlowAccel(Constants.BLUE_DEPOT, Constants.RED_DEPOT).withTimeout(2.0)
                                 .raceWith(intaking()),
                         shooting(Intake.DEPLOY_ANGLE, 3.0).alongWith(runOnce(drive::stop))
