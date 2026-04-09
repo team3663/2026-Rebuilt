@@ -213,13 +213,13 @@ public class AutoPaths {
      * @param pivotAngle The angle the intake should be at while feeding
      */
     private Command shooting(double pivotAngle, double timeout) {
-        return commandFactory.autonomousFeedAndShoot(true, pivotAngle)
+        return commandFactory.autonomousFeedAndShoot(true, Intake.DEPLOY_ANGLE)
                 .withTimeout(timeout)
                 .andThen(shooter.stop());
     }
 
     private Command shootingWithPivot(double timeout) {
-        return commandFactory.autonomousFeedAndShootWithPivoting()
+        return commandFactory.autonomousFeedAndShoot(true, Intake.DEPLOY_ANGLE)
                 .withTimeout(timeout)
                 .andThen(shooter.stop());
     }
