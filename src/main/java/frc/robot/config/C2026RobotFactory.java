@@ -89,7 +89,7 @@ public class C2026RobotFactory implements RobotFactory {
                 -Units.degreesToRadians(74.0)
         );
         Transform3d rightTransform = new Transform3d(
-                -Units.inchesToMeters(9.5),
+                -Units.inchesToMeters(9.0),
                 -Units.inchesToMeters(12.75),
                 Units.inchesToMeters(18.25),
                 rightRotation
