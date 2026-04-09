@@ -85,4 +85,9 @@ public class LimelightIO implements VisionIO {
     public void recordOnCameras(double duration) {
         LimelightHelpers.triggerRewindCapture(cameraName, duration);
     }
+
+    @Override
+    public String getCameraName() {
+        return cameraName;
+    }
 }

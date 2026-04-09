@@ -38,6 +38,8 @@ public class Vision extends SubsystemBase {
     private final List<VisionMeasurement> acceptedMeasurements = new ArrayList<>();
     private final double[] ioUpdateDurations;
     private final double[] processingDurations;
+    private final LoggedNetworkBoolean[] limelightImuErrors;
+
 
     private final LoggedNetworkBoolean shouldPowerCycle = new LoggedNetworkBoolean("Limelight IMU Error", false);
 
@@ -52,10 +54,13 @@ public class Vision extends SubsystemBase {
 
         this.ioUpdateDurations = new double[ios.length];
         this.processingDurations = new double[ios.length];
+        this.limelightImuErrors = new LoggedNetworkBoolean[ios.length];
 
         visionInputs = new VisionInputsAutoLogged[ios.length];
         for (int i = 0; i < visionInputs.length; i++) {
             visionInputs[i] = new VisionInputsAutoLogged();
+            limelightImuErrors[i] =
+                    new LoggedNetworkBoolean("Limelight " + ios[i].getCameraName() + " IMU Error", false);
         }
 
         // Register the command we use to detect when the robot is enabled/disabled.
@@ -78,6 +83,7 @@ public class Vision extends SubsystemBase {
             Logger.processInputs("Vision/VisionInputs " + i, visionInputs[i]);
 
             imuReadingZero |= visionInputs[i].IMUYaw == 0;
+            limelightImuErrors[i].set(visionInputs[i].IMUYaw == 0);
         }
         shouldPowerCycle.set(imuReadingZero);
 
