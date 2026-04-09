@@ -105,10 +105,13 @@ public class Shooter extends SubsystemBase {
 
             // Shooter
             targetShooterVelocity = shooterVelocity.getAsDouble();
-            if (targetShooterVelocity - inputs.currentShooterVelocity1 > Units.rotationsPerMinuteToRadiansPerSecond(shooter12VThreshold.getAsDouble()))
+            if (targetShooterVelocity - inputs.currentShooterVelocity1 > Units.rotationsPerMinuteToRadiansPerSecond(shooter12VThreshold.getAsDouble())) {
                 io.setShooterTargetVoltage(12.0);
-            else
+                Logger.recordOutput("Shooter/Doing 12V", true);
+            } else {
                 io.setShooterTargetVelocity(targetShooterVelocity);
+                Logger.recordOutput("Shooter/Doing 12V", false);
+            }
         });
     }
 
