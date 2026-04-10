@@ -146,7 +146,7 @@ public class RobotContainer {
                         })
                         .ignoringDisable(true));
 
-        intake.setDefaultCommand(intake.pivotDefault());
+//        intake.setDefaultCommand(intake.pivotDefault());
 
         // Configure the button bindings
         configureButtonBindings();
@@ -206,6 +206,7 @@ public class RobotContainer {
                         intake.zeroPivot(),
                         shooter.zeroHood()
                 )
+                        .finallyDo(() -> intake.setPivotTargetAngle(Intake.DEPLOY_ANGLE))
         );
 
         // Intake Bindings
@@ -228,7 +229,7 @@ public class RobotContainer {
                         )
                 ));
 
-        intakeTrigger.negate().and(shootTrigger.negate()).whileTrue(intake.deploy());
+//        intakeTrigger.negate().and(shootTrigger.negate()).and(stowIntakeTrigger.negate()).whileTrue(intake.deploy());
 
         setPassingMode.onTrue(runOnce(() -> {
             shootingIntoHub = false;
@@ -249,12 +250,15 @@ public class RobotContainer {
         }));
 
         // Manual positions in case we do not want to use turret alignment code (or more likely it stopped working)
-        manualShootTrigger.whileTrue(sequence(waitUntil(shooter::atTargets), parallel(commandFactory.manualShooting(), commandFactory.feedIntoShooter(), intake.feed())));
+        manualShootTrigger.whileTrue(sequence(waitUntil(shooter::atTargets), parallel(commandFactory.manualShooting(), commandFactory.feedIntoShooter(), intake.feed()))
+                .finallyDo(() -> intake.setPivotTargetAngle(Intake.DEPLOY_ANGLE)));
 
-        shootTrigger.and(intakeTrigger.negate()).whileTrue(repeatingSequence(
+        shootTrigger.and(intakeTrigger.negate()).and(stowIntakeTrigger.negate()).whileTrue(repeatingSequence(
                 intake.intakeAndPivot(Intake.FEED_VOLTAGE, Intake.FEED_ANGLE).withTimeout(0.5),
                 intake.intakeAndPivot(Intake.INTAKE_VOLTAGE, Intake.DEPLOY_ANGLE).withTimeout(0.5)
-        ));
+        ).finallyDo(() -> intake.setPivotTargetAngle(Intake.DEPLOY_ANGLE)));
+
+        shootTrigger.and(stowIntakeTrigger).whileTrue(intake.intakeAndPivot(Intake.FEED_VOLTAGE, Intake.STOW_ANGLE));
     }
 
     private void configureTestBindings() {

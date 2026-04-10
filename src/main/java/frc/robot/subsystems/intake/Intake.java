@@ -13,7 +13,7 @@ import static edu.wpi.first.wpilibj2.command.Commands.waitUntil;
 public class Intake extends SubsystemBase {
     public static final double POSITION_THRESHOLD = Units.degreesToRadians(2.0);
     public static final double DEPLOY_ANGLE = Units.degreesToRadians(163.0);
-    public static final double STOW_ANGLE = Units.degreesToRadians(0.0);
+    public static final double STOW_ANGLE = Units.degreesToRadians(48.339844);
     public static final double FEED_ANGLE = Units.degreesToRadians(125.0);
     public static final double DEFAULT_ANGLE = Units.degreesToRadians(163.0);
     public static final double INTAKE_VOLTAGE = 9.0;
@@ -142,6 +142,13 @@ public class Intake extends SubsystemBase {
             io.stopPivot();
             io.stopIntake();
         });
+    }
+
+    public void setPivotTargetAngle(double angle) {
+        if (pivotZeroed) {
+            targetPivotPosition = angle;
+            io.setTargetPivotPosition(angle);
+        }
     }
 
     public record Constants(double minimumPivotAngle, double maximumPivotAngle) {
