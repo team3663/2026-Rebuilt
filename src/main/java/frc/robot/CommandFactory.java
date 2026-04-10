@@ -221,6 +221,7 @@ public class CommandFactory {
         Logger.recordOutput("CommandFactory/NotPassingBehindHub", notPassingBehindHub);
         Logger.recordOutput("CommandFactory/VelocityBelowShootingMax", velocityBelowShootingMax);
         Logger.recordOutput("CommandFactory/NotShootingUnderTrench", notShootingUnderTrench);
+        Logger.recordOutput("CommandFactory/NotShootingUnderTower", notShootingUnderTower);
 
         return (shooter.atTargets() && notPassingBehindHub && velocityBelowShootingMax && notShootingUnderTower && notShootingUnderTrench);
     }
