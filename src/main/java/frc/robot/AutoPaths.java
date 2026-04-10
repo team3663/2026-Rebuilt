@@ -241,7 +241,7 @@ public class AutoPaths {
      * <p> This command uese {@link #shooting(double)}</p>
      */
     private Command shooting() {
-        return shooting(Units.degreesToRadians(130.0));
+        return shooting(Intake.FEED_ANGLE);
     }
 
     // Auto Routines
@@ -626,14 +626,14 @@ public class AutoPaths {
                         resetOdometry(Constants.BLUE_IN_FRONT_OF_BUMP_AUTO_LINE, Constants.RED_IN_FRONT_OF_BUMP_AUTO_LINE)
                                 .raceWith(commandFactory.shooterDefault(() -> true)),
                         goToIntermediate(Constants.BLUE_IN_FRONT_OF_BUMP_AUTO_LINE_INTERMEDIATE, Constants.RED_IN_FRONT_OF_BUMP_AUTO_LINE_INTERMEDIATE, DEFAULT_INTERMEDIATE_DISTANCE_THRESHOLD)
-                                .raceWith(zeroIntakeAndHood().andThen(shooting(Intake.FEED_ANGLE))),
+                                .raceWith(zeroIntakeAndHood().andThen(intake.intakeAndPivot(0.0, Intake.FEED_ANGLE))),
                         goToIntermediateSlowAccel(Constants.BLUE_DEPOT_INTERMEDIATE, Constants.RED_DEPOT_INTERMEDIATE, DEFAULT_TRENCH_DISTANCE_THRESHOLD)
-                                .raceWith(shooting(Intake.DEPLOY_ANGLE)),
+                                .raceWith(intaking()),
                         goToPositionSlowAccel(Constants.BLUE_DEPOT, Constants.RED_DEPOT).withTimeout(2.0)
                                 .raceWith(intaking()),
-                        shooting(Intake.DEPLOY_ANGLE, 3.0).alongWith(runOnce(drive::stop)),
-                        goToIntermediate(Constants.BLUE_DEPOT.plus(new Transform2d(0.0, -Units.feetToMeters(1.5), Rotation2d.kZero)), Constants.RED_DEPOT.plus(new Transform2d(0.0, -Units.feetToMeters(1.5), Rotation2d.kZero)), Units.feetToMeters(0.5))
-                                .raceWith(intake.stow()),
+                        goToIntermediate(Constants.BLUE_DEPOT.plus(new Transform2d(0.0, -Units.feetToMeters(3.0), Rotation2d.fromDegrees(-45.0))), Constants.RED_DEPOT.plus(new Transform2d(0.0, -Units.feetToMeters(3.0), Rotation2d.fromDegrees(-45.0))), Units.feetToMeters(0.5))
+                                .raceWith(commandFactory.shooterDefault(()-> true)),
+                        shooting().alongWith(runOnce(drive::stop)),
                         goToIntermediate(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE_X_OFFSET, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE_X_OFFSET, DEFAULT_TRENCH_DISTANCE_THRESHOLD),
                         goToIntermediate(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE, DEFAULT_TRENCH_DISTANCE_THRESHOLD),
                         goToIntermediate(Constants.BLUE_LEFT_NEUTRAL_ZONE_TRENCH_OFFSET, Constants.RED_LEFT_NEUTRAL_ZONE_TRENCH_OFFSET, DEFAULT_TRENCH_DISTANCE_THRESHOLD),
@@ -650,12 +650,15 @@ public class AutoPaths {
                         resetOdometry(Constants.BLUE_IN_FRONT_OF_BUMP_AUTO_LINE, Constants.RED_IN_FRONT_OF_BUMP_AUTO_LINE)
                                 .raceWith(commandFactory.shooterDefault(() -> true)),
                         goToIntermediate(Constants.BLUE_IN_FRONT_OF_BUMP_AUTO_LINE_INTERMEDIATE, Constants.RED_IN_FRONT_OF_BUMP_AUTO_LINE_INTERMEDIATE, DEFAULT_INTERMEDIATE_DISTANCE_THRESHOLD)
-                                .raceWith(zeroIntakeAndHood().andThen(shooting(Intake.FEED_ANGLE))),
+                                .raceWith(zeroIntakeAndHood().andThen(intake.intakeAndPivot(0.0, Intake.FEED_ANGLE))),
                         goToIntermediateSlowAccel(Constants.BLUE_DEPOT_INTERMEDIATE, Constants.RED_DEPOT_INTERMEDIATE, DEFAULT_TRENCH_DISTANCE_THRESHOLD)
-                                .raceWith(shooting(Intake.DEPLOY_ANGLE)),
+                                .raceWith(intaking()),
                         goToPositionSlowAccel(Constants.BLUE_DEPOT, Constants.RED_DEPOT).withTimeout(2.0)
                                 .raceWith(intaking()),
-                        shooting(Intake.DEPLOY_ANGLE, 3.0).alongWith(runOnce(drive::stop))
+                        goToIntermediate(Constants.BLUE_DEPOT.plus(new Transform2d(0.0, -Units.feetToMeters(3.0), Rotation2d.fromDegrees(-45.0))), Constants.RED_DEPOT.plus(new Transform2d(0.0, -Units.feetToMeters(3.0), Rotation2d.fromDegrees(-45.0))), Units.feetToMeters(0.5))
+                                .raceWith(commandFactory.shooterDefault(()-> true)),
+                        shooting().alongWith(runOnce(drive::stop)),
+                        shooting(Intake.FEED_ANGLE)
                 ));
     }
 
