@@ -36,7 +36,7 @@ public class C2026TunerConstants {
     // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
     // TODO should tune the KP
     private static final Slot0Configs driveGains =
-            new Slot0Configs().withKP(0.6).withKI(0).withKD(0).withKS(0).withKV(0.124);
+            new Slot0Configs().withKP(0.7).withKI(0).withKD(0).withKS(0).withKV(0.124);
 
     // The closed-loop output type to use for the steer motors;
     // This affects the PID/FF gains for the steer motors

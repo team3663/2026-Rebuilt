@@ -102,7 +102,7 @@ public class AutoPaths {
                             return goToPositionTarget;
                         },
                         () -> false,
-                        () -> (slowVelocity.getAsBoolean() ? drive.getMaxLinearSpeedMetersPerSec() * 0.45 : drive.getMaxLinearSpeedMetersPerSec()))
+                        () -> (slowVelocity.getAsBoolean() ? drive.getMaxLinearSpeedMetersPerSec() * 0.4 : drive.getMaxLinearSpeedMetersPerSec()))
                 .beforeStarting(() -> {
                     if (intermediatePoseSupplier != null) intermediateHolder[0] = intermediatePoseSupplier.get();
                     else Commands.none();
@@ -213,7 +213,7 @@ public class AutoPaths {
      * @param pivotAngle The angle the intake should be at while feeding
      */
     private Command shooting(double pivotAngle, double timeout) {
-        return commandFactory.autonomousFeedAndShoot(true, Intake.DEPLOY_ANGLE)
+        return commandFactory.autonomousFeedAndShoot(true, pivotAngle)
                 .withTimeout(timeout)
                 .andThen(shooter.stop());
     }
@@ -465,10 +465,10 @@ public class AutoPaths {
                                 .raceWith(intake.intakeAndPivot(0.0, Intake.FEED_ANGLE), commandFactory.shooterDefault(() -> true)),
                         Commands.waitSeconds(0.25),
                         goToIntermediateSlowAccel(Constants.BLUE_LEFT_BUMP_SHOOTING_ROTATED_LEFT, Constants.RED_LEFT_BUMP_SHOOTING_ROTATED_LEFT, DEFAULT_INTERMEDIATE_DISTANCE_THRESHOLD)
-                                .raceWith(shooting()),
+                                .raceWith(shooting(Intake.DEPLOY_ANGLE)),
                         goToPositionSlowAccel(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE_X_OFFSET_ROTATED_RIGHT, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE_X_OFFSET_ROTATED_RIGHT)
-                                .raceWith(shooting()),
-                        parallel(shootingWithPivot(5.0), runOnce(drive::stop)),
+                                .raceWith(shooting(Intake.DEPLOY_ANGLE)),
+                        parallel(shooting(Intake.DEPLOY_ANGLE, 5.0), runOnce(drive::stop)),
                         goToIntermediate(Constants.BLUE_LEFT_UNDER_TRENCH_SHOOTING_ROTATED_RIGHT, Constants.RED_LEFT_UNDER_TRENCH_SHOOTING_ROTATED_RIGHT, DEFAULT_TRENCH_DISTANCE_THRESHOLD),
                         goToIntermediate(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE_ROTATED_RIGHT, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE_ROTATED_RIGHT, DEFAULT_TRENCH_DISTANCE_THRESHOLD)
                                 .raceWith(intaking()),
@@ -485,7 +485,7 @@ public class AutoPaths {
                         Commands.waitSeconds(0.25),
                         goToPosition(Constants.BLUE_LEFT_BUMP_SHOOTING, Constants.RED_LEFT_BUMP_SHOOTING)
                                 .raceWith(commandFactory.shooterDefault(() -> true)),
-                        Commands.parallel(commandFactory.autonomousFeedAndShootWithPivoting(), runOnce(drive::stop))));
+                        Commands.parallel(shooting(Intake.FEED_ANGLE), runOnce(drive::stop))));
     }
 
     public AutonomousMode RT_NZ_RB_RT_NZ_RB() {
@@ -511,7 +511,7 @@ public class AutoPaths {
                                 .raceWith(shooting()),
                         goToPositionSlowAccel(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE_X_OFFSET, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE_X_OFFSET)
                                 .raceWith(shooting()),
-                        parallel(shootingWithPivot(5.0), runOnce(drive::stop)),
+                        parallel(shooting(Intake.DEPLOY_ANGLE, 5.0), runOnce(drive::stop)),
                         goToIntermediate(Constants.BLUE_RIGHT_UNDER_TRENCH_SHOOTING_ROTATED_LEFT, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE_ROTATED_LEFT, DEFAULT_TRENCH_DISTANCE_THRESHOLD),
                         goToIntermediate(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE_ROTATED_LEFT, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE_ROTATED_LEFT, DEFAULT_TRENCH_DISTANCE_THRESHOLD)
                                 .raceWith(intaking()),
@@ -528,7 +528,7 @@ public class AutoPaths {
                         Commands.waitSeconds(0.25),
                         goToPosition(Constants.BLUE_RIGHT_BUMP_SHOOTING, Constants.RED_RIGHT_BUMP_SHOOTING)
                                 .raceWith(commandFactory.shooterDefault(() -> true)),
-                        Commands.parallel(commandFactory.autonomousFeedAndShootWithPivoting(), runOnce(drive::stop))));
+                        Commands.parallel(shooting(), runOnce(drive::stop))));
     }
 
 
@@ -633,7 +633,7 @@ public class AutoPaths {
                                 .raceWith(intaking()),
                         goToIntermediate(Constants.BLUE_DEPOT.plus(new Transform2d(0.0, -Units.feetToMeters(3.0), Rotation2d.fromDegrees(-45.0))), Constants.RED_DEPOT.plus(new Transform2d(0.0, -Units.feetToMeters(3.0), Rotation2d.fromDegrees(-45.0))), Units.feetToMeters(0.5))
                                 .raceWith(commandFactory.shooterDefault(()-> true)),
-                        shooting().alongWith(runOnce(drive::stop)),
+                        shooting(Intake.FEED_ANGLE).alongWith(runOnce(drive::stop)),
                         goToIntermediate(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE_X_OFFSET, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE_X_OFFSET, DEFAULT_TRENCH_DISTANCE_THRESHOLD),
                         goToIntermediate(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE, DEFAULT_TRENCH_DISTANCE_THRESHOLD),
                         goToIntermediate(Constants.BLUE_LEFT_NEUTRAL_ZONE_TRENCH_OFFSET, Constants.RED_LEFT_NEUTRAL_ZONE_TRENCH_OFFSET, DEFAULT_TRENCH_DISTANCE_THRESHOLD),
@@ -657,7 +657,7 @@ public class AutoPaths {
                                 .raceWith(intaking()),
                         goToIntermediate(Constants.BLUE_DEPOT.plus(new Transform2d(0.0, -Units.feetToMeters(3.0), Rotation2d.fromDegrees(-45.0))), Constants.RED_DEPOT.plus(new Transform2d(0.0, -Units.feetToMeters(3.0), Rotation2d.fromDegrees(-45.0))), Units.feetToMeters(0.5))
                                 .raceWith(commandFactory.shooterDefault(()-> true)),
-                        shooting().alongWith(runOnce(drive::stop)),
+                        shooting(Intake.FEED_ANGLE).alongWith(runOnce(drive::stop)),
                         shooting(Intake.FEED_ANGLE)
                 ));
     }
