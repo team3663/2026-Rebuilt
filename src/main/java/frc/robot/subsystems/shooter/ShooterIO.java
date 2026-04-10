@@ -1,5 +1,6 @@
 package frc.robot.subsystems.shooter;
 
+import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.util.Units;
 
 public interface ShooterIO {
@@ -44,5 +45,9 @@ public interface ShooterIO {
     }
 
     default void setShooterTargetVoltage(double voltage) {
+    }
+
+    default boolean isCurrentLimitedEnabled() {
+        return true;
     }
 }

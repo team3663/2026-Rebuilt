@@ -1,6 +1,7 @@
 package frc.robot.subsystems.shooter;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -8,7 +9,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
-import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
@@ -40,6 +40,13 @@ public class C2026ShooterIO implements ShooterIO {
     private final NeutralOut stopRequest = new NeutralOut();
 
     LoggedNetworkBoolean disableCurrentLimit = new LoggedNetworkBoolean("Shooter/DisableCurrentLimit", true);
+
+    private static final CurrentLimitsConfigs currentLimitsEnabled = new CurrentLimitsConfigs()
+            .withSupplyCurrentLimit(10.0)
+            .withSupplyCurrentLimitEnable(true);
+    private static final CurrentLimitsConfigs currentLimitsDisabled = new CurrentLimitsConfigs()
+            .withSupplyCurrentLimitEnable(false);
+    private boolean isLimited = true;
 
     public C2026ShooterIO(TalonFX hoodMotor, TalonFX turretMotor, TalonFX shooterMotor, TalonFX shooterMotor2,
                           CANcoder turretCanCoder) {
@@ -102,8 +109,7 @@ public class C2026ShooterIO implements ShooterIO {
         shooterConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         shooterConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         shooterConfig.Feedback.RotorToSensorRatio = SHOOTER_GEAR_RATIO;
-        shooterConfig.CurrentLimits.SupplyCurrentLimit = 60;
-        shooterConfig.CurrentLimits.SupplyCurrentLimitEnable = false;
+        shooterConfig.CurrentLimits = currentLimitsEnabled;
 
         shooterConfig.Slot0.kV = 12 / ((7758.0 / 60.0) * SHOOTER_GEAR_RATIO);
         shooterConfig.Slot0.kA = 0.0;
@@ -201,11 +207,29 @@ public class C2026ShooterIO implements ShooterIO {
     @Override
     public void setShooterTargetVelocity(double velocity, boolean disableShooterCurrentLimit) {
         shooterMotor.setControl(velocityRequest.withVelocity(Units.radiansToRotations(velocity)));
-        disableCurrentLimit.set(disableShooterCurrentLimit);
+        if (disableShooterCurrentLimit) {
+            if (isLimited) {
+                shooterMotor.getConfigurator().apply(currentLimitsDisabled, 0);
+                disableCurrentLimit.set(true);
+                isLimited = true;
+            }
+        } else {
+            if (!isLimited) {
+                shooterMotor.getConfigurator().apply(currentLimitsEnabled, 0);
+                disableCurrentLimit.set(false);
+                isLimited = false;
+            }
+        }
+
     }
 
     @Override
     public void setShooterTargetVoltage(double voltage) {
         shooterMotor.setControl(voltageRequest.withOutput(voltage));
+    }
+
+    @Override
+    public boolean isCurrentLimitedEnabled() {
+        return isLimited;
     }
 }
