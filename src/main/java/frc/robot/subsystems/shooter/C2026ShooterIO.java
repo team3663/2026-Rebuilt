@@ -9,6 +9,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
@@ -206,17 +207,20 @@ public class C2026ShooterIO implements ShooterIO {
 
     @Override
     public void setShooterTargetVelocity(double velocity, boolean disableShooterCurrentLimit) {
+        Logger.recordOutput("Shooter/WantingToDisableCurrentLimit", disableShooterCurrentLimit);
         shooterMotor.setControl(velocityRequest.withVelocity(Units.radiansToRotations(velocity)));
         if (disableShooterCurrentLimit) {
-            if (isLimited) {
+            if (!isLimited) {
                 shooterMotor.getConfigurator().apply(currentLimitsDisabled, 0);
-                disableCurrentLimit.set(true);
+                shooterMotor2.getConfigurator().apply(currentLimitsDisabled, 0);
+                disableCurrentLimit.set(false);
                 isLimited = true;
             }
         } else {
-            if (!isLimited) {
+            if (isLimited) {
                 shooterMotor.getConfigurator().apply(currentLimitsEnabled, 0);
-                disableCurrentLimit.set(false);
+                shooterMotor2.getConfigurator().apply(currentLimitsEnabled, 0);
+                disableCurrentLimit.set(true);
                 isLimited = false;
             }
         }
@@ -224,8 +228,24 @@ public class C2026ShooterIO implements ShooterIO {
     }
 
     @Override
-    public void setShooterTargetVoltage(double voltage) {
+    public void setShooterTargetVoltage(double voltage, boolean disableShooterCurrentLimit) {
+        Logger.recordOutput("Shooter/WantingToDisableCurrentLimit", disableShooterCurrentLimit);
         shooterMotor.setControl(voltageRequest.withOutput(voltage));
+        if (disableShooterCurrentLimit) {
+            if (!isLimited) {
+                shooterMotor.getConfigurator().apply(currentLimitsDisabled, 0);
+                shooterMotor2.getConfigurator().apply(currentLimitsDisabled, 0);
+                disableCurrentLimit.set(false);
+                isLimited = true;
+            }
+        } else {
+            if (isLimited) {
+                shooterMotor.getConfigurator().apply(currentLimitsEnabled, 0);
+                shooterMotor2.getConfigurator().apply(currentLimitsEnabled, 0);
+                disableCurrentLimit.set(true);
+                isLimited = false;
+            }
+        }
     }
 
     @Override
