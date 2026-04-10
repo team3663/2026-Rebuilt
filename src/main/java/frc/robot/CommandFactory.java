@@ -199,8 +199,7 @@ public class CommandFactory {
 
         if (!DriverStation.isAutonomous()) {
             if (((poseX >= Constants.BLUE_ALLIANCE_SIDE_TRENCH_X && poseX <= Constants.BLUE_NZ_SIDE_TRENCH_X)
-                    || (poseX >= Constants.RED_NZ_SIDE_TRENCH_X && poseX <= Constants.RED_ALLIANCE_SIDE_TRENCH_X))
-                    && (poseY <= Constants.RIGHT_TRENCH_LEFT_Y || poseY >= Constants.LEFT_TRENCH_RIGHT_Y))
+                    || (poseX >= Constants.RED_NZ_SIDE_TRENCH_X && poseX <= Constants.RED_ALLIANCE_SIDE_TRENCH_X)))
                 notShootingUnderTrench = false;
         }
         boolean velocityBelowShootingMax = true;
