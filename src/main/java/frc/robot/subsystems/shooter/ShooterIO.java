@@ -40,7 +40,7 @@ public interface ShooterIO {
         setShooterTargetVoltage(0.0);
     }
 
-    default void setShooterTargetVelocity(double velocity) {
+    default void setShooterTargetVelocity(double velocity, boolean disableCurrentLimit) {
     }
 
     default void setShooterTargetVoltage(double voltage) {

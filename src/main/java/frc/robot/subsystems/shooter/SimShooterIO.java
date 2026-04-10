@@ -118,7 +118,7 @@ public class SimShooterIO implements ShooterIO {
     }
 
     @Override
-    public void setShooterTargetVelocity(double velocity) {
+    public void setShooterTargetVelocity(double velocity, boolean disableCurrentLimit) {
         targetShooterVelocity = velocity;
         targetShooterVoltage = Double.NaN;
     }

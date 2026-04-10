@@ -8,6 +8,8 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
@@ -36,6 +38,8 @@ public class C2026ShooterIO implements ShooterIO {
     private final VelocityVoltage velocityRequest = new VelocityVoltage(0.0);
     private final VoltageOut voltageRequest = new VoltageOut(0.0);
     private final NeutralOut stopRequest = new NeutralOut();
+
+    LoggedNetworkBoolean disableCurrentLimit = new LoggedNetworkBoolean("Shooter/DisableCurrentLimit", true);
 
     public C2026ShooterIO(TalonFX hoodMotor, TalonFX turretMotor, TalonFX shooterMotor, TalonFX shooterMotor2,
                           CANcoder turretCanCoder) {
@@ -195,8 +199,9 @@ public class C2026ShooterIO implements ShooterIO {
     }
 
     @Override
-    public void setShooterTargetVelocity(double velocity) {
+    public void setShooterTargetVelocity(double velocity, boolean disableShooterCurrentLimit) {
         shooterMotor.setControl(velocityRequest.withVelocity(Units.radiansToRotations(velocity)));
+        disableCurrentLimit.set(disableShooterCurrentLimit);
     }
 
     @Override

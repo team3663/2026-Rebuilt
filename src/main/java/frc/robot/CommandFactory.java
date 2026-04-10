@@ -65,7 +65,7 @@ public class CommandFactory {
                             Rotation2d.fromRadians(shooter.getTurretPosition()),
                             targetPosition, aimAtHub.getAsBoolean());
                     return firingSolution;
-                })
+                }, true)
                 .finallyDo(() -> firingSolution = null);
     }
 
@@ -84,7 +84,7 @@ public class CommandFactory {
                             Rotation2d.fromRadians(shooter.getTurretPosition()),
                             targetPosition, aimAtHub);
                     return firingSolution;
-                })
+                }, true)
                 .beforeStarting(shooter::zeroHood)
                 .finallyDo(() -> firingSolution = null);
     }
@@ -97,7 +97,7 @@ public class CommandFactory {
                             drive.getPose(), drive.getFieldOrientedVelocity(),
                             Rotation2d.fromRadians(shooter.getTurretPosition()), target, shootingIntoHub.getAsBoolean())
                     .turretAngle();
-        }, () -> Constants.Shooter.DEFAULT_VELOCITY);
+        }, () -> Constants.Shooter.DEFAULT_VELOCITY, false);
     }
 
     public Command calibrateShooter(DoubleSupplier hoodAngleSupplier, DoubleSupplier shooterVelocitySupplier, BooleanSupplier aimAtHub) {
@@ -112,7 +112,7 @@ public class CommandFactory {
                     targetPosition, aimAtHub.getAsBoolean());
             return new FiringSolution(firingSolution.turretAngle(), hoodAngleSupplier.getAsDouble(),
                     shooterVelocitySupplier.getAsDouble());
-        });
+        }, true);
     }
 
     public static Translation2d getShooterTarget(Pose2d robot, boolean redAlliance, boolean aimAtHub) {
@@ -201,9 +201,9 @@ public class CommandFactory {
             if (((poseX >= Constants.BLUE_ALLIANCE_SIDE_TRENCH_X && poseX <= Constants.BLUE_NZ_SIDE_TRENCH_X)
                     || (poseX >= Constants.RED_NZ_SIDE_TRENCH_X && poseX <= Constants.RED_ALLIANCE_SIDE_TRENCH_X))
                     && (poseY <= Constants.RIGHT_TRENCH_LEFT_Y || poseY >= Constants.LEFT_TRENCH_RIGHT_Y))
-                    notShootingUnderTrench = false;
+                notShootingUnderTrench = false;
         }
-         boolean velocityBelowShootingMax = true;
+        boolean velocityBelowShootingMax = true;
 //        var linearVelocity = Math.sqrt(Math.pow(drive.getFieldOrientedVelocity().vxMetersPerSecond, 2.0)
 //                + Math.pow(drive.getFieldOrientedVelocity().vyMetersPerSecond, 2.0));
 //        var rotationalVelocity = drive.getFieldOrientedVelocity().omegaRadiansPerSecond;
@@ -231,7 +231,7 @@ public class CommandFactory {
                 .alongWith(
                         repeatingSequence(
                                 waitSeconds(0.1),
-                                waitUntil(()-> this.shouldShoot()),
+                                waitUntil(() -> this.shouldShoot()),
                                 repeatingSequence(
                                         this.feedIntoShooter()
                                                 .until(() -> !this.shouldShoot()),
@@ -265,6 +265,7 @@ public class CommandFactory {
         return shooter.follow(
                 () -> Constants.Shooter.MANUAL_SHOOTING_HOOD_POSITION,
                 () -> Constants.Shooter.MANUAL_SHOOTING_TURRET_ANGLE,
-                () -> Constants.Shooter.MANUAL_SHOOTING_SHOOTING_VELOCITY);
+                () -> Constants.Shooter.MANUAL_SHOOTING_SHOOTING_VELOCITY,
+                true);
     }
 }

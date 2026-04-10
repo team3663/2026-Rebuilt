@@ -81,11 +81,11 @@ public class Shooter extends SubsystemBase {
         return this.hoodAtPosition(hoodPosition) && this.turretAtPosition(turretPosition) && this.shooterAtVelocity(shooterVelocity);
     }
 
-    public Command goTo(double hoodPosition, double turretPosition, double shooterVelocity) {
-        return follow(() -> hoodPosition, () -> turretPosition, () -> shooterVelocity).until(this::atTargetPositions).finallyDo(this::stop);
+    public Command goTo(double hoodPosition, double turretPosition, double shooterVelocity, boolean disableCurrentLimit) {
+        return follow(() -> hoodPosition, () -> turretPosition, () -> shooterVelocity, disableCurrentLimit).until(this::atTargetPositions).finallyDo(this::stop);
     }
 
-    public Command follow(DoubleSupplier hoodPosition, DoubleSupplier turretPosition, DoubleSupplier shooterVelocity) {
+    public Command follow(DoubleSupplier hoodPosition, DoubleSupplier turretPosition, DoubleSupplier shooterVelocity, boolean disableCurrentLimit) {
         return run(() -> {
             // Hood
             if (hoodZeroed) {
@@ -109,14 +109,14 @@ public class Shooter extends SubsystemBase {
                 io.setShooterTargetVoltage(12.0);
                 Logger.recordOutput("Shooter/Doing 12V", true);
             } else {
-                io.setShooterTargetVelocity(targetShooterVelocity);
+                io.setShooterTargetVelocity(targetShooterVelocity, disableCurrentLimit);
                 Logger.recordOutput("Shooter/Doing 12V", false);
             }
         });
     }
 
-    public Command follow(Supplier<FiringSolution> firingSolution) {
-        return follow(() -> firingSolution.get().hoodAngle(), () -> firingSolution.get().turretAngle(), () -> firingSolution.get().shooterVelocity());
+    public Command follow(Supplier<FiringSolution> firingSolution, boolean disableCurrentLimit) {
+        return follow(() -> firingSolution.get().hoodAngle(), () -> firingSolution.get().turretAngle(), () -> firingSolution.get().shooterVelocity(), disableCurrentLimit);
     }
 
     // Hood
