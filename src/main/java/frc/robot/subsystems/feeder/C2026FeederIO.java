@@ -22,6 +22,8 @@ public class C2026FeederIO implements FeederIO {
         TalonFXConfiguration motor1Config = new TalonFXConfiguration();
         motor1Config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         motor1Config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        motor1Config.CurrentLimits.SupplyCurrentLimit = 60;
+        motor1Config.CurrentLimits.SupplyCurrentLimitEnable = true;
         //not sure if the PID values are needed or not
 //        motor1Config.Slot0.kP = 0.0;
 //        motor1Config.Slot0.kI = 0.0;
