@@ -253,6 +253,10 @@ public class Shooter extends SubsystemBase {
         );
     }
 
+    public boolean isZeroed() {
+        return hoodZeroed;
+    }
+
     public record Constants(
             double minimumHoodPosition,
             double maximumHoodPosition,

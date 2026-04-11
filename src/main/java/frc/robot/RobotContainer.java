@@ -122,6 +122,7 @@ public class RobotContainer {
 //        autoChooser.addOption("RT-Outpost", autoPaths.rightStarting_outpost());
         autoChooser.addOption("LB-D-NZ", autoPaths.LB_D_NZ());
         autoChooser.addOption("LB-D", autoPaths.LB_D());
+        autoChooser.addOption("RB-NZ-LB-D", autoPaths.RB_NZ_LB_D());
 //        autoChooser.addOption("RT-NZ-RB-RT-NZ-RB", autoPaths.rightStarting_neutralZone_bump_neutralZone_bump());
 
         // Configure the button bindings
