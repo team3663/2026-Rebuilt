@@ -35,12 +35,16 @@ public class C2026IntakeIO implements IntakeIO {
         TalonFXConfiguration intakeConfig = new TalonFXConfiguration();
         intakeConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         intakeConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        intakeConfig.CurrentLimits.SupplyCurrentLimit = 60;
+        intakeConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         intakeMotor.getConfigurator().apply(intakeConfig);
 
         // Pivot Motor Configurations
         TalonFXConfiguration pivotMotor1Config = new TalonFXConfiguration();
         pivotMotor1Config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         pivotMotor1Config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        pivotMotor1Config.CurrentLimits.SupplyCurrentLimit = 45;
+        pivotMotor1Config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
         pivotMotor1Config.MotionMagic.MotionMagicAcceleration = 10.0;
         pivotMotor1Config.MotionMagic.MotionMagicCruiseVelocity = 3.0;

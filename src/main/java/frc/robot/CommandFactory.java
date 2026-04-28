@@ -30,6 +30,11 @@ public class CommandFactory {
 
     private FiringSolution firingSolution = null;
 
+    private static final double SHOOTING_LINEAR_VELOCITY_MAX = 2.0;
+    private static final double SHOOTING_ANGULAR_VELOCITY_MAX = 1.5;
+    private static final double PASSING_LINEAR_VELOCITY_MAX = 3.5;
+    private static final double PASSING_ANGULAR_VELOCITY_MAX = 1.5;
+
     public CommandFactory(Drive drive, Feeder feeder, Hopper hopper, Intake intake, Shooter shooter) {
         this.drive = drive;
         this.feeder = feeder;
@@ -60,7 +65,7 @@ public class CommandFactory {
                             Rotation2d.fromRadians(shooter.getTurretPosition()),
                             targetPosition, aimAtHub.getAsBoolean());
                     return firingSolution;
-                })
+                }, true)
                 .finallyDo(() -> firingSolution = null);
     }
 
@@ -79,7 +84,7 @@ public class CommandFactory {
                             Rotation2d.fromRadians(shooter.getTurretPosition()),
                             targetPosition, aimAtHub);
                     return firingSolution;
-                })
+                }, true)
                 .beforeStarting(shooter::zeroHood)
                 .finallyDo(() -> firingSolution = null);
     }
@@ -92,7 +97,7 @@ public class CommandFactory {
                             drive.getPose(), drive.getFieldOrientedVelocity(),
                             Rotation2d.fromRadians(shooter.getTurretPosition()), target, shootingIntoHub.getAsBoolean())
                     .turretAngle();
-        }, () -> Constants.Shooter.DEFAULT_VELOCITY);
+        }, () -> Constants.Shooter.DEFAULT_VELOCITY, false);
     }
 
     public Command calibrateShooter(DoubleSupplier hoodAngleSupplier, DoubleSupplier shooterVelocitySupplier, BooleanSupplier aimAtHub) {
@@ -107,7 +112,7 @@ public class CommandFactory {
                     targetPosition, aimAtHub.getAsBoolean());
             return new FiringSolution(firingSolution.turretAngle(), hoodAngleSupplier.getAsDouble(),
                     shooterVelocitySupplier.getAsDouble());
-        });
+        }, true);
     }
 
     public static Translation2d getShooterTarget(Pose2d robot, boolean redAlliance, boolean aimAtHub) {
@@ -162,6 +167,7 @@ public class CommandFactory {
     public boolean shouldShoot() {
         var notPassingBehindHub = true;
         var notShootingUnderTower = true;
+        var notShootingUnderTrench = true;
         var poseX = getTurretPose().getX();
         var poseY = getTurretPose().getY();
 
@@ -191,18 +197,32 @@ public class CommandFactory {
             }
         }
 
-        var linearVelocity = Math.sqrt(Math.pow(drive.getFieldOrientedVelocity().vxMetersPerSecond, 2.0)
-                + Math.pow(drive.getFieldOrientedVelocity().vyMetersPerSecond, 2.0));
-        var rotationalVelocity = drive.getFieldOrientedVelocity().omegaRadiansPerSecond;
-        var velocityBelowShootingMax = (!(Math.abs(linearVelocity) >= 2.0))
-                && (!(Math.abs(rotationalVelocity) >= 1.5));
+        if (!DriverStation.isAutonomous()) {
+            if (((poseX >= Constants.BLUE_ALLIANCE_SIDE_TRENCH_X && poseX <= Constants.BLUE_NZ_SIDE_TRENCH_X)
+                    || (poseX >= Constants.RED_NZ_SIDE_TRENCH_X && poseX <= Constants.RED_ALLIANCE_SIDE_TRENCH_X)))
+                notShootingUnderTrench = false;
+        }
+        boolean velocityBelowShootingMax = true;
+//        var linearVelocity = Math.sqrt(Math.pow(drive.getFieldOrientedVelocity().vxMetersPerSecond, 2.0)
+//                + Math.pow(drive.getFieldOrientedVelocity().vyMetersPerSecond, 2.0));
+//        var rotationalVelocity = drive.getFieldOrientedVelocity().omegaRadiansPerSecond;
+//        if (this.isHubShootingMode()) {
+//            velocityBelowShootingMax = (!(Math.abs(linearVelocity) >= MAX))
+//                    && (!(Math.abs(rotationalVelocity) >= 1.5));
+//        }
+//        else {
+//            velocityBelowShootingMax = (!(Math.abs(linearVelocity) >= 2.0))
+//                    && (!(Math.abs(rotationalVelocity) >= 1.5));
+//        }
 
-        Logger.recordOutput("CommandFactory/LinearVelocity", linearVelocity);
+//        Logger.recordOutput("CommandFactory/LinearVelocity", linearVelocity);
         Logger.recordOutput("CommandFactory/ShooterAtTargets", shooter.atTargets());
         Logger.recordOutput("CommandFactory/NotPassingBehindHub", notPassingBehindHub);
         Logger.recordOutput("CommandFactory/VelocityBelowShootingMax", velocityBelowShootingMax);
+        Logger.recordOutput("CommandFactory/NotShootingUnderTrench", notShootingUnderTrench);
+        Logger.recordOutput("CommandFactory/NotShootingUnderTower", notShootingUnderTower);
 
-        return (shooter.atTargets() && notPassingBehindHub && velocityBelowShootingMax && notShootingUnderTower);
+        return (shooter.atTargets() && notPassingBehindHub && velocityBelowShootingMax && notShootingUnderTower && notShootingUnderTrench);
     }
 
     public Command autonomousFeedAndShoot(boolean aimAtHub, double pivotAngle) {
@@ -210,8 +230,12 @@ public class CommandFactory {
                 .alongWith(
                         repeatingSequence(
                                 waitSeconds(0.1),
-                                waitUntil(shooter::atShooterTargetVelocity),
-                                feedIntoShooter().onlyWhile(shooter::atShooterTargetVelocity)
+                                waitUntil(() -> this.shouldShoot()),
+                                repeatingSequence(
+                                        this.feedIntoShooter()
+                                                .until(() -> !this.shouldShoot()),
+                                        waitUntil(this::shouldShoot)
+                                )
                         ), intake.feedWithAngle(pivotAngle));
     }
 
@@ -220,8 +244,12 @@ public class CommandFactory {
                 .alongWith(
                         repeatingSequence(
                                 waitSeconds(0.1),
-                                waitUntil(shooter::atShooterTargetVelocity),
-                                feedIntoShooter().onlyWhile(shooter::atShooterTargetVelocity)
+                                waitUntil(this::shouldShoot),
+                                repeatingSequence(
+                                        this.feedIntoShooter()
+                                                .until(() -> !this.shouldShoot()),
+                                        waitUntil(this::shouldShoot)
+                                )
                         ),
                         repeatingSequence(
                                 intake.intakeAndPivot(Intake.FEED_VOLTAGE, Intake.FEED_ANGLE).withTimeout(0.5),
@@ -236,6 +264,7 @@ public class CommandFactory {
         return shooter.follow(
                 () -> Constants.Shooter.MANUAL_SHOOTING_HOOD_POSITION,
                 () -> Constants.Shooter.MANUAL_SHOOTING_TURRET_ANGLE,
-                () -> Constants.Shooter.MANUAL_SHOOTING_SHOOTING_VELOCITY);
+                () -> Constants.Shooter.MANUAL_SHOOTING_SHOOTING_VELOCITY,
+                true);
     }
 }

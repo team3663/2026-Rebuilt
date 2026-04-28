@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.FiringSolution;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
+import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
@@ -17,7 +18,9 @@ import static edu.wpi.first.wpilibj2.command.Commands.waitUntil;
 public class Shooter extends SubsystemBase {
     private final static double HOOD_POSITION_THRESHOLD = Units.degreesToRadians(2.0);
     private final static double TURRET_POSITION_THRESHOLD = Units.degreesToRadians(10.0);
-    private final static double SHOOTER_VELOCITY_THRESHOLD = Units.rotationsPerMinuteToRadiansPerSecond(250.0);
+    LoggedNetworkNumber SHOOTER_VELOCITY_THRESHOLD = new LoggedNetworkNumber("Shooter Velocity Threshold", 300);
+
+    LoggedNetworkNumber shooter12VThreshold = new LoggedNetworkNumber("Shooter 12V Threshold", 200);
 
     private final ShooterIO io;
     private final ShooterInputsAutoLogged inputs = new ShooterInputsAutoLogged();
@@ -78,30 +81,11 @@ public class Shooter extends SubsystemBase {
         return this.hoodAtPosition(hoodPosition) && this.turretAtPosition(turretPosition) && this.shooterAtVelocity(shooterVelocity);
     }
 
-    public Command goTo(double hoodPosition, double turretPosition, double shooterVelocity) {
-        return runEnd(() -> {
-            // Hood
-            if (hoodZeroed) {
-                targetHoodPosition = getValidHoodPosition(hoodPosition);
-                io.setHoodTargetPosition(targetHoodPosition);
-            }
-
-            // Turret
-            turretTargetingDeadZone = turretPosition > (constants.maximumTurretPosition)
-                    || turretPosition < (constants.minimumTurretPosition);
-            turretInDeadZone.set(turretTargetingDeadZone);
-            Logger.recordOutput("Shooter/TurretTargetingDeadZone", turretTargetingDeadZone);
-
-            targetTurretPosition = getNearestTargetTurretAngle(turretPosition);
-            io.setTurretTargetPosition(targetTurretPosition);
-
-            // Shooter
-            targetShooterVelocity = shooterVelocity;
-            io.setShooterTargetVelocity(targetShooterVelocity);
-        }, this::stop).until(this::atTargetPositions);
+    public Command goTo(double hoodPosition, double turretPosition, double shooterVelocity, boolean disableCurrentLimit) {
+        return follow(() -> hoodPosition, () -> turretPosition, () -> shooterVelocity, disableCurrentLimit).until(this::atTargetPositions).finallyDo(this::stop);
     }
 
-    public Command follow(DoubleSupplier hoodPosition, DoubleSupplier turretPosition, DoubleSupplier shooterVelocity) {
+    public Command follow(DoubleSupplier hoodPosition, DoubleSupplier turretPosition, DoubleSupplier shooterVelocity, boolean disableCurrentLimit) {
         return run(() -> {
             // Hood
             if (hoodZeroed) {
@@ -121,12 +105,18 @@ public class Shooter extends SubsystemBase {
 
             // Shooter
             targetShooterVelocity = shooterVelocity.getAsDouble();
-            io.setShooterTargetVelocity(targetShooterVelocity);
+            if (targetShooterVelocity - inputs.currentShooterVelocity1 > Units.rotationsPerMinuteToRadiansPerSecond(shooter12VThreshold.getAsDouble())) {
+                io.setShooterTargetVoltage(12.0, disableCurrentLimit);
+                Logger.recordOutput("Shooter/Doing 12V", true);
+            } else {
+                io.setShooterTargetVelocity(targetShooterVelocity, disableCurrentLimit);
+                Logger.recordOutput("Shooter/Doing 12V", false);
+            }
         });
     }
 
-    public Command follow(Supplier<FiringSolution> firingSolution) {
-        return follow(() -> firingSolution.get().hoodAngle(), () -> firingSolution.get().turretAngle(), () -> firingSolution.get().shooterVelocity());
+    public Command follow(Supplier<FiringSolution> firingSolution, boolean disableCurrentLimit) {
+        return follow(() -> firingSolution.get().hoodAngle(), () -> firingSolution.get().turretAngle(), () -> firingSolution.get().shooterVelocity(), disableCurrentLimit);
     }
 
     // Hood
@@ -240,11 +230,11 @@ public class Shooter extends SubsystemBase {
     }
 
     public boolean atShooterTargetVelocity() {
-        return shooterAtVelocity(targetShooterVelocity, SHOOTER_VELOCITY_THRESHOLD);
+        return shooterAtVelocity(targetShooterVelocity);
     }
 
     public boolean shooterAtVelocity(double position) {
-        return shooterAtVelocity(position, SHOOTER_VELOCITY_THRESHOLD);
+        return shooterAtVelocity(position, Units.rotationsPerMinuteToRadiansPerSecond(SHOOTER_VELOCITY_THRESHOLD.getAsDouble()));
     }
 
     public boolean shooterAtVelocity(double position, double threshold) {
@@ -259,8 +249,12 @@ public class Shooter extends SubsystemBase {
 
     public Command shooterVoltage(double voltage) {
         return Commands.runEnd(
-                () -> io.setShooterTargetVoltage(voltage), io::stopShooter
+                () -> io.setShooterTargetVoltage(voltage, true), io::stopShooter
         );
+    }
+
+    public boolean isZeroed() {
+        return hoodZeroed;
     }
 
     public record Constants(

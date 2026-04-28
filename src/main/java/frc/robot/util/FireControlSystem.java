@@ -10,6 +10,7 @@ import edu.wpi.first.math.interpolation.Interpolator;
 import edu.wpi.first.math.interpolation.InverseInterpolator;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
@@ -33,26 +34,26 @@ public class FireControlSystem {
 
     static {
         // Hub
-        DISTANCE_LOOKUP_TABLE_HUB.put(2.0, new LookupEntry(degreesToRadians(0.0), rotationsPerMinuteToRadiansPerSecond(2550.0)));
-        DISTANCE_LOOKUP_TABLE_HUB.put(2.5, new LookupEntry(degreesToRadians(1.0), rotationsPerMinuteToRadiansPerSecond(2700.0)));
-        DISTANCE_LOOKUP_TABLE_HUB.put(3.0, new LookupEntry(degreesToRadians(2.0), rotationsPerMinuteToRadiansPerSecond(2800.0)));
-        DISTANCE_LOOKUP_TABLE_HUB.put(3.5, new LookupEntry(degreesToRadians(3.0), rotationsPerMinuteToRadiansPerSecond(3050.0)));
-        DISTANCE_LOOKUP_TABLE_HUB.put(4.0, new LookupEntry(degreesToRadians(9.0), rotationsPerMinuteToRadiansPerSecond(3050.0)));
-        DISTANCE_LOOKUP_TABLE_HUB.put(4.5, new LookupEntry(degreesToRadians(9.0), rotationsPerMinuteToRadiansPerSecond(3200.0)));
-        DISTANCE_LOOKUP_TABLE_HUB.put(5.0, new LookupEntry(degreesToRadians(9.5), rotationsPerMinuteToRadiansPerSecond(3500.0)));
-        DISTANCE_LOOKUP_TABLE_HUB.put(5.5, new LookupEntry(degreesToRadians(10.5), rotationsPerMinuteToRadiansPerSecond(3550.0)));
+        DISTANCE_LOOKUP_TABLE_HUB.put(2.0, new LookupEntry(degreesToRadians(0.0), rotationsPerMinuteToRadiansPerSecond(2620.0)));
+        DISTANCE_LOOKUP_TABLE_HUB.put(2.5, new LookupEntry(degreesToRadians(1.0), rotationsPerMinuteToRadiansPerSecond(2770.0)));
+        DISTANCE_LOOKUP_TABLE_HUB.put(3.0, new LookupEntry(degreesToRadians(2.0), rotationsPerMinuteToRadiansPerSecond(2870.0)));
+        DISTANCE_LOOKUP_TABLE_HUB.put(3.5, new LookupEntry(degreesToRadians(3.0), rotationsPerMinuteToRadiansPerSecond(3175.0)));
+        DISTANCE_LOOKUP_TABLE_HUB.put(4.0, new LookupEntry(degreesToRadians(9.0), rotationsPerMinuteToRadiansPerSecond(3175.0)));
+        DISTANCE_LOOKUP_TABLE_HUB.put(4.5, new LookupEntry(degreesToRadians(9.0), rotationsPerMinuteToRadiansPerSecond(3375.0)));
+        DISTANCE_LOOKUP_TABLE_HUB.put(5.0, new LookupEntry(degreesToRadians(9.5), rotationsPerMinuteToRadiansPerSecond(3575.0)));
+        DISTANCE_LOOKUP_TABLE_HUB.put(5.5, new LookupEntry(degreesToRadians(10.5), rotationsPerMinuteToRadiansPerSecond(3625.0)));
 
         // Passing
         DISTANCE_LOOKUP_TABLE_PASS.put(3.0, new LookupEntry(degreesToRadians(11.5), rotationsPerMinuteToRadiansPerSecond(2300.0)));
         DISTANCE_LOOKUP_TABLE_PASS.put(4.0, new LookupEntry(degreesToRadians(12.5), rotationsPerMinuteToRadiansPerSecond(2700.0)));
         DISTANCE_LOOKUP_TABLE_PASS.put(5.0, new LookupEntry(degreesToRadians(14.5), rotationsPerMinuteToRadiansPerSecond(3000.0)));
         DISTANCE_LOOKUP_TABLE_PASS.put(6.0, new LookupEntry(degreesToRadians(14.0), rotationsPerMinuteToRadiansPerSecond(3000.0)));
-        DISTANCE_LOOKUP_TABLE_PASS.put(7.0, new LookupEntry(degreesToRadians(14.0), rotationsPerMinuteToRadiansPerSecond(3050.0)));
-        DISTANCE_LOOKUP_TABLE_PASS.put(8.0, new LookupEntry(degreesToRadians(15.0), rotationsPerMinuteToRadiansPerSecond(3350.0)));
-        DISTANCE_LOOKUP_TABLE_PASS.put(9.0, new LookupEntry(degreesToRadians(15.5), rotationsPerMinuteToRadiansPerSecond(3800.0)));
-        DISTANCE_LOOKUP_TABLE_PASS.put(10.0, new LookupEntry(degreesToRadians(16.0), rotationsPerMinuteToRadiansPerSecond(4100.0)));
-        DISTANCE_LOOKUP_TABLE_PASS.put(11.0, new LookupEntry(degreesToRadians(16.0), rotationsPerMinuteToRadiansPerSecond(4350.0)));
-        DISTANCE_LOOKUP_TABLE_PASS.put(12.0, new LookupEntry(degreesToRadians(17.0), rotationsPerMinuteToRadiansPerSecond(4500.0)));
+        DISTANCE_LOOKUP_TABLE_PASS.put(7.0, new LookupEntry(degreesToRadians(14.0), rotationsPerMinuteToRadiansPerSecond(3200.0)));
+        DISTANCE_LOOKUP_TABLE_PASS.put(8.0, new LookupEntry(degreesToRadians(15.0), rotationsPerMinuteToRadiansPerSecond(3500.0)));
+        DISTANCE_LOOKUP_TABLE_PASS.put(9.0, new LookupEntry(degreesToRadians(15.5), rotationsPerMinuteToRadiansPerSecond(4150.0)));
+        DISTANCE_LOOKUP_TABLE_PASS.put(10.0, new LookupEntry(degreesToRadians(16.0), rotationsPerMinuteToRadiansPerSecond(4650.0)));
+        DISTANCE_LOOKUP_TABLE_PASS.put(11.0, new LookupEntry(degreesToRadians(16.0), rotationsPerMinuteToRadiansPerSecond(4900.0)));
+        DISTANCE_LOOKUP_TABLE_PASS.put(12.0, new LookupEntry(degreesToRadians(16.5), rotationsPerMinuteToRadiansPerSecond(5250.0)));
 
 
         // Leading
@@ -94,9 +95,21 @@ public class FireControlSystem {
         double shooterVelocityTrim = Units.rotationsPerMinuteToRadiansPerSecond(shooterVelocityTrimEntry.getAsDouble());
         double turretAngleTrim = Units.degreesToRadians(turretAngleTrimEntry.getAsDouble());
 
+        var notShootingUnderTrench = true;
+        var poseX = turretPose.getX();
+        var poseY = turretPose.getY();
+
+        if (!DriverStation.isAutonomous()) {
+            if (((poseX >= Constants.BLUE_ALLIANCE_SIDE_TRENCH_X && poseX <= Constants.BLUE_NZ_SIDE_TRENCH_X)
+                    || (poseX >= Constants.RED_NZ_SIDE_TRENCH_X && poseX <= Constants.RED_ALLIANCE_SIDE_TRENCH_X)))
+                notShootingUnderTrench = false;
+        }
+
+        Logger.recordOutput("CommandFactory/NotShootingUnderTrench-FCS", notShootingUnderTrench);
+
         // Add a slight offset when we are shooting at an angle
         return new FiringSolution((rotation.getRadians() - robotPose.getRotation().getRadians() + turretAngleTrim),
-                entry.hoodAngle, entry.shooterVelocity + shooterVelocityTrim);
+                notShootingUnderTrench ?  entry.hoodAngle : 0.0, entry.shooterVelocity + shooterVelocityTrim);
     }
 
     public static Pose2d getTurretPose(Pose2d robotPose, Rotation2d turretRotation) {

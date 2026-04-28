@@ -108,19 +108,21 @@ public class RobotContainer {
 //                "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
         // Auto Routines
-        autoChooser.addOption("CH-ShootInHub", autoPaths.middleStarting_shootIntoHub());
-        autoChooser.addOption("LT-ShootInHub", autoPaths.leftStarting_shootIntoHub());
-        autoChooser.addOption("RT-ShootIntoHub", autoPaths.rightStarting_shootIntoHub());
-        autoChooser.addOption("RT-NZ-NZ-RB", autoPaths.rightStarting_neutralZone_shoot_neutralZone());
-        autoChooser.addOption("LT-NZ-NZ-LB", autoPaths.leftStarting_neutralZone_shoot_neutralZone());
+        autoChooser.addOption("CH-ShootInHub", autoPaths.CH_ShootInHub());
+        autoChooser.addOption("LT-ShootInHub", autoPaths.LT_ShootInHub());
+        autoChooser.addOption("RT-ShootIntoHub", autoPaths.RT_ShootInHub());
+        autoChooser.addOption("RT-NZ-NZ-RB", autoPaths.RT_NZ_NZ_RB());
+        autoChooser.addOption("LT-NZ-NZ-LB", autoPaths.LT_NZ_NZ_LB());
 //        autoChooser.addOption("LT-NZ-NZ-NZ-LB", autoPaths.leftStarting_neutralZone_shoot_neutralZone_shoot_neutralZone());
-        autoChooser.addOption("LT-NZ-LB-LT-NZ-LB", autoPaths.leftStarting_neutralZone_trench_shoot_neutralZone());
-        autoChooser.addOption("LT-NZ-NZ-RB", autoPaths.leftStarting_neutralZone_shoot_neutralZoneToRightSide());
-        autoChooser.addOption("RT-NZ-NZ-LB", autoPaths.rightStarting_neutralZone_shoot_neutralZoneToLeftSide());
+        autoChooser.addOption("LT-NZ-LB-LT-NZ-LB", autoPaths.LT_NZ_LB_LT_NZ_LB());
+        autoChooser.addOption("RT-NZ-RB-RT-NZ-RB", autoPaths.RT_NZ_RB_RT_NZ_RB());
+        autoChooser.addOption("LT-NZ-NZ-RB", autoPaths.LT_NZ_NZ_RB());
+        autoChooser.addOption("RT-NZ-NZ-LB", autoPaths.RT_NZ_NZ_LB());
 //        autoChooser.addOption("CH-ShootInHub-Outpost", autoPaths.middleStarting_shootIntoHub_outpost());
 //        autoChooser.addOption("RT-Outpost", autoPaths.rightStarting_outpost());
-        autoChooser.addOption("LB-D-NZ", autoPaths.leftBump2ftFromCenter_depot_neutralZone());
-        autoChooser.addOption("LB-D", autoPaths.leftBump2ftFromCenter_depot());
+        autoChooser.addOption("LB-D-NZ", autoPaths.LB_D_NZ());
+        autoChooser.addOption("LB-D", autoPaths.LB_D());
+        autoChooser.addOption("RB-NZ-LB-D", autoPaths.RB_NZ_LB_D());
 //        autoChooser.addOption("RT-NZ-RB-RT-NZ-RB", autoPaths.rightStarting_neutralZone_bump_neutralZone_bump());
 
         // Configure the button bindings
@@ -145,7 +147,7 @@ public class RobotContainer {
                         })
                         .ignoringDisable(true));
 
-        intake.setDefaultCommand(intake.pivotDefault());
+//        intake.setDefaultCommand(intake.pivotDefault());
 
         // Configure the button bindings
         configureButtonBindings();
@@ -205,6 +207,7 @@ public class RobotContainer {
                         intake.zeroPivot(),
                         shooter.zeroHood()
                 )
+                        .finallyDo(() -> intake.setPivotTargetAngle(Intake.DEPLOY_ANGLE))
         );
 
         // Intake Bindings
@@ -227,7 +230,7 @@ public class RobotContainer {
                         )
                 ));
 
-        intakeTrigger.negate().and(shootTrigger.negate()).whileTrue(intake.deploy());
+//        intakeTrigger.negate().and(shootTrigger.negate()).and(stowIntakeTrigger.negate()).whileTrue(intake.deploy());
 
         setPassingMode.onTrue(runOnce(() -> {
             shootingIntoHub = false;
@@ -248,12 +251,15 @@ public class RobotContainer {
         }));
 
         // Manual positions in case we do not want to use turret alignment code (or more likely it stopped working)
-        manualShootTrigger.whileTrue(sequence(waitUntil(shooter::atTargets), parallel(commandFactory.manualShooting(), commandFactory.feedIntoShooter(), intake.feed())));
+        manualShootTrigger.whileTrue(sequence(waitUntil(shooter::atTargets), parallel(commandFactory.manualShooting(), commandFactory.feedIntoShooter(), intake.feed()))
+                .finallyDo(() -> intake.setPivotTargetAngle(Intake.DEPLOY_ANGLE)));
 
-        shootTrigger.and(intakeTrigger.negate()).whileTrue(repeatingSequence(
+        shootTrigger.and(intakeTrigger.negate()).and(stowIntakeTrigger.negate()).whileTrue(repeatingSequence(
                 intake.intakeAndPivot(Intake.FEED_VOLTAGE, Intake.FEED_ANGLE).withTimeout(0.5),
                 intake.intakeAndPivot(Intake.INTAKE_VOLTAGE, Intake.DEPLOY_ANGLE).withTimeout(0.5)
-        ));
+        ).finallyDo(() -> intake.setPivotTargetAngle(Intake.DEPLOY_ANGLE)));
+
+        shootTrigger.and(stowIntakeTrigger).whileTrue(intake.intakeAndPivot(Intake.FEED_VOLTAGE, Intake.STOW_ANGLE));
     }
 
     private void configureTestBindings() {
