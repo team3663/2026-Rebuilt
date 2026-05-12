@@ -15,7 +15,7 @@ import frc.robot.subsystems.feeder.C2026FeederIO;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.hopper.C2026HopperIO;
 import frc.robot.subsystems.hopper.Hopper;
-import frc.robot.subsystems.intake.C2026IntakeIO;
+import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shooter.C2026ShooterIO;
 import frc.robot.subsystems.shooter.Shooter;
@@ -64,7 +64,7 @@ public class C2026RobotFactory implements RobotFactory {
 
     @Override
     public Intake createIntake() {
-        return new Intake(new C2026IntakeIO(
+        return new Intake(new IntakeIO(
                 new TalonFX(11),
                 new TalonFX(12)
         ));
