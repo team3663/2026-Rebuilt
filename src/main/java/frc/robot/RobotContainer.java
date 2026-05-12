@@ -267,7 +267,7 @@ public class RobotContainer {
                 .whileTrue(shooter.follow(
                         ()-> Units.degreesToRadians(10.0),
                         ()->Units.degreesToRadians(90.0),
-                        ()->Constants.Shooter.DEFAULT_VELOCITY,
+                        ()->Units.rotationsPerMinuteToRadiansPerSecond(2000),
                         true).alongWith(
                                 sequence(waitUntil(shooter::atTargets), parallel(commandFactory.feedIntoShooter(), intake.feed()))));
     }
