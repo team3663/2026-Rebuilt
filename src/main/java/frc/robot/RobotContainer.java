@@ -33,6 +33,8 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
+import java.util.function.DoubleSupplier;
+
 import static edu.wpi.first.wpilibj.DriverStation.Alliance;
 import static edu.wpi.first.wpilibj.DriverStation.getAlliance;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
@@ -260,6 +262,14 @@ public class RobotContainer {
         ).finallyDo(() -> intake.setPivotTargetAngle(Intake.DEPLOY_ANGLE)));
 
         shootTrigger.and(stowIntakeTrigger).whileTrue(intake.intakeAndPivot(Intake.FEED_VOLTAGE, Intake.STOW_ANGLE));
+
+        controller.povUp()
+                .whileTrue(shooter.follow(
+                        ()-> Units.degreesToRadians(10.0),
+                        ()->Units.degreesToRadians(90.0),
+                        ()->Units.rotationsPerMinuteToRadiansPerSecond(2000),
+                        true).alongWith(
+                                sequence(waitUntil(shooter::atTargets), parallel(commandFactory.feedIntoShooter(), intake.feed()))));
     }
 
     private void configureTestBindings() {
