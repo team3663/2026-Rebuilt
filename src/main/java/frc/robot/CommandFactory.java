@@ -222,7 +222,7 @@ public class CommandFactory {
         Logger.recordOutput("CommandFactory/NotShootingUnderTrench", notShootingUnderTrench);
         Logger.recordOutput("CommandFactory/NotShootingUnderTower", notShootingUnderTower);
 
-        return (shooter.atTargets() && notPassingBehindHub && velocityBelowShootingMax && notShootingUnderTower && notShootingUnderTrench);
+        return (shooter.atTargets() && notPassingBehindHub && velocityBelowShootingMax);
     }
 
     public Command autonomousFeedAndShoot(boolean aimAtHub, double pivotAngle) {
