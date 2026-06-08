@@ -23,7 +23,6 @@ public class IntakePivot extends SubsystemBase {
     }
 
     public enum WantedState {
-        INTAKE,
         STOW,
         DEPLOY,
         FEED,
@@ -33,7 +32,6 @@ public class IntakePivot extends SubsystemBase {
     }
 
     public enum SystemState {
-        INTAKE,
         STOW,
         DEPLOY,
         FEED,
@@ -56,10 +54,6 @@ public class IntakePivot extends SubsystemBase {
 
     private SystemState handleStateTransition() {
         return switch (wantedState) {
-            case INTAKE: {
-                if (isZeroed) yield SystemState.INTAKE;
-                else yield SystemState.OFF;
-            }
             case FEED: {
                 if (isZeroed) yield SystemState.FEED;
                 else yield SystemState.OFF;
@@ -84,9 +78,6 @@ public class IntakePivot extends SubsystemBase {
         double pivotTargetPosition = 0.0;
 
         switch (systemState) {
-            case INTAKE: {
-                pivotTargetPosition = constants.deployAngle;
-            }
             case DEPLOY: {
                 pivotTargetPosition = constants.deployAngle;
             }

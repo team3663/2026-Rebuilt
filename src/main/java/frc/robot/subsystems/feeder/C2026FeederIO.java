@@ -2,56 +2,52 @@ package frc.robot.subsystems.feeder;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.NeutralOut;
-import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-public class C2026FeederIO implements FeederIO {
-    // Feeder Motor
-    private final TalonFX motor; //ID 14;
+public class C2026FeederIO implements FeederIO{
+    private static final Feeder.Constants CONSTANTS = new Feeder.Constants(6.0, -3.0);
 
-    private final VoltageOut voltageRequest = new VoltageOut(0.0);
+    private final TalonFX feeder;
+
     private final NeutralOut stopRequest = new NeutralOut();
-    private final VelocityVoltage velocityVoltage = new VelocityVoltage(0.0);
+    private final VoltageOut voltageRequest = new VoltageOut(0.0);
 
-    public C2026FeederIO(TalonFX motor) {
-        this.motor = motor;
+    public C2026FeederIO(TalonFX feeder) {
+        this.feeder = feeder;
 
-        TalonFXConfiguration motor1Config = new TalonFXConfiguration();
-        motor1Config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        motor1Config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        motor1Config.CurrentLimits.SupplyCurrentLimit = 60;
-        motor1Config.CurrentLimits.SupplyCurrentLimitEnable = true;
-        //not sure if the PID values are needed or not
-//        motor1Config.Slot0.kP = 0.0;
-//        motor1Config.Slot0.kI = 0.0;
-//        motor1Config.Slot0.kD = 0.0;
+        // Configuring the feeder motor
+        TalonFXConfiguration feederConfig = new TalonFXConfiguration();
+        feederConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        feederConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        feederConfig.CurrentLimits.SupplyCurrentLimit = 60;
+        feederConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-        motor.getConfigurator().apply(motor1Config);
+        feeder.getConfigurator().apply(feederConfig);
     }
 
     @Override
     public void updateInputs(FeederInputs inputs) {
-        inputs.currentVelocity = motor.getVelocity().getValueAsDouble();
-        inputs.currentAppliedVoltage = motor.getMotorVoltage().getValueAsDouble();
-        inputs.feederCurrentDraw = motor.getSupplyCurrent().getValueAsDouble();
-        inputs.feederTemperature = motor.getDeviceTemp().getValueAsDouble();
+        inputs.currentFeederVelocity = feeder.getVelocity().getValueAsDouble();
+        inputs.currentFeederAppliedVoltage = feeder.getMotorVoltage().getValueAsDouble();
+        inputs.feederCurrentDraw = feeder.getSupplyCurrent().getValueAsDouble();
+        inputs.feederMotorTemperature = feeder.getDeviceTemp().getValueAsDouble();
     }
 
     @Override
-    public void stop() {
-        motor.setControl(stopRequest);
+    public void stop(){
+        feeder.setControl(stopRequest);
     }
 
     @Override
-    public void setTargetVoltage(double voltage) {
-        motor.setControl(voltageRequest.withOutput(voltage));
+    public void setTargetVoltage(double volts){
+        feeder.setControl(voltageRequest.withOutput(volts));
     }
 
-    @Override
-    public void setTargetVelocity(double velocity) {
-        motor.setControl(velocityVoltage.withVelocity(velocity));
+    public Feeder.Constants getConstants() {
+        return CONSTANTS;
     }
+
 }

@@ -8,6 +8,8 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 public class C2026HopperIO implements HopperIO {
+    private static final Hopper.Constants CONSTANTS = new Hopper.Constants(7.0, 8.0, 8.0, -4.0);
+
     private static final double TUNNEL_GEAR_RATIO = 1.0 / 2.0;
 
     private final TalonFX hopperMotor;
@@ -24,13 +26,14 @@ public class C2026HopperIO implements HopperIO {
         this.lowerTunnelMotor = lowerTunnelMotor;
         this.topRollerMotor = topRollerMotor;
 
-        TalonFXConfiguration config = new TalonFXConfiguration();
+        // Configuring the hopper motor
+        TalonFXConfiguration hopperConfig = new TalonFXConfiguration();
+        hopperConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        hopperConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        hopperConfig.CurrentLimits.SupplyCurrentLimit = 20;
+        hopperConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-        config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-        config.CurrentLimits.SupplyCurrentLimit = 20;
-        config.CurrentLimits.SupplyCurrentLimitEnable = true;
-
+        // Configuring the upper tunnel motor
         TalonFXConfiguration upperTunnelConfig = new TalonFXConfiguration();
         upperTunnelConfig.Feedback.SensorToMechanismRatio = TUNNEL_GEAR_RATIO;
         upperTunnelConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
@@ -38,6 +41,7 @@ public class C2026HopperIO implements HopperIO {
         upperTunnelConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         upperTunnelConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
+        // Configuring the lower tunnel motor
         TalonFXConfiguration lowerTunnelConfig = new TalonFXConfiguration();
         lowerTunnelConfig.Feedback.SensorToMechanismRatio = TUNNEL_GEAR_RATIO;
         lowerTunnelConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
@@ -45,6 +49,7 @@ public class C2026HopperIO implements HopperIO {
         lowerTunnelConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         lowerTunnelConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
+        // Configuring the top roller motor
         TalonFXConfiguration topRollerConfig = new TalonFXConfiguration();
         topRollerConfig.Feedback.SensorToMechanismRatio = TUNNEL_GEAR_RATIO;
         topRollerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
@@ -52,7 +57,9 @@ public class C2026HopperIO implements HopperIO {
         topRollerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         topRollerConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
-        hopperMotor.getConfigurator().apply(config);
+        // applying motor configs
+
+        hopperMotor.getConfigurator().apply(hopperConfig);
         upperTunnelMotor.getConfigurator().apply(upperTunnelConfig);
         lowerTunnelMotor.getConfigurator().apply(lowerTunnelConfig);
         topRollerMotor.getConfigurator().apply(topRollerConfig);
@@ -64,33 +71,29 @@ public class C2026HopperIO implements HopperIO {
 
     @Override
     public void updateInputs(HopperInputs inputs) {
+        // updating hopper inputs
         inputs.currentHopperVelocity = hopperMotor.getVelocity().getValueAsDouble();
         inputs.currentHopperAppliedVoltage = hopperMotor.getMotorVoltage().getValueAsDouble();
         inputs.hopperTemperature = hopperMotor.getDeviceTemp().getValueAsDouble();
         inputs.hopperCurrentDraw = hopperMotor.getSupplyCurrent().getValueAsDouble();
 
+        // updating upper tunnel inputs
         inputs.currentUpperTunnelVelocity = upperTunnelMotor.getVelocity().getValueAsDouble();
         inputs.currentUpperTunnelAppliedVoltage = upperTunnelMotor.getMotorVoltage().getValueAsDouble();
         inputs.upperTunnelTemperature = upperTunnelMotor.getDeviceTemp().getValueAsDouble();
         inputs.upperTunnelCurrentDraw = upperTunnelMotor.getSupplyCurrent().getValueAsDouble();
 
+        // updating lower tunnel inputs
         inputs.currentLowerTunnelVelocity = lowerTunnelMotor.getVelocity().getValueAsDouble();
         inputs.currentLowerTunnelAppliedVoltage = lowerTunnelMotor.getMotorVoltage().getValueAsDouble();
         inputs.lowerTunnelTemperature = lowerTunnelMotor.getDeviceTemp().getValueAsDouble();
         inputs.lowerTunnelCurrentDraw = lowerTunnelMotor.getSupplyCurrent().getValueAsDouble();
 
+        // updating top roller inputs
         inputs.currentTopRollerVelocity = topRollerMotor.getVelocity().getValueAsDouble();
         inputs.currentTopRollerAppliedVoltage = topRollerMotor.getMotorVoltage().getValueAsDouble();
         inputs.topRollerTemperature = topRollerMotor.getDeviceTemp().getValueAsDouble();
         inputs.topRollerCurrentDraw = topRollerMotor.getSupplyCurrent().getValueAsDouble();
-    }
-
-    @Override
-    public void setTargetVoltage(double tunnelVoltage, double hopperVoltage, double rollerVoltage) {
-        hopperMotor.setControl(voltageRequest.withOutput(hopperVoltage));
-        upperTunnelMotor.setControl(voltageRequest.withOutput(tunnelVoltage));
-        lowerTunnelMotor.setControl(voltageRequest.withOutput(tunnelVoltage));
-        topRollerMotor.setControl(voltageRequest.withOutput(rollerVoltage));
     }
 
     @Override
@@ -100,4 +103,17 @@ public class C2026HopperIO implements HopperIO {
         lowerTunnelMotor.setControl(stopRequest);
         topRollerMotor.setControl(stopRequest);
     }
+
+    @Override
+    public void setTargetVoltage(double tunnelVoltage, double hopperVoltage, double rollerVoltage){
+        hopperMotor.setControl(voltageRequest.withOutput(hopperVoltage));
+        upperTunnelMotor.setControl(voltageRequest.withOutput(tunnelVoltage));
+        lowerTunnelMotor.setControl(voltageRequest.withOutput(tunnelVoltage));
+        topRollerMotor.setControl(voltageRequest.withOutput(rollerVoltage));
+    }
+
+    public Hopper.Constants getConstants(){
+        return CONSTANTS;
+    }
+
 }

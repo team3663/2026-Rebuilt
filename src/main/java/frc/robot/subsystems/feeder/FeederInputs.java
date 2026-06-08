@@ -4,9 +4,10 @@ import org.littletonrobotics.junction.AutoLog;
 
 @AutoLog
 public class FeederInputs {
-    public double currentVelocity;
-    public double currentAppliedVoltage;
-
-    public double feederTemperature;
+    // Logging for the Feeder Subsystem
+    public double currentFeederVelocity;
+    public double currentFeederAppliedVoltage;
+    public double feederMotorTemperature;
     public double feederCurrentDraw;
+
 }

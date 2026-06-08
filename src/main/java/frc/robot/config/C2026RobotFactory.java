@@ -49,8 +49,7 @@ public class C2026RobotFactory implements RobotFactory {
     @Override
     public Feeder createFeeder() {
         return new Feeder(new C2026FeederIO(
-                new TalonFX(14)
-        ));
+                new TalonFX(14)));
     }
 
     @Override

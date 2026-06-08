@@ -7,7 +7,7 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.feeder.Feeder;
-import frc.robot.subsystems.feeder.FeederIO;
+import frc.robot.subsystems.feeder.C2026FeederIO;
 import frc.robot.subsystems.hopper.Hopper;
 import frc.robot.subsystems.hopper.HopperIO;
 import frc.robot.subsystems.intake.Intake;
@@ -40,7 +40,7 @@ public interface RobotFactory {
     }
 
     default Feeder createFeeder() {
-        return new Feeder(new FeederIO() {
+        return new Feeder(new C2026FeederIO() {
         });
     }
 
