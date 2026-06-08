@@ -2,7 +2,7 @@ package frc.robot.subsystems.intake;
 
 public interface IntakeRollerIO {
 
-    default void updateInputs(IntakeInputsAutoLogged rollerInputs) {
+    default void updateInputs(IntakeRollerInputs rollerInputs) {
     }
 
     default void stop(){}

@@ -6,7 +6,7 @@ import org.littletonrobotics.junction.Logger;
 public class IntakeRoller extends SubsystemBase {
     private final C2026IntakeRollerIO io;
     private final Constants constants;
-    private final IntakeInputsAutoLogged inputs = new IntakeInputsAutoLogged();
+    private final IntakeRollerInputsAutoLogged inputs = new IntakeRollerInputsAutoLogged();
 
     private WantedState wantedState = WantedState.OFF;
     private SystemState systemState = SystemState.OFF;

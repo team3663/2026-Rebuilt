@@ -152,6 +152,7 @@ public class Intake extends SubsystemBase {
     }
 
     public record Constants(double minimumPivotAngle, double maximumPivotAngle) {
+
     }
 
 }

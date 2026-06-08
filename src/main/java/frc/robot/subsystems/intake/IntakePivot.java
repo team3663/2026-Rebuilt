@@ -9,12 +9,13 @@ import static edu.wpi.first.wpilibj2.command.Commands.waitUntil;
 public class IntakePivot extends SubsystemBase {
     private final C2026IntakePivotIO io;
     private Constants constants;
-    private final IntakePivotInputs inputs = new IntakePivotInputs();
+    private final IntakePivotInputsAutoLogged inputs = new IntakePivotInputsAutoLogged();
 
     private WantedState wantedState = WantedState.OFF;
     private SystemState systemState = SystemState.OFF;
 
     private boolean isZeroed = false;
+    private
 
     public IntakePivot(C2026IntakePivotIO io) {
         this.io = io;
@@ -43,6 +44,9 @@ public class IntakePivot extends SubsystemBase {
 
     public void periodic() {
         io.updateInputs(inputs);
+        if (inputs.currentPivotVelocity != 0.0) {
+            var currentTime = System.currentTimeMillis();
+        }
 
         //Logging
         Logger.recordOutput("Intake/Pivot/WantedState", wantedState);
@@ -92,22 +96,44 @@ public class IntakePivot extends SubsystemBase {
             case STOW: {
                 pivotTargetPosition = constants.stowAngle;
             }
+
+
+
+
+
+
+
+
             case ZEROING: {
-                // TODO - Ask Jacob if I should use a command here?
-                // Zeroing the intake
-                runEnd(() -> {
-                    io.setTargetVoltage(-1.5);
-                }, io::stop)
-                        .withDeadline(waitUntil(() -> Math.abs(inputs.currentPivotVelocity) < 0.01)
-                                .beforeStarting(waitSeconds(0.25))
-                                .andThen(() -> {
-                                    io.resetPosition(constants.minimumPivotAngle);
-                                    isZeroed = true;
-                                }));
+                // TODO - DON'T USE COMMANDS - Track time when it was last non-zero; looking at if that variable plus a
+                    // TODO wait is less than a certain amount
+                isZeroed = false;
+                io.setTargetVoltage(-1.5);
+                if (Math.abs(inputs.currentPivotVelocity) < 0.01) {
+                    io.stop();
+                    io.resetPosition(constants.minimumPivotAngle);
+                    isZeroed = true;
+                }
+
+
+
+
+
+
+
+
+
+
 
                 // Deploy the intake right after zeroing
                 setWantedState(WantedState.DEFAULT);
             }
+
+
+
+
+
+
             default:
                 pivotTargetPosition = inputs.currentPivotPosition;
         }
