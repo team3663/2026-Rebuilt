@@ -4,13 +4,9 @@ import frc.robot.generated.C2026TunerConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
-import frc.robot.subsystems.feeder.Feeder;
-import frc.robot.subsystems.feeder.SimFeederIO;
-import frc.robot.subsystems.hopper.Hopper;
-import frc.robot.subsystems.hopper.SimHopperIO;
-import frc.robot.subsystems.intake.Intake;
-import frc.robot.subsystems.intake.SimIntakeIO;
-import frc.robot.subsystems.shooter.Shooter;
+//import frc.robot.subsystems.feeder.SimFeederIO;
+//import frc.robot.subsystems.hopper.SimHopperIO;
+//import frc.robot.subsystems.intake.SimIntakeIO;
 import frc.robot.subsystems.shooter.SimShooterIO;
 
 public class SimRobotFactory implements RobotFactory {
@@ -30,20 +26,20 @@ public class SimRobotFactory implements RobotFactory {
                 C2026TunerConstants.BackRight);
     }
 
-    @Override
-    public Feeder createFeeder() {
-        return new Feeder(new SimFeederIO());
-    }
-
-    @Override
-    public Hopper createHopper() {
-        return new Hopper(new SimHopperIO());
-    }
-
-    @Override
-    public Intake createIntake() {
-        return new Intake(new SimIntakeIO());
-    }
+//    @Override
+//    public Feeder createFeeder() {
+//        return new Feeder(new SimFeederIO());
+//    }
+//
+//    @Override
+//    public Hopper createHopper() {
+//        return new Hopper(new SimHopperIO());
+//    }
+//
+//    @Override
+//    public Intake createIntake() {
+//        return new Intake(new SimIntakeIO());
+//    }
 
     @Override
     public Shooter createShooter() {

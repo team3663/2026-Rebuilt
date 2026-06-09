@@ -9,15 +9,12 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.hopper.Hopper;
 import frc.robot.subsystems.intake.Intake;
-import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.util.FireControlSystem;
 import frc.robot.util.FiringSolution;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
-
-import static edu.wpi.first.wpilibj2.command.Commands.*;
 
 public class CommandFactory {
     private final Drive drive;
@@ -143,17 +140,17 @@ public class CommandFactory {
      * <p>
      * Requires: Feeder, Hopper
      */
-    public Command feedIntoShooter() {
-        return parallel(
-                repeatingSequence(
-                        hopper.withVoltage(8.0, 7.0, 8.0)
-                                .until(() -> hopper.getAverageRollerCurrentDraw() >= 15.0),
-                        runOnce(hopper::clearTopRollerAverageCurrentDraw),
-                        hopper.withVoltage(8.0, 7.0, -4.0)
-                                .withTimeout(0.125)),
-                feeder.withVoltage(6.0)
-        );
-    }
+//    public Command feedIntoShooter() {
+//        return parallel(
+//                repeatingSequence(
+//                        hopper.withVoltage(8.0, 7.0, 8.0)
+//                                .until(() -> hopper.getAverageRollerCurrentDraw() >= 15.0),
+//                        runOnce(hopper::clearTopRollerAverageCurrentDraw),
+//                        hopper.withVoltage(8.0, 7.0, -4.0)
+//                                .withTimeout(0.125)),
+//                feeder.withVoltage(6.0)
+//        );
+//    }
 
     public boolean isHubShootingMode() {
         if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) ==
@@ -226,35 +223,35 @@ public class CommandFactory {
     }
 
     public Command autonomousFeedAndShoot(boolean aimAtHub, double pivotAngle) {
-        return aim(aimAtHub)
-                .alongWith(
-                        repeatingSequence(
-                                waitSeconds(0.1),
-                                waitUntil(() -> this.shouldShoot()),
-                                repeatingSequence(
-                                        this.feedIntoShooter()
-                                                .until(() -> !this.shouldShoot()),
-                                        waitUntil(this::shouldShoot)
-                                )
-                        ), intake.feedWithAngle(pivotAngle));
+        return aim(aimAtHub);
+//                .alongWith(
+//                        repeatingSequence(
+//                                waitSeconds(0.1),
+//                                waitUntil(() -> this.shouldShoot()),
+//                                repeatingSequence(
+//                                        this.feedIntoShooter()
+//                                                .until(() -> !this.shouldShoot()),
+//                                        waitUntil(this::shouldShoot)
+//                                )
+//                        ), intake.feedWithAngle(pivotAngle));
     }
 
     public Command autonomousFeedAndShootWithPivoting() {
-        return aim(() -> true)
-                .alongWith(
-                        repeatingSequence(
-                                waitSeconds(0.1),
-                                waitUntil(this::shouldShoot),
-                                repeatingSequence(
-                                        this.feedIntoShooter()
-                                                .until(() -> !this.shouldShoot()),
-                                        waitUntil(this::shouldShoot)
-                                )
-                        ),
-                        repeatingSequence(
-                                intake.intakeAndPivot(Intake.FEED_VOLTAGE, Intake.FEED_ANGLE).withTimeout(0.5),
-                                intake.intakeAndPivot(Intake.INTAKE_VOLTAGE, Intake.DEPLOY_ANGLE).withTimeout(0.5)
-                        ));
+        return aim(() -> true);
+//                .alongWith(
+//                        repeatingSequence(
+//                                waitSeconds(0.1),
+//                                waitUntil(this::shouldShoot),
+//                                repeatingSequence(
+//                                        this.feedIntoShooter()
+//                                                .until(() -> !this.shouldShoot()),
+//                                        waitUntil(this::shouldShoot)
+//                                )
+//                        ),
+//                        repeatingSequence(
+//                                intake.intakeAndPivot(Intake.FEED_VOLTAGE, Intake.FEED_ANGLE).withTimeout(0.5),
+//                                intake.intakeAndPivot(Intake.INTAKE_VOLTAGE, Intake.DEPLOY_ANGLE).withTimeout(0.5)
+//                        ));
     }
 
     /**

@@ -1,9 +1,7 @@
 package frc.robot.subsystems.hopper;
 
 import edu.wpi.first.util.DoubleCircularBuffer;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.feeder.Feeder;
 import org.littletonrobotics.junction.Logger;
 
 public class Hopper extends SubsystemBase {
@@ -11,10 +9,10 @@ public class Hopper extends SubsystemBase {
     private final Constants constants;
     private final HopperInputsAutoLogged inputs = new HopperInputsAutoLogged();
 
-    private WantedState wantedState = WantedState.OFF;
-    private SystemState systemState = SystemState.OFF;
+    private WantedState wantedState = WantedState.IDLE;
+    private SystemState systemState = SystemState.IDLE;
 
-//    private final DoubleCircularBuffer rollerCurrentDrawBuffer = new DoubleCircularBuffer(35);
+    private final DoubleCircularBuffer rollerCurrentDrawBuffer = new DoubleCircularBuffer(35);
 
     public Hopper(HopperIO io) {
         this.io = io;
@@ -25,34 +23,38 @@ public class Hopper extends SubsystemBase {
     public enum WantedState {
         FEEDING,
         EJECTING,
-        DEFAULT,
-        OFF
+        IDLE
     }
 
     public enum SystemState {
         FEEDING,
         EJECTING,
-        DEFAULT,
-        OFF
+        IDLE
     }
 
     public void periodic() {
         io.updateInputs(inputs);
-//        rollerCurrentDrawBuffer.addFirst(inputs.topRollerCurrentDraw);
+
+        systemState = handleStateTransition();
+
+        rollerCurrentDrawBuffer.addFirst(inputs.topRollerCurrentDraw);
+
         Logger.processInputs("Hopper/Inputs", inputs);
         Logger.recordOutput("Hopper/WantedState", wantedState);
         Logger.recordOutput("Hopper/SystemState", systemState);
-//        Logger.recordOutput("Hopper/AverageRollerCurrentDraw", getAverageRollerCurrentDraw());
+        Logger.recordOutput("Hopper/AverageRollerCurrentDraw", getAverageRollerCurrentDraw());
+
+        applyState();
     }
 
-    private SystemState handleStateTransition(){
+    private SystemState handleStateTransition() {
         return switch (wantedState) {
             case FEEDING:
                 yield SystemState.FEEDING;
             case EJECTING:
                 yield SystemState.EJECTING;
             default:
-                yield SystemState.OFF;
+                yield SystemState.IDLE;
         };
     }
 
@@ -66,40 +68,43 @@ public class Hopper extends SubsystemBase {
                 hopperVoltage = constants.hopperVoltage;
                 tunnelVoltage = constants.tunnelVoltage;
                 topRollerVoltage = constants.rollerVoltage;
+                break;
             case EJECTING:
                 hopperVoltage = constants.hopperVoltage;
                 tunnelVoltage = constants.tunnelVoltage;
                 topRollerVoltage = constants.rollerEjectingVoltage;
-            case OFF:
-            case DEFAULT:
+                break;
+            case IDLE:
                 hopperVoltage = 0.0;
                 tunnelVoltage = 0.0;
                 topRollerVoltage = 0.0;
+                break;
         }
 
         io.setTargetVoltage(tunnelVoltage, hopperVoltage, topRollerVoltage);
     }
 
 
-//    public double getAverageRollerCurrentDraw() {
-//        double sumOfNumbers = 0;
-//
-//        for (int i = 0; i < rollerCurrentDrawBuffer.size(); i++) {
-//            sumOfNumbers += rollerCurrentDrawBuffer.get(i);
-//        }
-//        return sumOfNumbers / rollerCurrentDrawBuffer.size();
-//    }
-//
-//    public void clearTopRollerAverageCurrentDraw() {
-//        rollerCurrentDrawBuffer.clear();
-//    }
+    public double getAverageRollerCurrentDraw() {
+        double sumOfNumbers = 0;
+
+        for (int i = 0; i < rollerCurrentDrawBuffer.size(); i++) {
+            sumOfNumbers += rollerCurrentDrawBuffer.get(i);
+        }
+        return sumOfNumbers / rollerCurrentDrawBuffer.size();
+    }
+
+    public void clearTopRollerAverageCurrentDraw() {
+        rollerCurrentDrawBuffer.clear();
+    }
 
     /**
-     * @param hopperVoltage - Voltage to run the hopper at
-     * @param tunnelVoltage - Voltage to run the tunnel motors at
-     * @param rollerVoltage - Voltage to run the top roller at
+     * @param hopperVoltage         - Voltage to run the hopper at
+     * @param tunnelVoltage         - Voltage to run the tunnel motors at
+     * @param rollerVoltage         - Voltage to run the top roller at
      * @param rollerEjectingVoltage - Voltage to run the top roller when ejecting
      */
-    public record Constants(double hopperVoltage, double tunnelVoltage, double rollerVoltage, double rollerEjectingVoltage) {
+    public record Constants(double hopperVoltage, double tunnelVoltage, double rollerVoltage,
+                            double rollerEjectingVoltage) {
     }
 }

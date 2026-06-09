@@ -1,23 +1,23 @@
 package frc.robot.subsystems.intake;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
 
-import static edu.wpi.first.wpilibj2.command.Commands.waitSeconds;
-import static edu.wpi.first.wpilibj2.command.Commands.waitUntil;
-
 public class IntakePivot extends SubsystemBase {
-    private final C2026IntakePivotIO io;
+    private final IntakePivotIO io;
     private Constants constants;
     private final IntakePivotInputsAutoLogged inputs = new IntakePivotInputsAutoLogged();
 
-    private WantedState wantedState = WantedState.OFF;
-    private SystemState systemState = SystemState.OFF;
+    private final double ZEROING_THRESHOLD = 0.25;
+
+    private WantedState wantedState = WantedState.IDLE;
+    private SystemState systemState = SystemState.NON_ZEROED;
 
     private boolean isZeroed = false;
-    private
+    private double lastNonZero = Timer.getFPGATimestamp();
 
-    public IntakePivot(C2026IntakePivotIO io) {
+    public IntakePivot(IntakePivotIO io) {
         this.io = io;
         this.constants = io.getConstants();
     }
@@ -26,51 +26,59 @@ public class IntakePivot extends SubsystemBase {
         STOW,
         DEPLOY,
         FEED,
-        ZEROING,
-        DEFAULT,
-        OFF
+        IDLE,
+        DEFAULT
     }
 
     public enum SystemState {
         STOW,
         DEPLOY,
         FEED,
-        ZEROING,
-        DEFAULT,
-        OFF
+        NON_ZEROED,
+        IDLE,
+        DEFAULT
     }
 
     public void periodic() {
         io.updateInputs(inputs);
+
+        // Checking for the last time the pivot's velocity was not zero
         if (inputs.currentPivotVelocity != 0.0) {
-            var currentTime = System.currentTimeMillis();
+            lastNonZero = Timer.getFPGATimestamp();
         }
+
+        systemState = handleStateTransition();
 
         //Logging
         Logger.recordOutput("Intake/Pivot/WantedState", wantedState);
         Logger.recordOutput("Intake/Pivot/SystemState", systemState);
+        Logger.recordOutput("Intake/Pivot/LastNonZero", lastNonZero);
         Logger.processInputs("Intake/Pivot/Inputs", inputs);
+
+        applyState();
     }
 
     private SystemState handleStateTransition() {
         return switch (wantedState) {
             case FEED: {
                 if (isZeroed) yield SystemState.FEED;
-                else yield SystemState.OFF;
+                else yield SystemState.NON_ZEROED;
             }
             case DEPLOY: {
                 if (isZeroed) yield SystemState.DEPLOY;
-                else yield SystemState.OFF;
+                else yield SystemState.NON_ZEROED;
             }
             case STOW: {
                 if (isZeroed) yield SystemState.STOW;
-                else yield SystemState.OFF;
+                else yield SystemState.NON_ZEROED;
             }
-            case ZEROING: {
-                yield SystemState.ZEROING;
+            case IDLE: {
+                if (isZeroed) yield SystemState.IDLE;
+                else yield SystemState.NON_ZEROED;
             }
-            default:
-                yield SystemState.OFF;
+            case DEFAULT: {
+                yield SystemState.DEFAULT;
+            }
         };
     }
 
@@ -80,51 +88,35 @@ public class IntakePivot extends SubsystemBase {
         switch (systemState) {
             case DEPLOY: {
                 pivotTargetPosition = constants.deployAngle;
+                break;
             }
             case FEED: {
                 pivotTargetPosition = constants.feedingAngle;
+                break;
             }
             case STOW: {
                 pivotTargetPosition = constants.stowAngle;
+                break;
             }
-
-
-
-
-
-
-
-
-            case ZEROING: {
-                // TODO - DON'T USE COMMANDS - Track time when it was last non-zero; looking at if that variable plus a
-                    // TODO wait is less than a certain amount
+            case DEFAULT: {
+                pivotTargetPosition = constants.defaultAngle;
+                break;
+            }
+            case IDLE: {
+                break;
+            }
+            case NON_ZEROED: {
                 isZeroed = false;
                 io.setTargetVoltage(-1.5);
-                if (Math.abs(inputs.currentPivotVelocity) < 0.01) {
+                if (lastNonZero + ZEROING_THRESHOLD <= Timer.getFPGATimestamp()) {
                     io.stop();
                     io.resetPosition(constants.minimumPivotAngle);
                     isZeroed = true;
+                    // Set the intake to DEFAULT right after zeroing
+                    setSystemState(systemState.IDLE);
                 }
-
-
-
-
-
-
-
-
-
-
-
-                // Deploy the intake right after zeroing
-                setWantedState(WantedState.DEFAULT);
+                break;
             }
-
-
-
-
-
-
             default:
                 pivotTargetPosition = inputs.currentPivotPosition;
         }
@@ -135,6 +127,10 @@ public class IntakePivot extends SubsystemBase {
 
     public void setWantedState(WantedState wantedState) {
         this.wantedState = wantedState;
+    }
+
+    public void setSystemState(SystemState systemState) {
+        this.systemState = systemState;
     }
 
     /**

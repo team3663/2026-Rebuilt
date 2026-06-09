@@ -8,8 +8,8 @@ public class IntakeRoller extends SubsystemBase {
     private final Constants constants;
     private final IntakeRollerInputsAutoLogged inputs = new IntakeRollerInputsAutoLogged();
 
-    private WantedState wantedState = WantedState.OFF;
-    private SystemState systemState = SystemState.OFF;
+    private WantedState wantedState = WantedState.IDLE;
+    private SystemState systemState = SystemState.IDLE;
 
 
     public IntakeRoller(C2026IntakeRollerIO io) {
@@ -21,25 +21,27 @@ public class IntakeRoller extends SubsystemBase {
         INTAKE,
         FEED,
         EJECT,
-        DEFAULT,
-        OFF
+        IDLE
     }
 
     public enum SystemState {
         INTAKE,
         FEED,
         EJECT,
-        DEFAULT,
-        OFF
+        IDLE
     }
 
     public void periodic() {
         io.updateInputs(inputs);
 
+        systemState = handleStateTransition();
+
         // Logging
         Logger.recordOutput("Intake/Roller/WantedState", wantedState);
         Logger.recordOutput("Intake/Roller/SystemState", systemState);
         Logger.processInputs("Intake/Roller/Inputs", inputs);
+
+        applyState();
     }
 
     private SystemState handleStateTransition() {
@@ -54,7 +56,7 @@ public class IntakeRoller extends SubsystemBase {
                 yield SystemState.EJECT;
             }
             default: {
-                yield SystemState.OFF;
+                yield SystemState.IDLE;
             }
         };
     }
@@ -75,8 +77,7 @@ public class IntakeRoller extends SubsystemBase {
                 rollerVoltage = constants.ejectingVoltage;
                 break;
             }
-            case OFF:
-            default:
+            case IDLE:
                 rollerVoltage = 0.0;
                 break;
         }

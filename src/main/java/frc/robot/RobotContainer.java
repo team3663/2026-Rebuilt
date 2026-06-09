@@ -26,7 +26,6 @@ import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.hopper.Hopper;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.led.Led;
-import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.FireControlSystem;
 import org.littletonrobotics.junction.Logger;
@@ -222,12 +221,13 @@ public class RobotContainer {
         shootTrigger.whileTrue(
                 sequence(
                         waitSeconds(0.1),
-                        waitUntil(commandFactory::shouldShoot),
-                        repeatingSequence(
-                                commandFactory.feedIntoShooter()
-                                        .until(() -> !commandFactory.shouldShoot()),
-                                waitUntil(commandFactory::shouldShoot)
-                        )
+                        waitUntil(commandFactory::shouldShoot)
+//                        ,
+//                        repeatingSequence(
+//                                commandFactory.feedIntoShooter()
+//                                        .until(() -> !commandFactory.shouldShoot()),
+//                                waitUntil(commandFactory::shouldShoot)
+//                        )
                 ));
 
 //        intakeTrigger.negate().and(shootTrigger.negate()).and(stowIntakeTrigger.negate()).whileTrue(intake.deploy());
@@ -251,7 +251,9 @@ public class RobotContainer {
         }));
 
         // Manual positions in case we do not want to use turret alignment code (or more likely it stopped working)
-        manualShootTrigger.whileTrue(sequence(waitUntil(shooter::atTargets), parallel(commandFactory.manualShooting(), commandFactory.feedIntoShooter(), intake.feed()))
+        manualShootTrigger.whileTrue(sequence(waitUntil(shooter::atTargets), parallel(commandFactory.manualShooting(),
+//                commandFactory.feedIntoShooter(),
+                intake.feed()))
                 .finallyDo(() -> intake.setPivotTargetAngle(Intake.DEPLOY_ANGLE)));
 
         shootTrigger.and(intakeTrigger.negate()).and(stowIntakeTrigger.negate()).whileTrue(repeatingSequence(
@@ -295,7 +297,7 @@ public class RobotContainer {
                     Logger.recordOutput("Tuning/TargetShooterVelocity", tuningShooterVelocity[0]);
                 })));
 
-        testController.rightTrigger().whileTrue(commandFactory.feedIntoShooter());
+//        testController.rightTrigger().whileTrue(commandFactory.feedIntoShooter());
 
         testController.povUp().onTrue(runOnce(() -> tuningHoodAngle[0] += TUNING_HOOD_ANGLE_CHANGE));
         testController.povDown().onTrue(runOnce(() -> tuningHoodAngle[0] -= TUNING_HOOD_ANGLE_CHANGE));

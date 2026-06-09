@@ -7,15 +7,13 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.feeder.Feeder;
-import frc.robot.subsystems.feeder.C2026FeederIO;
+import frc.robot.subsystems.feeder.FeederIO;
 import frc.robot.subsystems.hopper.Hopper;
 import frc.robot.subsystems.hopper.HopperIO;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.led.Led;
 import frc.robot.subsystems.led.LedIo;
-import frc.robot.subsystems.shooter.Shooter;
-import frc.robot.subsystems.shooter.ShooterIO;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 
@@ -40,7 +38,7 @@ public interface RobotFactory {
     }
 
     default Feeder createFeeder() {
-        return new Feeder(new C2026FeederIO() {
+        return new Feeder(new FeederIO() {
         });
     }
 
