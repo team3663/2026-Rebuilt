@@ -54,6 +54,7 @@ public class RobotContainer {
     private final AutoPaths autoPaths;
     private final Vision vision;
     private final Led led;
+    private final SystemsCheck systemsCheck;
 
     private final CommandFactory commandFactory;
 
@@ -90,6 +91,8 @@ public class RobotContainer {
 //        , climber
         );
         this.autoPaths = new AutoPaths(drive, intake, shooter, commandFactory);
+
+        this.systemsCheck = new SystemsCheck(drive, feeder, hopper, intake, shooter, controller);
 
 
         // Set up auto routines
@@ -312,5 +315,9 @@ public class RobotContainer {
     public Command getAutonomousCommand() {
         return autoChooser.get().command()
                 .beforeStarting(() -> ranAuto = true);
+    }
+
+    public Command getSystemsCheckCommand() {
+        return systemsCheck.systemsCheck();
     }
 }

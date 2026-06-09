@@ -424,6 +424,11 @@ public class Drive extends SubsystemBase {
                 .andThen(()-> previousPose = targetPose.get());
     }
 
+    //sets the drivetrain to a specified velocity
+    public Command drivetrainTest(double vX, double vY, double omega) {
+        return drive(() -> {return new ChassisSpeeds(vX, vY, omega);});
+    }
+
     public Command goToPosition(Supplier<Pose2d> targetPose, BooleanSupplier slowAccel) {
         return goToPosition(targetPose, slowAccel, this::getMaxLinearSpeedMetersPerSec);
     }

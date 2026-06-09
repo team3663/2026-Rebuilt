@@ -201,6 +201,10 @@ public class Robot extends LoggedRobot {
     public void testInit() {
         // Cancels all running commands at the start of test mode.
         CommandScheduler.getInstance().cancelAll();
+        //runs the systemsCheck
+        if (robotContainer.getSystemsCheckCommand() != null) {
+            CommandScheduler.getInstance().schedule(robotContainer.getSystemsCheckCommand());
+        }
     }
 
     /**
