@@ -22,6 +22,7 @@ public class SystemsCheck {
     private final Shooter shooter;
     private final CommandXboxController controller;
 
+    //TODO get values
     //constants for testing positions
     private final double INTAKE_TEST_POSITION = Units.degreesToRadians(90);
     private final double HOOD_TEST_POSITION = Units.degreesToRadians(10);
@@ -30,6 +31,7 @@ public class SystemsCheck {
     private final double TUNNEL_TEST_VOLTAGE = 5;
     private final double TOP_ROLLER_TEST_VOLTAGE = 5;
     private final double HOPPER_TEST_VOLTAGE = 5;
+    private final double FEEDER_TEST_VOLTAGE = 5;
 
     SystemsCheck(Drive drive, Feeder feeder, Hopper hopper, Intake intake, Shooter shooter, CommandXboxController controller) {
         this.drive = drive;
@@ -42,9 +44,10 @@ public class SystemsCheck {
 
     public  Command systemsCheck() {
         return new SequentialCommandGroup(
-                zeroAll().until(() -> {return intake.isZeroed() && shooter.isZeroed();}),
-                testDrive(), testPositions().withTimeout(10),
-                allSystemsTest());
+            zeroAll().until(() -> intake.isZeroed() && shooter.isZeroed()),
+            testDrive(),
+            testPositions(),
+            allSystemsTest());
     }
 
     //runs the drivetrain forwards, to the left, and rotating
@@ -53,31 +56,26 @@ public class SystemsCheck {
         return new SequentialCommandGroup(
                 drive.drivetrainTest(Units.feetToMeters(1), 0, 0).withDeadline(waitSeconds(1).andThen(waitUntil(controller.a()))),
                 drive.drivetrainTest(0, Units.feetToMeters(1), 0).withDeadline(waitSeconds(1).andThen(waitUntil(controller.a()))),
-                drive.drivetrainTest(0, 0, Units.rotationsPerMinuteToRadiansPerSecond(60)).withDeadline(waitSeconds(1).andThen(waitUntil(controller.a()))),
-                drive.drivetrainTest(0, 0, 0));
-    }
-
-    //sets each system running at 3 volts in the positive direction
-    public void testMotorDirections() {
-        //TODO get good values
-        feeder.withVoltage(3);
-        hopper.withVoltage(3,3,3);
-        intake.intakeAndPivot(3, 90);
-        shooter.shooterVoltage(3);
+                drive.drivetrainTest(0, 0, Units.rotationsPerMinuteToRadiansPerSecond(30)).withDeadline(waitSeconds(1)).andThen(waitUntil(controller.a())),
+                drive.drivetrainTest(0, 0, 0).withDeadline(waitUntil(controller.a())));
     }
 
     //sets the intake and shooter to a specified position to be checked manually
     public Command testPositions() {
         return new SequentialCommandGroup(
-                intake.intakeAndPivot(0, INTAKE_TEST_POSITION),
-                shooter.goTo(HOOD_TEST_POSITION, TURRET_TEST_POSITION, 0, false));
+                //TODO clean this up
+                intake.intakeAndPivot(4, INTAKE_TEST_POSITION)
+                        .withDeadline(waitUntil(controller.a().negate())).andThen(waitUntil(controller.a())).andThen(intake.stop()),
+                shooter.goTo(HOOD_TEST_POSITION, TURRET_TEST_POSITION, 0, false)
+                        .withDeadline(waitUntil(controller.a().negate())).andThen(waitUntil(controller.a())).andThen(shooter.stop()));
     }
 
-    //tests all systems
+    //tests shooting at low speed
     public Command allSystemsTest() {
         return new ParallelCommandGroup(
           intake.deployAndIntake(),
           hopper.withVoltage(TUNNEL_TEST_VOLTAGE, HOPPER_TEST_VOLTAGE, TOP_ROLLER_TEST_VOLTAGE),
+          feeder.withVoltage(FEEDER_TEST_VOLTAGE),
           shooter.goTo(Units.degreesToRadians(10), Units.degreesToRadians(90), Units.rotationsPerMinuteToRadiansPerSecond(1000), true)
         );
     }
