@@ -48,6 +48,8 @@ public class Hood extends SubsystemBase {
         Logger.recordOutput("Shooter/Hood/SystemState", systemState);
         Logger.recordOutput("Shooter/Hood/LastNonZero", lastNonZero);
         Logger.recordOutput("Shooter/Hood/TargetShootingPosition", targetShootingPosition);
+
+        applyState();
     }
 
     private SystemState handleStateTransition(){
@@ -97,7 +99,7 @@ public class Hood extends SubsystemBase {
         io.setPosition(hoodPosition);
     }
 
-    public void setSystemState(SystemState systemState) {
+    private void setSystemState(SystemState systemState) {
         this.systemState = systemState;
     }
 
