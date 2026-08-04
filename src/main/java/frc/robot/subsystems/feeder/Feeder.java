@@ -58,7 +58,7 @@ public class Feeder extends SubsystemBase {
                 feederVoltage = constants.feedingVoltage;
                 break;
             case OFF:
-            default:
+            case DEFAULT:
                 feederVoltage = 0.0;
                 break;
         }

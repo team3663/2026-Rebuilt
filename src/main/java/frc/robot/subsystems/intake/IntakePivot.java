@@ -129,8 +129,12 @@ public class IntakePivot extends SubsystemBase {
         this.wantedState = wantedState;
     }
 
-    public void setSystemState(SystemState systemState) {
+    private void setSystemState(SystemState systemState) {
         this.systemState = systemState;
+    }
+
+    public boolean getIsZeroed() {
+        return isZeroed;
     }
 
     /**

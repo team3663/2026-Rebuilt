@@ -84,4 +84,8 @@ public class ShooterSuperStructure {
         this.wantedState = wantedState;
     }
 
+    public boolean getIsZeroed() {
+        return hood.getIsZeroed();
+    }
+
 }

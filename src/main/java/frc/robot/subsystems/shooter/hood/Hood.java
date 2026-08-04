@@ -107,6 +107,10 @@ public class Hood extends SubsystemBase {
         this.wantedState = wantedState;
     }
 
+    public boolean getIsZeroed() {
+        return isZeroed;
+    }
+
     public void setTargetShootingPosition(double position) {
         this.targetShootingPosition = position;
     }

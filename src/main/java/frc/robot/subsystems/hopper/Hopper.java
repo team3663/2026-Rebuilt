@@ -98,6 +98,10 @@ public class Hopper extends SubsystemBase {
         rollerCurrentDrawBuffer.clear();
     }
 
+    public void setWantedState(WantedState wantedState) {
+        this.wantedState = wantedState;
+    }
+
     /**
      * @param hopperVoltage         - Voltage to run the hopper at
      * @param tunnelVoltage         - Voltage to run the tunnel motors at
