@@ -17,10 +17,16 @@ import frc.robot.subsystems.hopper.C2026HopperIO;
 import frc.robot.subsystems.hopper.Hopper;
 import frc.robot.subsystems.intake.C2026IntakeIO;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.shooter.ShooterSuperStructure;
+import frc.robot.subsystems.shooter.hood.C2026HoodIO;
+import frc.robot.subsystems.shooter.hood.Hood;
+import frc.robot.subsystems.shooter.shooter.C2026ShooterIO;
+import frc.robot.subsystems.shooter.shooter.Shooter;
+import frc.robot.subsystems.shooter.turret.C2026TurretIO;
+import frc.robot.subsystems.hopper.C2026HopperIO;
+import frc.robot.subsystems.shooter.turret.Turret;
 import frc.robot.subsystems.vision.LimelightIO;
 import frc.robot.subsystems.vision.Vision;
-import frc.robot.subsystems.shooter.Shooter;
-import frc.robot.subsystems.shooter.C2026ShooterIO;
 
 public class C2026RobotFactory implements RobotFactory {
     @Override
@@ -70,14 +76,20 @@ public class C2026RobotFactory implements RobotFactory {
     }
 
     @Override
-    public Shooter createShooter() {
-        return new Shooter(new C2026ShooterIO(
-                new TalonFX(16),
-                new TalonFX(17),
-                new TalonFX(18),
-                new TalonFX(19),
-                new CANcoder(7)
-        ));
+    public ShooterSuperStructure createShooter() {
+        return new ShooterSuperStructure(
+                new Shooter(
+                    new C2026ShooterIO(
+                            new TalonFX(18),
+                            new TalonFX(19))),
+                new Hood(
+                    new C2026HoodIO(
+                            new TalonFX(16))),
+                new Turret(
+                    new C2026TurretIO(
+                            new TalonFX(17),
+                            new CANcoder(7)))
+        );
     }
 
     @Override

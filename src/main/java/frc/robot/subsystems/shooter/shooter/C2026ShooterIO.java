@@ -12,7 +12,7 @@ import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
-import frc.robot.subsystems.shooter.ShooterInputs;
+import frc.robot.subsystems.shooter.shooter.ShooterInputs;
 
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
 

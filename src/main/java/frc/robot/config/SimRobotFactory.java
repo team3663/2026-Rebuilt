@@ -7,8 +7,7 @@ import frc.robot.subsystems.drive.ModuleIOSim;
 //import frc.robot.subsystems.feeder.SimFeederIO;
 //import frc.robot.subsystems.hopper.SimHopperIO;
 //import frc.robot.subsystems.intake.SimIntakeIO;
-import frc.robot.subsystems.shooter.Shooter;
-import frc.robot.subsystems.shooter.SimShooterIO;
+
 
 public class SimRobotFactory implements RobotFactory {
     @Override
@@ -42,8 +41,8 @@ public class SimRobotFactory implements RobotFactory {
 //        return new Intake(new SimIntakeIO());
 //    }
 
-    @Override
-    public Shooter createShooter() {
-        return new Shooter(new SimShooterIO());
-    }
+//    @Override
+//    public Shooter createShooter() {
+//        return new Shooter(new SimShooterIO());
+//    }
 }

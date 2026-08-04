@@ -2,8 +2,7 @@ package frc.robot.subsystems.shooter.shooter;
 
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.shooter.ShooterInputs;
-import frc.robot.subsystems.shooter.ShooterInputsAutoLogged;
+import frc.robot.subsystems.shooter.shooter.ShooterInputsAutoLogged;
 import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends SubsystemBase {

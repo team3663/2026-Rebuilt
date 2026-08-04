@@ -1,7 +1,5 @@
 package frc.robot.subsystems.shooter.shooter;
 
-import frc.robot.subsystems.shooter.ShooterInputs;
-
 public interface ShooterIO {
     default Shooter.Constants getConstants() {
         return new Shooter.Constants(0.0);

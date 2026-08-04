@@ -25,13 +25,13 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.hopper.Hopper;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.shooter.ShooterSuperStructure;
 import frc.robot.subsystems.led.Led;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.FireControlSystem;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
-import frc.robot.subsystems.shooter.Shooter;
 
 import static edu.wpi.first.wpilibj.DriverStation.Alliance;
 import static edu.wpi.first.wpilibj.DriverStation.getAlliance;
@@ -50,7 +50,7 @@ public class RobotContainer {
     private final Feeder feeder;
     private final Hopper hopper;
     private final Intake intake;
-    private final Shooter shooter;
+    private final ShooterSuperStructure shooter;
     private final AutoPaths autoPaths;
     private final Vision vision;
     private final Led led;

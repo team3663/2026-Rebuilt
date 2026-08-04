@@ -14,10 +14,15 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.led.Led;
 import frc.robot.subsystems.led.LedIo;
+import frc.robot.subsystems.shooter.ShooterSuperStructure;
+import frc.robot.subsystems.shooter.hood.Hood;
+import frc.robot.subsystems.shooter.hood.HoodIO;
+import frc.robot.subsystems.shooter.shooter.Shooter;
+import frc.robot.subsystems.shooter.shooter.ShooterIO;
+import frc.robot.subsystems.shooter.turret.Turret;
+import frc.robot.subsystems.shooter.turret.TurretIO;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
-import frc.robot.subsystems.shooter.Shooter;
-import frc.robot.subsystems.shooter.ShooterIO;
 
 public interface RobotFactory {
     default Drive createDrive() {
@@ -54,9 +59,11 @@ public interface RobotFactory {
         });
     }
 
-    default Shooter createShooter() {
-        return new Shooter(new ShooterIO() {
-        });
+    default ShooterSuperStructure createShooter() {
+        return new ShooterSuperStructure(
+                new Shooter(new ShooterIO() {}),
+                new Hood(new HoodIO() {}),
+                new Turret(new TurretIO() {}));
     }
 
     default Vision createVision() {
