@@ -19,6 +19,8 @@ import frc.robot.subsystems.intake.C2026IntakeIO;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.vision.LimelightIO;
 import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.shooter.C2026ShooterIO;
 
 public class C2026RobotFactory implements RobotFactory {
     @Override

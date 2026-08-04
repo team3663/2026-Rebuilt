@@ -64,8 +64,7 @@ public class Vision extends SubsystemBase {
         }
 
         // Register the command we use to detect when the robot is enabled/disabled.
-        RobotModeTriggers.disabled().onChange(updateRobotState());
-    }
+        RobotModeTriggers.disabled().onChange(updateRobotState());}
 
     @Override
     public void periodic() {

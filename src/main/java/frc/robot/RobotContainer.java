@@ -31,6 +31,7 @@ import frc.robot.util.FireControlSystem;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
+import frc.robot.subsystems.shooter.Shooter;
 
 import static edu.wpi.first.wpilibj.DriverStation.Alliance;
 import static edu.wpi.first.wpilibj.DriverStation.getAlliance;

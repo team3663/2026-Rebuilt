@@ -16,6 +16,8 @@ import frc.robot.subsystems.led.Led;
 import frc.robot.subsystems.led.LedIo;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
+import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.shooter.ShooterIO;
 
 public interface RobotFactory {
     default Drive createDrive() {

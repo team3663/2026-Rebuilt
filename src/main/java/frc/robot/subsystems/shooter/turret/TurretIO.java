@@ -6,7 +6,7 @@ import frc.robot.subsystems.shooter.ShooterInputs;
 
 public interface TurretIO {
     default Turret.Constants getConstants() {
-        return new Turret.Constants();
+        return new Turret.Constants(0.0,0.0);
     }
 
     default void updateInputs(TurretInputs inputs) {

@@ -4,13 +4,16 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.NeutralOut;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
 import frc.robot.subsystems.shooter.hood.C2026HoodIO;
+import frc.robot.subsystems.shooter.shooter.Shooter;
 
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
@@ -27,6 +30,7 @@ public class C2026TurretIO implements TurretIO{
 
     private NeutralOut stopRequest = new NeutralOut();
     private MotionMagicVoltage positionRequest = new MotionMagicVoltage(0.0);
+    private VoltageOut voltageRequest = new VoltageOut(0.0);
 
 
     public C2026TurretIO(TalonFX turret, CANcoder turretCanCoder) {
@@ -62,5 +66,36 @@ public class C2026TurretIO implements TurretIO{
         tryUntilOk(5, () -> turret.getConfigurator().apply(turretConfig, 0.25));
     }
 
+    @Override
+    public void updateInputs(TurretInputs inputs) {
+        inputs.currentTurretAppliedVoltage = turret.getMotorVoltage().getValueAsDouble();
+        inputs.currentTurretVelocity = Units.rotationsToRadians(turret.getVelocity().getValueAsDouble());
+        inputs.turretMotorTemperature = turret.getDeviceTemp().getValueAsDouble();
+        inputs.currentTurretDraw = turret.getSupplyCurrent().getValueAsDouble();
+
+        inputs.currentTurretEncoderPosition = turretCanCoder.getPosition().getValueAsDouble();
+
+        inputs.currentTurretPosition = Units.rotationsToRadians(turret.getPosition().getValueAsDouble());
+    }
+
+    @Override
+    public void stop() {
+        turret.setControl(stopRequest);
+    }
+
+    @Override
+    public void setTargetPosition(double position) {
+        turret.setControl(positionRequest.withPosition(Units.radiansToRotations(MathUtil.clamp(position, CONSTANTS.minimumTurretPosition(), CONSTANTS.maximumTurretPosition()))));
+    }
+
+    @Override
+    public void setTargetVoltage(double voltage) {
+        turret.setControl(voltageRequest.withOutput(voltage));
+    }
+
+    @Override
+    public Turret.Constants getConstants() {
+        return CONSTANTS;
+    }
 
 }

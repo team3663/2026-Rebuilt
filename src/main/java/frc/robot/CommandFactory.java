@@ -12,6 +12,7 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.util.FireControlSystem;
 import frc.robot.util.FiringSolution;
 import org.littletonrobotics.junction.Logger;
+import frc.robot.subsystems.shooter.Shooter;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
