@@ -18,7 +18,7 @@ public class C2026ShooterIO implements ShooterIO {
     private static final Shooter.Constants constants = new Shooter.Constants(
             0.0,
             Units.degreesToRadians(16.5),
-            Units.degreesToRadians(-175.0),
+            Units.degreesToRadians(-165.0),
             Units.degreesToRadians(190.0));
     private static final double HOOD_GEAR_RATIO = 340.0 / 14.0;
     private static final double SHOOTER_GEAR_RATIO = (18.0 / 15.0);
