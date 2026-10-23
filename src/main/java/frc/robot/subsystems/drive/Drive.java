@@ -432,13 +432,22 @@ public class Drive extends SubsystemBase {
         return Commands.runOnce(() -> poseEstimator.resetPose(poseSupplier.get())).andThen(()-> previousPose = poseSupplier.get());
     }
 
+    public Command joystickDrive(
+            DoubleSupplier xSupplier,
+            DoubleSupplier ySupplier,
+            DoubleSupplier omegaSupplier) {
+        return joystickDrive(xSupplier, ySupplier, omegaSupplier, 1.0, 1.0);
+    }
+
     /**
      * Field relative drive command using two joysticks (controlling linear and angular velocities).
      */
     public Command joystickDrive(
             DoubleSupplier xSupplier,
             DoubleSupplier ySupplier,
-            DoubleSupplier omegaSupplier) {
+            DoubleSupplier omegaSupplier,
+            double translationScalingFactor,
+            double rotationScalingFactor) {
         return drive(
                 () -> {// Apply deadband
                     double x = xSupplier.getAsDouble();
@@ -452,14 +461,14 @@ public class Drive extends SubsystemBase {
 
                     // Return new linear velocity
                     Translation2d linearVelocity = new Pose2d(Translation2d.kZero, linearDirection)
-                            .transformBy(new Transform2d(linearMagnitude, 0.0, Rotation2d.kZero))
+                            .transformBy(new Transform2d(linearMagnitude * translationScalingFactor, 0.0, Rotation2d.kZero))
                             .getTranslation();
 
                     // Apply rotation deadband
                     double omega = MathUtil.applyDeadband(omegaSupplier.getAsDouble(), ControllerHelper.DEADBAND);
 
                     // Square rotation value for more precise control
-                    omega = Math.copySign(omega * omega, omega);
+                    omega = Math.copySign(omega * omega, omega) * rotationScalingFactor;
 
                     // Convert to field relative speeds & send command
                     ChassisSpeeds speeds =
