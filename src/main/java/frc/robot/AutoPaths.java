@@ -262,6 +262,14 @@ public class AutoPaths {
         return shooting(Intake.FEED_ANGLE);
     }
 
+
+    private Command shootingWhilePivoting() {
+        return commandFactory.autonomousFeedAndShootWithPivoting()
+                .withTimeout(DEFAULT_SHOOTING_TIME)
+                .andThen(shooter.stop());
+
+    }
+
     // Auto Routines
     public AutonomousMode LT_NZ_NZ_RB() {
         return new AutonomousMode(
@@ -498,7 +506,7 @@ public class AutoPaths {
                         Commands.waitSeconds(0.25),
                         goToPosition(Constants.BLUE_LEFT_BUMP_SHOOTING, Constants.RED_LEFT_BUMP_SHOOTING)
                                 .raceWith(commandFactory.shooterDefault(() -> true)),
-                        Commands.parallel(shooting(Intake.FEED_ANGLE), runOnce(drive::stop))));
+                        Commands.parallel(shootingWhilePivoting(), runOnce(drive::stop))));
     }
 
     public AutonomousMode RT_NZ_RB_RT_NZ_RB() {
@@ -540,7 +548,7 @@ public class AutoPaths {
                         Commands.waitSeconds(0.25),
                         goToPosition(Constants.BLUE_RIGHT_BUMP_SHOOTING, Constants.RED_RIGHT_BUMP_SHOOTING)
                                 .raceWith(commandFactory.shooterDefault(() -> true)),
-                        Commands.parallel(shooting(), runOnce(drive::stop))));
+                        Commands.parallel(shootingWhilePivoting(), runOnce(drive::stop))));
     }
 
 
