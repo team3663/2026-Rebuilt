@@ -36,7 +36,7 @@ public final class Constants {
     public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
 
     // Distance away from the wall that the robot sits for auto paths beginning at the trench; measured in feet
-    private static final double TRENCH_STARTING_OFFSET = 2.0;
+    private static final double TRENCH_STARTING_OFFSET = 2.0 - (3.0 / 12.0);
     // Distance away from the middle line towards the driver station when crossing into the neutral zone
     //     for the 2nd time in auto; measured in feet
     private static final double NEUTRAL_ZONE_ALLIANCE_SIDE_X_OFFSET = 6.0;
@@ -215,11 +215,11 @@ public final class Constants {
     public static final Pose2d BLUE_RIGHT_NEUTRAL_ZONE_TRENCH_OFFSET = new Pose2d((FIELD.getTagPose(17).get().getX() + Units.feetToMeters(5.0)),
             FIELD.getTagPose(17).get().getY(), BLUE_ROTATED_DOWNFIELD);
     public static final Pose2d BLUE_RIGHT_NEUTRAL_ZONE_TRENCH_OFFSET_ROTATED_LEFT = new Pose2d((FIELD.getTagPose(17).get().getX() + Units.feetToMeters(5.0)),
-            FIELD.getTagPose(17).get().getY(), BLUE_ROTATED_LEFT);
+            Units.feetToMeters(TRENCH_STARTING_OFFSET), BLUE_ROTATED_LEFT);
     public static final Pose2d BLUE_LEFT_NEUTRAL_ZONE_TRENCH_OFFSET = new Pose2d((FIELD.getTagPose(17).get().getX() + Units.feetToMeters(5.0)),
             FIELD.getTagPose(22).get().getY(), BLUE_ROTATED_DOWNFIELD);
     public static final Pose2d BLUE_LEFT_NEUTRAL_ZONE_TRENCH_OFFSET_ROTATED_RIGHT = new Pose2d((FIELD.getTagPose(17).get().getX() + Units.feetToMeters(5.0)),
-            FIELD.getTagPose(22).get().getY(), BLUE_ROTATED_RIGHT);
+            FIELD.getFieldWidth() - Units.feetToMeters(TRENCH_STARTING_OFFSET), BLUE_ROTATED_RIGHT);
     public static final Pose2d BLUE_LEFT_NEUTRAL_ZONE_TRENCH_OFFSET_Y_OFFSET = new Pose2d((FIELD.getTagPose(17).get().getX() + Units.feetToMeters(5.5)),
             FIELD.getTagPose(22).get().getY() - Units.feetToMeters(0.5), BLUE_ROTATED_DOWNFIELD);
     public static final Pose2d BLUE_LEFT_ALLIANCE_SIDE_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) - Units.feetToMeters(NEUTRAL_ZONE_ALLIANCE_SIDE_INTERMEDIATE_X_OFFSET + 2.0),
@@ -313,11 +313,11 @@ public final class Constants {
     public static final Pose2d RED_RIGHT_NEUTRAL_ZONE_TRENCH_OFFSET = new Pose2d((FIELD.getTagPose(1).get().getX() - Units.feetToMeters(5.0)),
             FIELD.getTagPose(1).get().getY(), RED_ROTATED_DOWNFIELD);
     public static final Pose2d RED_RIGHT_NEUTRAL_ZONE_TRENCH_OFFSET_ROTATED_LEFT = new Pose2d((FIELD.getTagPose(1).get().getX() - Units.feetToMeters(5.0)),
-            FIELD.getTagPose(1).get().getY(), RED_ROTATED_LEFT);
+            FIELD.getFieldWidth() - Units.feetToMeters(TRENCH_STARTING_OFFSET), RED_ROTATED_LEFT);
     public static final Pose2d RED_LEFT_NEUTRAL_ZONE_TRENCH_OFFSET = new Pose2d((FIELD.getTagPose(1).get().getX() - Units.feetToMeters(5.0)),
             FIELD.getTagPose(6).get().getY(), RED_ROTATED_DOWNFIELD);
     public static final Pose2d RED_LEFT_NEUTRAL_ZONE_TRENCH_OFFSET_ROTATED_RIGHT = new Pose2d((FIELD.getTagPose(1).get().getX() - Units.feetToMeters(5.0)),
-            FIELD.getTagPose(6).get().getY(), RED_ROTATED_RIGHT);
+            Units.feetToMeters(TRENCH_STARTING_OFFSET), RED_ROTATED_RIGHT);
     public static final Pose2d RED_LEFT_NEUTRAL_ZONE_TRENCH_OFFSET_Y_OFFSET = new Pose2d((FIELD.getTagPose(1).get().getX() - Units.feetToMeters(5.5)),
             FIELD.getTagPose(6).get().getY() + Units.feetToMeters(0.5), RED_ROTATED_DOWNFIELD);
     public static final Pose2d RED_LEFT_ALLIANCE_SIDE_INTERMEDIATE = new Pose2d((FIELD.getFieldLength() / 2.0) + Units.feetToMeters(NEUTRAL_ZONE_ALLIANCE_SIDE_INTERMEDIATE_X_OFFSET - 2.0),
