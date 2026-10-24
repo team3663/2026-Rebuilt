@@ -21,6 +21,7 @@ import frc.robot.subsystems.shooter.C2026ShooterIO;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.vision.LimelightIO;
 import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionIO;
 
 public class C2026RobotFactory implements RobotFactory {
     @Override
@@ -121,7 +122,9 @@ public class C2026RobotFactory implements RobotFactory {
 
         return new Vision(Constants.FIELD,
                 new LimelightIO("limelight-right", rightTransform, false),
-                new LimelightIO("limelight-back", backTransform, false),
+//                new LimelightIO("limelight-back", backTransform, false),
+                new VisionIO() {
+                },
                 new LimelightIO("limelight-front", frontTransform, false)
         );
     }
