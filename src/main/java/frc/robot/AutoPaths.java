@@ -490,8 +490,8 @@ public class AutoPaths {
                         goToPositionSlowAccel(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE_X_OFFSET_ROTATED_RIGHT, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE_X_OFFSET_ROTATED_RIGHT)
                                 .raceWith(shooting(Intake.DEPLOY_ANGLE)),
                         parallel(shooting(Intake.DEPLOY_ANGLE, 5.0), runOnce(drive::stop)),
-                        goToIntermediate(Constants.BLUE_LEFT_UNDER_TRENCH_SHOOTING_ROTATED_RIGHT, Constants.RED_LEFT_UNDER_TRENCH_SHOOTING_ROTATED_RIGHT, DEFAULT_TRENCH_DISTANCE_THRESHOLD + Units.feetToMeters(0.5)),
-                        goToIntermediate(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE_ROTATED_RIGHT, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE_ROTATED_RIGHT, DEFAULT_TRENCH_DISTANCE_THRESHOLD)
+                        goToIntermediate(Constants.BLUE_LEFT_UNDER_TRENCH_SHOOTING_ROTATED_RIGHT, Constants.RED_LEFT_UNDER_TRENCH_SHOOTING_ROTATED_RIGHT, Units.feetToMeters(2.0)),
+                        goToIntermediate(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE_ROTATED_RIGHT, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE_ROTATED_RIGHT, Units.feetToMeters(2.0))
                                 .raceWith(intaking()),
                         goToIntermediate(Constants.BLUE_LEFT_NEUTRAL_ZONE_TRENCH_OFFSET_ROTATED_RIGHT, Constants.RED_LEFT_NEUTRAL_ZONE_TRENCH_OFFSET_ROTATED_RIGHT, DEFAULT_INTERMEDIATE_DISTANCE_THRESHOLD)
                                 .raceWith(intaking()),
@@ -532,8 +532,8 @@ public class AutoPaths {
                         goToPositionSlowAccel(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE_X_OFFSET, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE_X_OFFSET)
                                 .raceWith(shooting()),
                         parallel(shooting(Intake.DEPLOY_ANGLE, 5.0), runOnce(drive::stop)),
-                        goToIntermediate(Constants.BLUE_RIGHT_UNDER_TRENCH_SHOOTING_ROTATED_LEFT, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE_ROTATED_LEFT, DEFAULT_TRENCH_DISTANCE_THRESHOLD + Units.feetToMeters(0.5)),
-                        goToIntermediate(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE_ROTATED_LEFT, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE_ROTATED_LEFT, DEFAULT_TRENCH_DISTANCE_THRESHOLD)
+                        goToIntermediate(Constants.BLUE_RIGHT_UNDER_TRENCH_SHOOTING_ROTATED_LEFT, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE_ROTATED_LEFT, Units.feetToMeters(2.0)),
+                        goToIntermediate(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE_ROTATED_LEFT, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE_ROTATED_LEFT, Units.feetToMeters(2.0))
                                 .raceWith(intaking()),
                         goToIntermediate(Constants.BLUE_RIGHT_NEUTRAL_ZONE_TRENCH_OFFSET_ROTATED_LEFT, Constants.RED_RIGHT_NEUTRAL_ZONE_TRENCH_OFFSET_ROTATED_LEFT, DEFAULT_INTERMEDIATE_DISTANCE_THRESHOLD)
                                 .raceWith(intaking()),
