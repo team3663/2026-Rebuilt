@@ -259,7 +259,7 @@ public class RobotContainer {
                 intake.intakeAndPivot(Intake.INTAKE_VOLTAGE, Intake.DEPLOY_ANGLE).withTimeout(0.5)
         ).finallyDo(() -> intake.setPivotTargetAngle(Intake.DEPLOY_ANGLE)));
 
-        shootTrigger.whileTrue(drive.joystickDrive(
+        shootTrigger.and(()-> commandFactory.isHubShootingMode()).whileTrue(drive.joystickDrive(
                 () -> -controller.getLeftY(),
                 () -> -controller.getLeftX(),
                 () -> -controller.getRightX(),
