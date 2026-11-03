@@ -381,7 +381,7 @@ public class Drive extends SubsystemBase {
      * @param targetPose of where you want the robot to go
      * @return follows a pathplanner path command
      */
-    public Command goToPosition(Supplier<Pose2d> targetPose, BooleanSupplier slowAccel, Supplier<Double> maxVelocity) { //TODO
+    public Command goToPosition(Supplier<Pose2d> targetPose, BooleanSupplier slowAccel, Supplier<Double> maxVelocity) {
         PIDController controller = new PIDController(10.0, 0.0, 1.0);
         PIDController rotationController = new PIDController(10.0, 0.0, 0.0);
         rotationController.enableContinuousInput(-Math.PI, Math.PI);
@@ -481,7 +481,10 @@ public class Drive extends SubsystemBase {
                                     isFlipped
                                             ? getRotation().plus(new Rotation2d(Math.PI))
                                             : getRotation());
-                });
+                }).beforeStarting(() -> {
+                    // TODO change the rotation point back to the center of the robot
+                }
+        );
     }
 
     public Command zamboniDrive(
@@ -497,7 +500,10 @@ public class Drive extends SubsystemBase {
         PIDController rotationController = new PIDController(2.0, 0.0, 0.0);
         rotationController.enableContinuousInput(-Math.PI, Math.PI);
 
-        return runOnce(rotationController::reset).andThen(drive(() -> {
+        return runOnce(() -> {
+            rotationController.reset();
+            // TODO In here change rotation point to the middle of the intake
+        }).andThen(drive(() -> {
             double x = xSupplier.getAsDouble();
             double y = ySupplier.getAsDouble();
 
