@@ -164,17 +164,15 @@ public class RobotContainer {
      */
     private void configureButtonBindings() {
         // Default command, normal field-relative drive
-        drive.setDefaultCommand(Commands.either(
-                drive.zamboniDrive(
-                        () -> -controller.getLeftY(),
-                        () -> -controller.getLeftX()
-                ),
-                drive.joystickDrive(
-                        () -> -controller.getLeftY(),
-                        () -> -controller.getLeftX(),
-                        () -> -controller.getRightX()
-                ),
-                controller.x() // When held uses zamboni drive
+        drive.setDefaultCommand(drive.joystickDrive(
+                () -> -controller.getLeftY(),
+                () -> -controller.getLeftX(),
+                () -> -controller.getRightX()
+        ));
+
+        controller.x().whileTrue(drive.zamboniDrive(
+                () -> -controller.getLeftY(),
+                () -> -controller.getLeftX()
         ));
 
         RobotModeTriggers.disabled()

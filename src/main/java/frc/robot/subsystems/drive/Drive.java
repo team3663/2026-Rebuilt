@@ -34,16 +34,12 @@ import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.subsystems.vision.VisionMeasurement;
 import frc.robot.util.ControllerHelper;
-import jdk.jshell.execution.Util;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.BooleanSupplier;
-import java.util.function.Supplier;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
@@ -380,12 +376,12 @@ public class Drive extends SubsystemBase {
     }
 
     /**
-     * Drives the robot to a given pose fromm the robot's current position using a pathplanner path
+     * Drives the robot to a given pose from the robot's current position using a pathplanner path
      *
      * @param targetPose of where you want the robot to go
      * @return follows a pathplanner path command
      */
-    public Command goToPosition(Supplier<Pose2d> targetPose, BooleanSupplier slowAccel, Supplier<Double> maxVelocity) {
+    public Command goToPosition(Supplier<Pose2d> targetPose, BooleanSupplier slowAccel, Supplier<Double> maxVelocity) { //TODO
         PIDController controller = new PIDController(10.0, 0.0, 1.0);
         PIDController rotationController = new PIDController(10.0, 0.0, 0.0);
         rotationController.enableContinuousInput(-Math.PI, Math.PI);
@@ -421,7 +417,7 @@ public class Drive extends SubsystemBase {
                             );
                         }
                 ))
-                .andThen(()-> previousPose = targetPose.get());
+                .andThen(() -> previousPose = targetPose.get());
     }
 
     public Command goToPosition(Supplier<Pose2d> targetPose, BooleanSupplier slowAccel) {
@@ -429,7 +425,7 @@ public class Drive extends SubsystemBase {
     }
 
     public Command resetOdometry(Supplier<Pose2d> poseSupplier) {
-        return Commands.runOnce(() -> poseEstimator.resetPose(poseSupplier.get())).andThen(()-> previousPose = poseSupplier.get());
+        return Commands.runOnce(() -> poseEstimator.resetPose(poseSupplier.get())).andThen(() -> previousPose = poseSupplier.get());
     }
 
     public Command joystickDrive(
@@ -498,8 +494,48 @@ public class Drive extends SubsystemBase {
             DoubleSupplier xSupplier,
             DoubleSupplier ySupplier,
             double translationScalingFactor) {
+        PIDController rotationController = new PIDController(2.0, 0.0, 0.0);
+        rotationController.enableContinuousInput(-Math.PI, Math.PI);
 
-        // TODO
+        return runOnce(rotationController::reset).andThen(drive(() -> {
+            double x = xSupplier.getAsDouble();
+            double y = ySupplier.getAsDouble();
+
+            double linearMagnitude = MathUtil.applyDeadband(Math.hypot(x, y), ControllerHelper.DEADBAND);
+            linearMagnitude = linearMagnitude * linearMagnitude;
+            Rotation2d linearDirection = new Rotation2d(Math.atan2(y, x));
+
+            Pose2d target = new Pose2d(Translation2d.kZero, linearDirection)
+                    .transformBy(new Transform2d(linearMagnitude * translationScalingFactor, 0.0, Rotation2d.kZero));
+
+            // Convert Angular Position to Velocity
+            double angularVel = customDeadband(
+                    rotationController.calculate(
+                            getPose().getRotation().getRadians(), target.getRotation().getRadians() + Units.degreesToRadians(180.0)),
+                    linearMagnitude, ControllerHelper.DEADBAND / 2
+            );
+
+            // Convert to field relative speeds & send command
+            ChassisSpeeds speeds =
+                    new ChassisSpeeds(
+                            target.getX() * getMaxLinearSpeedMetersPerSec(),
+                            target.getY() * getMaxLinearSpeedMetersPerSec(),
+                            angularVel * getMaxAngularSpeedRadPerSec());
+
+            boolean isFlipped =
+                    DriverStation.getAlliance().isPresent()
+                            && DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
+            return
+                    ChassisSpeeds.fromFieldRelativeSpeeds(
+                            speeds,
+                            isFlipped
+                                    ? getRotation().plus(new Rotation2d(Math.PI))
+                                    : getRotation());
+        }));
+    }
+
+    private double customDeadband(double value, double limiter, double deadband) {
+        return Math.abs(limiter) < deadband ? 0.0 : value;
     }
 
     public ChassisSpeeds getRelativeVelocity() {
