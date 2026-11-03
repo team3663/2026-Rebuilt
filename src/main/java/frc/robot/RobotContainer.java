@@ -64,14 +64,11 @@ public class RobotContainer {
 
     // Dashboard inputs
     private final LoggedDashboardChooser<AutoPaths.AutonomousMode> autoChooser;
-
-    private boolean shootingIntoHub = true;
-    private boolean autoAiming = true;
-
-    private boolean ranAuto = false;
-
     LoggedNetworkBoolean aimingAtHub = new LoggedNetworkBoolean("aimingAtHub", true);
     LoggedNetworkBoolean passing = new LoggedNetworkBoolean("passing", true);
+    private boolean shootingIntoHub = true;
+    private boolean autoAiming = true;
+    private boolean ranAuto = false;
 
 
     /**
@@ -167,10 +164,17 @@ public class RobotContainer {
      */
     private void configureButtonBindings() {
         // Default command, normal field-relative drive
-        drive.setDefaultCommand(drive.joystickDrive(
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
-                () -> -controller.getRightX()
+        drive.setDefaultCommand(Commands.either(
+                drive.zamboniDrive(
+                        () -> -controller.getLeftY(),
+                        () -> -controller.getLeftX()
+                ),
+                drive.joystickDrive(
+                        () -> -controller.getLeftY(),
+                        () -> -controller.getLeftX(),
+                        () -> -controller.getRightX()
+                ),
+                controller.x() // When held uses zamboni drive
         ));
 
         RobotModeTriggers.disabled()
@@ -204,9 +208,9 @@ public class RobotContainer {
 
         zeroTrigger.onTrue(
                 Commands.parallel(
-                        intake.zeroPivot(),
-                        shooter.zeroHood()
-                )
+                                intake.zeroPivot(),
+                                shooter.zeroHood()
+                        )
                         .finallyDo(() -> intake.setPivotTargetAngle(Intake.DEPLOY_ANGLE))
         );
 
@@ -259,7 +263,7 @@ public class RobotContainer {
                 intake.intakeAndPivot(Intake.INTAKE_VOLTAGE, Intake.DEPLOY_ANGLE).withTimeout(0.5)
         ).finallyDo(() -> intake.setPivotTargetAngle(Intake.DEPLOY_ANGLE)));
 
-        shootTrigger.and(()-> commandFactory.isHubShootingMode()).whileTrue(drive.joystickDrive(
+        shootTrigger.and(() -> commandFactory.isHubShootingMode()).whileTrue(drive.joystickDrive(
                 () -> -controller.getLeftY(),
                 () -> -controller.getLeftX(),
                 () -> -controller.getRightX(),

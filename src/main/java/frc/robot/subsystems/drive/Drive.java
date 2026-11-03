@@ -488,6 +488,20 @@ public class Drive extends SubsystemBase {
                 });
     }
 
+    public Command zamboniDrive(
+            DoubleSupplier xSupplier,
+            DoubleSupplier ySupplier) {
+        return zamboniDrive(xSupplier, ySupplier, 1.0);
+    }
+
+    public Command zamboniDrive(
+            DoubleSupplier xSupplier,
+            DoubleSupplier ySupplier,
+            double translationScalingFactor) {
+
+        // TODO
+    }
+
     public ChassisSpeeds getRelativeVelocity() {
         return kinematics.toChassisSpeeds(this.getModuleStates());
     }
