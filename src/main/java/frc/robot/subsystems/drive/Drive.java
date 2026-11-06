@@ -48,9 +48,8 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 public class Drive extends SubsystemBase {
-    private static final double DISTANCE_THRESHOLD = Units.inchesToMeters(3.0);
-
     static final Lock odometryLock = new ReentrantLock();
+    private static final double DISTANCE_THRESHOLD = Units.inchesToMeters(3.0);
     private final GyroIO gyroIO;
     private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
     private final Module[] modules = new Module[4]; // FL, FR, BL, BR
@@ -199,9 +198,19 @@ public class Drive extends SubsystemBase {
      * @param speeds Speeds in meters/sec
      */
     public void runVelocity(ChassisSpeeds speeds) {
+        runVelocity(speeds, Translation2d.kZero);
+    }
+
+    /**
+     * Runs the drive at the desired velocity.
+     *
+     * @param speeds                 Speeds in meters/sec
+     * @param centerOfRotationMeters The offset from the center of the robot to rotate around
+     */
+    public void runVelocity(ChassisSpeeds speeds, Translation2d centerOfRotationMeters) {
         // Calculate module setpoints
         ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
-        SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
+        SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds, centerOfRotationMeters);
         SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, maxLinearVelocity);
 
         // Log unoptimized setpoints and setpoint speeds
@@ -375,6 +384,14 @@ public class Drive extends SubsystemBase {
         return run(() -> runVelocity(chassisSpeedsSupplier.get()));
     }
 
+    public Command drive(Supplier<ChassisSpeeds> chassisSpeedsSupplier, Supplier<Translation2d> centerOfRotationMeters) {
+        return run(() -> runVelocity(chassisSpeedsSupplier.get(), centerOfRotationMeters.get()));
+    }
+
+    public Command drive(Supplier<ChassisSpeeds> chassisSpeedsSupplier, Translation2d centerOfRotationMeters) {
+        return run(() -> runVelocity(chassisSpeedsSupplier.get(), centerOfRotationMeters));
+    }
+
     /**
      * Drives the robot to a given pose from the robot's current position using a pathplanner path
      *
@@ -444,47 +461,42 @@ public class Drive extends SubsystemBase {
             DoubleSupplier omegaSupplier,
             double translationScalingFactor,
             double rotationScalingFactor) {
-        return drive(
-                () -> {// Apply deadband
-                    double x = xSupplier.getAsDouble();
-                    double y = ySupplier.getAsDouble();
+        return drive(() -> {// Apply deadband
+            double x = xSupplier.getAsDouble();
+            double y = ySupplier.getAsDouble();
 
-                    double linearMagnitude = MathUtil.applyDeadband(Math.hypot(x, y), ControllerHelper.DEADBAND);
-                    Rotation2d linearDirection = new Rotation2d(Math.atan2(y, x));
+            double linearMagnitude = MathUtil.applyDeadband(Math.hypot(x, y), ControllerHelper.DEADBAND);
+            Rotation2d linearDirection = new Rotation2d(Math.atan2(y, x));
 
-                    // Square magnitude for more precise control
-                    linearMagnitude = linearMagnitude * linearMagnitude;
+            // Square magnitude for more precise control
+            linearMagnitude = linearMagnitude * linearMagnitude;
 
-                    // Return new linear velocity
-                    Translation2d linearVelocity = new Pose2d(Translation2d.kZero, linearDirection)
-                            .transformBy(new Transform2d(linearMagnitude * translationScalingFactor, 0.0, Rotation2d.kZero))
-                            .getTranslation();
+            // Return new linear velocity
+            Translation2d linearVelocity = new Pose2d(Translation2d.kZero, linearDirection)
+                    .transformBy(new Transform2d(linearMagnitude * translationScalingFactor, 0.0, Rotation2d.kZero))
+                    .getTranslation();
 
-                    // Apply rotation deadband
-                    double omega = MathUtil.applyDeadband(omegaSupplier.getAsDouble(), ControllerHelper.DEADBAND);
+            // Apply rotation deadband
+            double omega = MathUtil.applyDeadband(omegaSupplier.getAsDouble(), ControllerHelper.DEADBAND);
 
-                    // Square rotation value for more precise control
-                    omega = Math.copySign(omega * omega, omega) * rotationScalingFactor;
+            // Square rotation value for more precise control
+            omega = Math.copySign(omega * omega, omega) * rotationScalingFactor;
 
-                    // Convert to field relative speeds & send command
-                    ChassisSpeeds speeds =
-                            new ChassisSpeeds(
-                                    linearVelocity.getX() * getMaxLinearSpeedMetersPerSec(),
-                                    linearVelocity.getY() * getMaxLinearSpeedMetersPerSec(),
-                                    omega * getMaxAngularSpeedRadPerSec());
-                    boolean isFlipped =
-                            DriverStation.getAlliance().isPresent()
-                                    && DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
-                    return
-                            ChassisSpeeds.fromFieldRelativeSpeeds(
-                                    speeds,
-                                    isFlipped
-                                            ? getRotation().plus(new Rotation2d(Math.PI))
-                                            : getRotation());
-                }).beforeStarting(() -> {
-                    // TODO change the rotation point back to the center of the robot
-                }
-        );
+            // Convert to field relative speeds & send command
+            ChassisSpeeds speeds =
+                    new ChassisSpeeds(
+                            linearVelocity.getX() * getMaxLinearSpeedMetersPerSec(),
+                            linearVelocity.getY() * getMaxLinearSpeedMetersPerSec(),
+                            omega * getMaxAngularSpeedRadPerSec());
+            boolean isFlipped =
+                    DriverStation.getAlliance().isPresent()
+                            && DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
+            return ChassisSpeeds.fromFieldRelativeSpeeds(
+                    speeds,
+                    isFlipped
+                            ? getRotation().plus(new Rotation2d(Math.PI))
+                            : getRotation());
+        });
     }
 
     public Command zamboniDrive(
@@ -500,10 +512,7 @@ public class Drive extends SubsystemBase {
         PIDController rotationController = new PIDController(2.0, 0.0, 0.0);
         rotationController.enableContinuousInput(-Math.PI, Math.PI);
 
-        return runOnce(() -> {
-            rotationController.reset();
-            // TODO In here change rotation point to the middle of the intake
-        }).andThen(drive(() -> {
+        return runOnce(rotationController::reset).andThen(drive(() -> {
             double x = xSupplier.getAsDouble();
             double y = ySupplier.getAsDouble();
 
@@ -531,13 +540,12 @@ public class Drive extends SubsystemBase {
             boolean isFlipped =
                     DriverStation.getAlliance().isPresent()
                             && DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
-            return
-                    ChassisSpeeds.fromFieldRelativeSpeeds(
-                            speeds,
-                            isFlipped
-                                    ? getRotation().plus(new Rotation2d(Math.PI))
-                                    : getRotation());
-        }));
+            return ChassisSpeeds.fromFieldRelativeSpeeds(
+                    speeds,
+                    isFlipped
+                            ? getRotation().plus(new Rotation2d(Math.PI))
+                            : getRotation());
+        }, new Translation2d(Units.inchesToMeters(17.0), 0.0)));
     }
 
     private double customDeadband(double value, double limiter, double deadband) {
