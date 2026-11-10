@@ -7,6 +7,7 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import frc.robot.subsystems.reusablecode.ReusableCommands;
 
 public class C2026FeederIO implements FeederIO {
     // Feeder Motor
@@ -15,20 +16,12 @@ public class C2026FeederIO implements FeederIO {
     private final VoltageOut voltageRequest = new VoltageOut(0.0);
     private final NeutralOut stopRequest = new NeutralOut();
     private final VelocityVoltage velocityVoltage = new VelocityVoltage(0.0);
-
+    private final ReusableCommands reusableCommands = new ReusableCommands();
     public C2026FeederIO(TalonFX motor) {
         this.motor = motor;
 
         TalonFXConfiguration motor1Config = new TalonFXConfiguration();
-        motor1Config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        motor1Config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        motor1Config.CurrentLimits.SupplyCurrentLimit = 60;
-        motor1Config.CurrentLimits.SupplyCurrentLimitEnable = true;
-        //not sure if the PID values are needed or not
-//        motor1Config.Slot0.kP = 0.0;
-//        motor1Config.Slot0.kI = 0.0;
-//        motor1Config.Slot0.kD = 0.0;
-
+        reusableCommands.configurations(motor1Config, InvertedValue.Clockwise_Positive, NeutralModeValue.Brake, 60, true);
         motor.getConfigurator().apply(motor1Config);
     }
 

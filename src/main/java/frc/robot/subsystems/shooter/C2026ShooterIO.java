@@ -9,6 +9,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
+import frc.robot.subsystems.reusablecode.ReusableCommands;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
@@ -39,6 +40,7 @@ public class C2026ShooterIO implements ShooterIO {
     private final VelocityVoltage velocityRequest = new VelocityVoltage(0.0);
     private final VoltageOut voltageRequest = new VoltageOut(0.0);
     private final NeutralOut stopRequest = new NeutralOut();
+    private final ReusableCommands reusableCommands = new ReusableCommands();
 
     LoggedNetworkBoolean disableCurrentLimit = new LoggedNetworkBoolean("Shooter/DisableCurrentLimit", true);
 
@@ -86,41 +88,23 @@ public class C2026ShooterIO implements ShooterIO {
 
         // Turret motor config
         TalonFXConfiguration turretConfig = new TalonFXConfiguration();
-        turretConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-        turretConfig.CurrentLimits.SupplyCurrentLimit = 60;
-        turretConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        turretConfig.Feedback.SensorToMechanismRatio = SENSOR_TO_MECHANISM_RATIO;
+        reusableCommands.configurationsWithSensorToMechanism(turretConfig, InvertedValue.CounterClockwise_Positive, NeutralModeValue.Coast,SENSOR_TO_MECHANISM_RATIO, 60, true);
         turretConfig.Feedback.RotorToSensorRatio = MOTOR_TO_SENSOR_RATIO;
         turretConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
         turretConfig.Feedback.FeedbackRemoteSensorID = turretCanCoder.getDeviceID();
-
-        turretConfig.Slot0.kV = 12 / ((7368.0 / 60.0) * MOTOR_TO_MECHANISM_RATIO);
-        turretConfig.Slot0.kA = 0.0;
-        turretConfig.Slot0.kP = 80.0;
-        turretConfig.Slot0.kI = 0.0;
-        turretConfig.Slot0.kD = 0.0;
-
-        turretConfig.MotionMagic.MotionMagicAcceleration = 7.5;
-        turretConfig.MotionMagic.MotionMagicCruiseVelocity = 10.0;
+        reusableCommands.configurationsForPositionBased(turretConfig,7.5,10,0,80,0,0,0,12 / ((7368.0 / 60.0) * MOTOR_TO_MECHANISM_RATIO),0,0,1,-1);
 
         tryUntilOk(5, () -> turretMotor.getConfigurator().apply(turretConfig, 0.25));
 
         // Shooter motors config
         TalonFXConfiguration shooterConfig = new TalonFXConfiguration();
-        shooterConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-        shooterConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        reusableCommands.configurations(shooterConfig, InvertedValue.Clockwise_Positive, NeutralModeValue.Coast,10, true);
+        reusableCommands.configurationsForPositionBased(shooterConfig,0,0,0,0.5,0,0,0,12 / ((7758.0 / 60.0) * SHOOTER_GEAR_RATIO),0,0,1,-1);
         shooterConfig.Feedback.RotorToSensorRatio = SHOOTER_GEAR_RATIO;
-        shooterConfig.CurrentLimits = currentLimitsEnabled;
 
-        shooterConfig.Slot0.kV = 12 / ((7758.0 / 60.0) * SHOOTER_GEAR_RATIO);
-        shooterConfig.Slot0.kA = 0.0;
-        shooterConfig.Slot0.kP = 0.5;
-        shooterConfig.Slot0.kI = 0.0;
-        shooterConfig.Slot0.kD = 0.0;
-
-//        shooterConfig.MotionMagic.MotionMagicJerk = 15.0;
-//        shooterConfig.MotionMagic.MotionMagicAcceleration = 5.0;
-//        shooterConfig.MotionMagic.MotionMagicCruiseVelocity = 2.0;
+//        MotionMagicJerk = 15.0;
+//        MotionMagicAcceleration = 5.0;
+//        MotionMagicCruiseVelocity = 2.0;
 
         tryUntilOk(5, () -> shooterMotor.getConfigurator().apply(shooterConfig, 0.25));
         tryUntilOk(5, () -> shooterMotor2.getConfigurator().apply(shooterConfig, 0.25));
@@ -230,7 +214,7 @@ public class C2026ShooterIO implements ShooterIO {
     @Override
     public void setShooterTargetVoltage(double voltage, boolean disableShooterCurrentLimit) {
         Logger.recordOutput("Shooter/WantingToDisableCurrentLimit", disableShooterCurrentLimit);
-        shooterMotor.setControl(voltageRequest.withOutput(voltage));
+        reusableCommands.setTargetVoltage(shooterMotor, voltage);
         if (disableShooterCurrentLimit) {
             if (!isLimited) {
                 shooterMotor.getConfigurator().apply(currentLimitsDisabled, 0);

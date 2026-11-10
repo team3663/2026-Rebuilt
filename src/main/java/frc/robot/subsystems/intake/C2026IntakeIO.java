@@ -8,6 +8,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.util.Units;
+import frc.robot.subsystems.reusablecode.ReusableCommands;
 
 public class C2026IntakeIO implements IntakeIO {
     /**
@@ -26,6 +27,7 @@ public class C2026IntakeIO implements IntakeIO {
     private final NeutralOut stopRequest = new NeutralOut();
     private final VoltageOut voltageRequest = new VoltageOut(0.0);
     private final MotionMagicVoltage positionRequest = new MotionMagicVoltage(0.0);
+    private final ReusableCommands reusableCommands = new ReusableCommands();
 
     public C2026IntakeIO(TalonFX intakeMotor, TalonFX pivotMotor) {
         this.intakeMotor = intakeMotor;
@@ -33,27 +35,14 @@ public class C2026IntakeIO implements IntakeIO {
 
         // Intake Motor Configurations
         TalonFXConfiguration intakeConfig = new TalonFXConfiguration();
-        intakeConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-        intakeConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-        intakeConfig.CurrentLimits.SupplyCurrentLimit = 60;
-        intakeConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+        reusableCommands.configurations(intakeConfig, InvertedValue.CounterClockwise_Positive, NeutralModeValue.Coast,60.0, true);
         intakeMotor.getConfigurator().apply(intakeConfig);
 
         // Pivot Motor Configurations
         TalonFXConfiguration pivotMotor1Config = new TalonFXConfiguration();
-        pivotMotor1Config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        pivotMotor1Config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        pivotMotor1Config.CurrentLimits.SupplyCurrentLimit = 45;
-        pivotMotor1Config.CurrentLimits.SupplyCurrentLimitEnable = true;
+        reusableCommands.configurationsWithSensorToMechanism(pivotMotor1Config, InvertedValue.Clockwise_Positive, NeutralModeValue.Brake, PIVOT_GEAR_RATIO, 45.0,true);
+        reusableCommands.configurationsForPositionBased(pivotMotor1Config,10.0,3,0,100,0,0,0,3.619,0,0,0.2,-0.2);
 
-        pivotMotor1Config.MotionMagic.MotionMagicAcceleration = 10.0;
-        pivotMotor1Config.MotionMagic.MotionMagicCruiseVelocity = 3.0;
-        pivotMotor1Config.Slot0.kP = 100.0;
-        pivotMotor1Config.Slot0.kV = 3.619;
-        pivotMotor1Config.MotorOutput.PeakForwardDutyCycle = 0.2;
-        pivotMotor1Config.MotorOutput.PeakReverseDutyCycle = -0.2;
-
-        pivotMotor1Config.Feedback.SensorToMechanismRatio = PIVOT_GEAR_RATIO;
         pivotMotor.getConfigurator().apply(pivotMotor1Config);
     }
 
@@ -97,7 +86,7 @@ public class C2026IntakeIO implements IntakeIO {
 
     @Override
     public void setTargetPivotVoltage(double voltage) {
-        pivotMotor.setControl(voltageRequest.withOutput(voltage));
+        reusableCommands.setTargetVoltage(pivotMotor, voltage);
     }
 
     // Intake
@@ -108,7 +97,7 @@ public class C2026IntakeIO implements IntakeIO {
 
     @Override
     public void setTargetIntakeVoltage(double voltage) {
-        intakeMotor.setControl(voltageRequest.withOutput(voltage));
+        reusableCommands.setTargetVoltage(intakeMotor, voltage);
     }
 
 }

@@ -81,6 +81,7 @@ public class Intake extends SubsystemBase {
      * @return run end command to zero the pivot on a hard stop
      */
     public Command zeroPivot() {
+
         return runEnd(() -> {
             io.setTargetPivotVoltage(-1.5);
         }, io::stopPivot)
@@ -154,5 +155,4 @@ public class Intake extends SubsystemBase {
     public record Constants(double minimumPivotAngle, double maximumPivotAngle) {
 
     }
-
 }
