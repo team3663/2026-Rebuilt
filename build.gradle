@@ -126,7 +126,7 @@ wpi.java.configureExecutableTasks(jar)
 wpi.java.configureTestTasks(test)
 
 // Configure string concat to always inline compile
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
     options.compilerArgs.add '-XDstringConcat=inline'
 }
 
@@ -154,11 +154,11 @@ tasks.register('runPreBuildJava', JavaExec) {
     // 0: Path to the folder containing the auto files
     // 1: Path to the AutoPaths file
     // 2: Path to RobotContainer (To add the AutoRoutines)
-    args = [
+    args(
             "${projectDir}/src/main/deploy/auto-creation/autos",
-            "${projectDir}/src/main/java/frc/robot/AutoPaths",
-            "${projectDir}/src/main/java/frc/robot/RobotContainer",
-    ]
+            "${projectDir}/src/main/java/frc/robot/AutoPaths.java",
+            "${projectDir}/src/main/java/frc/robot/RobotContainer.java",
+    )
 }
 
 tasks.named('compileJava') {
@@ -166,7 +166,7 @@ tasks.named('compileJava') {
 }
 
 // Create commit with working changes on event branches
-task(eventDeploy) {
+tasks.register('eventDeploy') {
     doLast {
         if (project.gradle.startParameter.taskNames.any({ it.toLowerCase().contains("deploy") })) {
             def branchPrefix = "event"
