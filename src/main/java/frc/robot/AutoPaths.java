@@ -262,14 +262,6 @@ public class AutoPaths {
         return shooting(Intake.FEED_ANGLE);
     }
 
-
-    private Command shootingWhilePivoting() {
-        return commandFactory.autonomousFeedAndShootWithPivoting()
-                .withTimeout(DEFAULT_SHOOTING_TIME)
-                .andThen(shooter.stop());
-
-    }
-
     // Auto Routines
     public AutonomousMode LT_NZ_NZ_RB() {
         return new AutonomousMode(
@@ -490,8 +482,8 @@ public class AutoPaths {
                         goToPositionSlowAccel(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE_X_OFFSET_ROTATED_RIGHT, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE_X_OFFSET_ROTATED_RIGHT)
                                 .raceWith(shooting(Intake.DEPLOY_ANGLE)),
                         parallel(shooting(Intake.DEPLOY_ANGLE, 5.0), runOnce(drive::stop)),
-                        goToIntermediate(Constants.BLUE_LEFT_UNDER_TRENCH_SHOOTING_ROTATED_RIGHT, Constants.RED_LEFT_UNDER_TRENCH_SHOOTING_ROTATED_RIGHT, Units.feetToMeters(2.0)),
-                        goToIntermediate(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE_ROTATED_RIGHT, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE_ROTATED_RIGHT, Units.feetToMeters(2.0))
+                        goToIntermediate(Constants.BLUE_LEFT_UNDER_TRENCH_SHOOTING_ROTATED_RIGHT, Constants.RED_LEFT_UNDER_TRENCH_SHOOTING_ROTATED_RIGHT, DEFAULT_TRENCH_DISTANCE_THRESHOLD),
+                        goToIntermediate(Constants.BLUE_LEFT_UNDER_TRENCH_AUTO_LINE_ROTATED_RIGHT, Constants.RED_LEFT_UNDER_TRENCH_AUTO_LINE_ROTATED_RIGHT, DEFAULT_TRENCH_DISTANCE_THRESHOLD)
                                 .raceWith(intaking()),
                         goToIntermediate(Constants.BLUE_LEFT_NEUTRAL_ZONE_TRENCH_OFFSET_ROTATED_RIGHT, Constants.RED_LEFT_NEUTRAL_ZONE_TRENCH_OFFSET_ROTATED_RIGHT, DEFAULT_INTERMEDIATE_DISTANCE_THRESHOLD)
                                 .raceWith(intaking()),
@@ -506,7 +498,7 @@ public class AutoPaths {
                         Commands.waitSeconds(0.25),
                         goToPosition(Constants.BLUE_LEFT_BUMP_SHOOTING, Constants.RED_LEFT_BUMP_SHOOTING)
                                 .raceWith(commandFactory.shooterDefault(() -> true)),
-                        Commands.parallel(shootingWhilePivoting(), runOnce(drive::stop))));
+                        Commands.parallel(shooting(Intake.FEED_ANGLE), runOnce(drive::stop))));
     }
 
     public AutonomousMode RT_NZ_RB_RT_NZ_RB() {
@@ -532,8 +524,8 @@ public class AutoPaths {
                         goToPositionSlowAccel(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE_X_OFFSET, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE_X_OFFSET)
                                 .raceWith(shooting()),
                         parallel(shooting(Intake.DEPLOY_ANGLE, 5.0), runOnce(drive::stop)),
-                        goToIntermediate(Constants.BLUE_RIGHT_UNDER_TRENCH_SHOOTING_ROTATED_LEFT, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE_ROTATED_LEFT, Units.feetToMeters(2.0)),
-                        goToIntermediate(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE_ROTATED_LEFT, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE_ROTATED_LEFT, Units.feetToMeters(2.0))
+                        goToIntermediate(Constants.BLUE_RIGHT_UNDER_TRENCH_SHOOTING_ROTATED_LEFT, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE_ROTATED_LEFT, DEFAULT_TRENCH_DISTANCE_THRESHOLD),
+                        goToIntermediate(Constants.BLUE_RIGHT_UNDER_TRENCH_AUTO_LINE_ROTATED_LEFT, Constants.RED_RIGHT_UNDER_TRENCH_AUTO_LINE_ROTATED_LEFT, DEFAULT_TRENCH_DISTANCE_THRESHOLD)
                                 .raceWith(intaking()),
                         goToIntermediate(Constants.BLUE_RIGHT_NEUTRAL_ZONE_TRENCH_OFFSET_ROTATED_LEFT, Constants.RED_RIGHT_NEUTRAL_ZONE_TRENCH_OFFSET_ROTATED_LEFT, DEFAULT_INTERMEDIATE_DISTANCE_THRESHOLD)
                                 .raceWith(intaking()),
@@ -548,7 +540,7 @@ public class AutoPaths {
                         Commands.waitSeconds(0.25),
                         goToPosition(Constants.BLUE_RIGHT_BUMP_SHOOTING, Constants.RED_RIGHT_BUMP_SHOOTING)
                                 .raceWith(commandFactory.shooterDefault(() -> true)),
-                        Commands.parallel(shootingWhilePivoting(), runOnce(drive::stop))));
+                        Commands.parallel(shooting(), runOnce(drive::stop))));
     }
 
 
@@ -761,4 +753,7 @@ public class AutoPaths {
             Command command
     ) {
     }
+
+    // START AUTOS
+    // END AUTOS
 }

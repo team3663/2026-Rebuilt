@@ -107,23 +107,8 @@ public class RobotContainer {
 //        autoChooser.addOption(
 //                "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
-        // Auto Routines
-        autoChooser.addOption("CH-ShootInHub", autoPaths.CH_ShootInHub());
-        autoChooser.addOption("LT-ShootInHub", autoPaths.LT_ShootInHub());
-        autoChooser.addOption("RT-ShootIntoHub", autoPaths.RT_ShootInHub());
-        autoChooser.addOption("RT-NZ-NZ-RB", autoPaths.RT_NZ_NZ_RB());
-        autoChooser.addOption("LT-NZ-NZ-LB", autoPaths.LT_NZ_NZ_LB());
-//        autoChooser.addOption("LT-NZ-NZ-NZ-LB", autoPaths.leftStarting_neutralZone_shoot_neutralZone_shoot_neutralZone());
-        autoChooser.addOption("LT-NZ-LB-LT-NZ-LB", autoPaths.LT_NZ_LB_LT_NZ_LB());
-        autoChooser.addOption("RT-NZ-RB-RT-NZ-RB", autoPaths.RT_NZ_RB_RT_NZ_RB());
-        autoChooser.addOption("LT-NZ-NZ-RB", autoPaths.LT_NZ_NZ_RB());
-        autoChooser.addOption("RT-NZ-NZ-LB", autoPaths.RT_NZ_NZ_LB());
-//        autoChooser.addOption("CH-ShootInHub-Outpost", autoPaths.middleStarting_shootIntoHub_outpost());
-//        autoChooser.addOption("RT-Outpost", autoPaths.rightStarting_outpost());
-        autoChooser.addOption("LB-D-NZ", autoPaths.LB_D_NZ());
-        autoChooser.addOption("LB-D", autoPaths.LB_D());
-        autoChooser.addOption("RB-NZ-LB-D", autoPaths.RB_NZ_LB_D());
-//        autoChooser.addOption("RT-NZ-RB-RT-NZ-RB", autoPaths.rightStarting_neutralZone_bump_neutralZone_bump());
+        // START ROUTINES
+        // END ROUTINES
 
         // Configure the button bindings
         configureButtonBindings();

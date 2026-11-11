@@ -141,6 +141,30 @@ gversion {
     indent       = "  "
 }
 
+tasks.register('runPreBuildJava', JavaExec) {
+    group = 'build setup'
+    description = 'Turns the Auto Files into code before building'
+
+    // Location of the .jar file
+    classpath = files('libs/create-autos.jar')
+
+    // The class name
+    mainClass = 'CreateAutos'
+
+    // 0: Path to the folder containing the auto files
+    // 1: Path to the AutoPaths file
+    // 2: Path to RobotContainer (To add the AutoRoutines)
+    args = [
+            "${projectDir}/src/main/deploy/autoCreation/autos",
+            "${projectDir}/src/main/java/frc/robot/AutoPaths",
+            "${projectDir}/src/main/java/frc/robot/RobotContainer",
+    ]
+}
+
+tasks.named('compileJava') {
+    dependsOn 'runPreBuildJava'
+}
+
 // Create commit with working changes on event branches
 task(eventDeploy) {
     doLast {
