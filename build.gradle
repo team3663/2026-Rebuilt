@@ -155,7 +155,7 @@ tasks.register('runPreBuildJava', JavaExec) {
     // 1: Path to the AutoPaths file
     // 2: Path to RobotContainer (To add the AutoRoutines)
     args = [
-            "${projectDir}/src/main/deploy/autoCreation/autos",
+            "${projectDir}/src/main/deploy/auto-creation/autos",
             "${projectDir}/src/main/java/frc/robot/AutoPaths",
             "${projectDir}/src/main/java/frc/robot/RobotContainer",
     ]
